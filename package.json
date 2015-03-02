@@ -7,6 +7,10 @@
     "test": "grunt test",
     "build": "grunt build"
   },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ljagis/leaflet-measure.git"
+  },
   "keywords": [
     "leaflet",
     "measure",
