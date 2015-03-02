@@ -1,6 +1,5 @@
 // leaflet-measure.scss
 
-@import "compass/css3";
 @import "maplayers";
 
 $color-divider: #DDD;
@@ -11,7 +10,7 @@ $color-lightertext: #999;
   color: $color-button;
   text-decoration: none;
   &:hover {
-    @include opacity(0.5); // compass
+    opacity: 0.5;
     text-decoration: none;
   }
 }
