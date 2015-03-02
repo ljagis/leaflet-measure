@@ -1,0 +1,7 @@
+<h3>Area Measurement</h3>
+<p><%= humanize.numberFormat(model.area.acres, 2) %> Acres</p>
+<p><%= humanize.numberFormat(model.length.feet, 0) %> Feet (<%= humanize.numberFormat(model.length.miles, 2) %> Miles) Perimeter</p>
+<ul class="tasks">
+  <li><a href="#" class="js-zoomto zoomto">Center on this Area</a></li>
+  <li><a href="#" class="js-deletemarkup deletemarkup">Delete</a></li>
+</ul>

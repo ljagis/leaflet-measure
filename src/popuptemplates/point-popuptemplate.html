@@ -1,0 +1,7 @@
+<h3>Point Location</h3>
+<p><%= model.lastCoord.dms.y %> <span class="coorddivider">/</span> <%= model.lastCoord.dms.x %></p>
+<p><%= humanize.numberFormat(model.lastCoord.dd.y, 6) %> <span class="coorddivider">/</span> <%= humanize.numberFormat(model.lastCoord.dd.x, 6) %></p>
+<ul class="tasks">
+  <li><a href="#" class="js-zoomto zoomto">Center on this Location</a></li>
+  <li><a href="#" class="js-deletemarkup deletemarkup">Delete</a></li>
+</ul>

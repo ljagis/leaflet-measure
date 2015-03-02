@@ -1,0 +1,173 @@
+// leaflet-measure.scss
+
+@import "compass/css3";
+@import "maplayers";
+
+$color-divider: #DDD;
+$color-button: #5E66CC;
+$color-lightertext: #999;
+
+@mixin hoverbutton {
+  color: $color-button;
+  text-decoration: none;
+  &:hover {
+    @include opacity(0.5); // compass
+    text-decoration: none;
+  }
+}
+
+@mixin iconleading {
+  padding-left: 18px;
+  background: {
+    repeat: no-repeat;
+    position: 0% 50%;
+  }
+}
+
+.leaflet-control-measure, .leaflet-measure-resultpopup {
+  h3 {
+    margin: 0 0 12px 0;
+    padding-bottom: 10px;
+    line-height: 1em;
+    font-weight: normal;
+    font-size: 1.1em;
+    border-bottom: solid 1px $color-divider;
+  }
+  p {
+    margin: 10px 0 0;
+    line-height: 1em;
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+  a {
+    @include hoverbutton;
+  }
+  .tasks {
+    margin: 12px 0 0;
+    padding: 10px 0 0;
+    border-top: solid 1px $color-divider;
+
+    list-style: none;
+    list-style-image: none;
+
+    li {
+      display: inline;
+      margin: 0 10px 0 0;
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+  }
+  .coorddivider {
+    color: $color-lightertext;
+  }
+}
+
+.leaflet-control-measure {
+  background: #fff;
+  border-radius: 5px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+
+  .leaflet-control-measure-toggle, .leaflet-control-measure-toggle:hover {
+    display: block;
+    width: 36px;
+    height: 36px;
+    background-position: 50% 50%;
+    background-repeat: no-repeat;
+    background-image: url(images/rulers.png);
+    border-radius: 5px;
+
+    // Hide text
+    text-indent: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+
+    .leaflet-retina & {
+      background-image: url(images/rulers_@2X.png);
+      background-size: 16px 16px;
+    }
+
+    .leaflet-touch & {
+      width: 44px;
+      height: 44px;
+    }
+  }
+
+  // Special styling because start prompt has no content, just header and tasks
+  .startprompt {
+    h3 {
+      margin-bottom: 10px;
+    }
+    .tasks {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: 0;
+    }
+  }
+
+  .leaflet-control-measure-interaction {
+    padding: 10px 12px;
+  }
+
+  .results {
+    .group {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: dotted 1px lighten($color-divider, 5);
+      &:first-child {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: 0;
+      }
+    }
+    .heading {
+      margin-right: 5px;
+      color: $color-lightertext;
+    }
+  }
+
+  a.start {
+    @include iconleading;
+    background-image: url(images/start.png);
+    .leaflet-retina & {
+      background-image: url(images/start_@2X.png);
+      background-size: 12px 12px;
+    }
+  }
+  a.cancel {
+    @include iconleading;
+    background-image: url(images/cancel.png);
+    .leaflet-retina & {
+      background-image: url(images/cancel_@2X.png);
+      background-size: 12px 12px;
+    }
+  }
+  a.finish {
+    @include iconleading;
+    background-image: url(images/check.png);
+    .leaflet-retina & {
+      background-image: url(images/check_@2X.png);
+      background-size: 12px 12px;
+    }
+  }
+}
+
+.leaflet-measure-resultpopup {
+  a.zoomto {
+    @include iconleading;
+    background-image: url(images/focus.png);
+    .leaflet-retina & {
+      background-image: url(images/focus_@2X.png);
+      background-size: 12px 12px;
+    }
+  }
+  a.deletemarkup {
+    @include iconleading;
+    background-image: url(images/trash.png);
+    .leaflet-retina & {
+      background-image: url(images/trash_@2X.png);
+      background-size: 11px 12px;
+    }
+  }
+}
