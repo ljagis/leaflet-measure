@@ -83,6 +83,14 @@ module.exports = function (grunt) {
           dest: 'dist/images/'
         }]
       }
+    },
+    release: {
+      options: {
+        npm: true,
+        tagName: '<%= version %>',
+        commitMessage: 'release <%= version %>',
+        tagMessage: 'tag <%= version %>' //default: 'Version <%= version %>'
+      }
     }
   });
 
@@ -92,6 +100,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-sass');
+  grunt.loadNpmTasks('grunt-release');
 
   grunt.registerMultiTask('svg2png', 'Create PNG images from SVG', function () {
     this.files.forEach(function (file) {
