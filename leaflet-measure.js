@@ -3522,10 +3522,12 @@ L.Control.Measure = L.Control.extend({
     this._map = map;
     this._latlngs = [];
     this._initLayout();
+    map.on('click', this._collapse, this);
     this._layer = L.layerGroup().addTo(map);
     return this._container;
   },
   onRemove: function (map) {
+    map.off('click', this._collapse, this);
     map.removeLayer(this._layer);
   },
   _initLayout: function () {
@@ -3562,9 +3564,16 @@ L.Control.Measure = L.Control.extend({
     this._collapse();
     this._updateMeasureNotStarted();
 
-    L.DomEvent.on(container, 'mouseover', this._expand, this);
-    L.DomEvent.on(container, 'mouseout', this._collapse, this);
+    if (!L.Browser.android) {
+      L.DomEvent.on(container, 'mouseenter', this._expand, this);
+      L.DomEvent.on(container, 'mouseleave', this._collapse, this);
+    }
     L.DomEvent.on($toggle, 'click', L.DomEvent.stop);
+    if (L.Browser.touch) {
+      L.DomEvent.on($toggle, 'click', this._expand, this);
+    } else {
+      L.DomEvent.on($toggle, 'focus', this._expand, this);
+    }
     L.DomEvent.on($start, 'click', L.DomEvent.stop);
     L.DomEvent.on($start, 'click', this._startMeasure, this);
     L.DomEvent.on($cancel, 'click', L.DomEvent.stop);
@@ -3612,7 +3621,7 @@ L.Control.Measure = L.Control.extend({
     this._map.doubleClickZoom.disable(); // double click now finishes measure
     this._map.on('mouseout', this._handleMapMouseOut, this);
 
-    L.DomEvent.on(this._container, 'mouseover', this._handleMapMouseOut, this);
+    L.DomEvent.on(this._container, 'mouseenter', this._handleMapMouseOut, this);
 
     if (!this._measureCollector) {
       // polygon to cover all other layers and collection measure move and click events
