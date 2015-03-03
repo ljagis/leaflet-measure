@@ -13,7 +13,9 @@ Coordinate, linear, and area measure control for [Leaflet](http://leafletjs.com)
 ## Install Options
 
 - Clone.. `git clone https://github.com/ljagis/leaflet-measure.git`
+
 - Install with [Bower](http://bower.io/).. `bower install leaflet-measure`
+
 - Install with [npm](https://www.npmjs.com/).. `npm install leaflet-measure`
 
 ## Use bundled `leaflet-measure.min.js` or `leaflet-measure.js`
@@ -25,7 +27,6 @@ Include the [Leaflet Source](http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js),
 <html>
 <head>
   <meta charset="utf-8">
-  <title>leaflet-measure</title>
   <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css">
   <link rel="stylesheet" href="leaflet-measure.css">
 </head>
@@ -103,11 +104,18 @@ Options applied to the popup of the resulting measure feature. Properties my be 
 
 Map features may be styled using CSS SVG style attributes. Features generated from `leaflet-measure` measurements are given the following class names:
 
-- layer-measurecollector: Transparent layer covering full map and catching click and drag events
-- layer-measurearea: Feature displaying area of an active measurement
-- layer-measureboundary: Feature displaying the linear path of an active measurement
-- layer-measurevertex: Feature added at each vertex (measurement click) of an active measurement
-- layer-measuredrag: Symbol following cursor while moving during an active measurement
-- layer-measure-resultarea: Feature added to the map as a permanent layer resulting from an area (3+ points) measurement
-- layer-measure-resultline: Feature added to the map as a permanent layer resulting from a linear (2 point) measurement
-- layer-measure-resultpoint: Featured added to the map as a permanent layer resulting from a point (single click) measurement
+- **layer-measurecollector**: Transparent layer covering full map and catching click and drag events
+
+- **layer-measurearea**: Feature displaying area of an active measurement
+
+- **layer-measureboundary**: Feature displaying the linear path of an active measurement
+
+- **layer-measurevertex**: Feature added at each vertex (measurement click) of an active measurement
+
+- **layer-measuredrag**: Symbol following cursor while moving during an active measurement
+
+- **layer-measure-resultarea**: Feature added to the map as a permanent layer resulting from an area (3+ points) measurement
+
+- **layer-measure-resultline**: Feature added to the map as a permanent layer resulting from a linear (2 point) measurement
+
+- **layer-measure-resultpoint**: Featured added to the map as a permanent layer resulting from a point (single click) measurement
