@@ -96,7 +96,7 @@ Size of circle marker used as symbology for vertexes of measurement graphics. Al
 
 `popupOptions: { className: 'leaflet-measure-resultpopup', autoPanPadding: [10, 10] }`
 
-Options applied to the popup of the resulting measure feature. Properties my be any standard Leaflet [popup options](http://leafletjs.com/reference.html#popup-options).
+Options applied to the popup of the resulting measure feature. Properties may be any standard Leaflet [popup options](http://leafletjs.com/reference.html#popup-options).
 
 <hr>
 
