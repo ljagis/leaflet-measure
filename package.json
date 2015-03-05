@@ -26,6 +26,7 @@
   "author": "Brandon Copeland <br@ndoncopeland.com>",
   "license": "MIT",
   "dependencies": {
+    "color": "^0.8.0",
     "geocrunch": "^0.1.1",
     "humanize": "0.0.9",
     "leaflet": "^0.7.3",

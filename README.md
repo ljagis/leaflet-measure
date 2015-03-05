@@ -86,11 +86,17 @@ var myMap = L.map('mapElementId', {
 
 Standard Leaflet control [position options](http://leafletjs.com/reference.html#control-positions)
 
-### markerSize
+### activeColor
 
-`{ markerSize: 4 }`
+`{ activeColor: '#ABE67E' }`
 
-Size of circle marker used as symbology for vertexes of measurement graphics. All other map feature styles (marker colors, area color and opacity, line widths, etc..) can be customized using CSS. Marker size is not available for styling in this way.
+Base color to use for map features rendered while actively performing a measurement. Value should be a color represented as a hexadecimal string.
+
+### completedColor
+
+`{ completedColor: #C8F2BE }`
+
+Base color to use for features generated from a completed measurement. Value should be a color represented as a hexadecimal string.
 
 ### popupOptions
 

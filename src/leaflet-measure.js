@@ -8,6 +8,8 @@ var calc = require('./calc');
 var dom = require('./dom');
 var $ = dom.$;
 
+var Symbology = require('./mapsymbology');
+
 var fs = require('fs');
 var controlTemplate = _.template(fs.readFileSync(__dirname + '/leaflet-measure-template.html', 'utf8'));
 var resultsTemplate = _.template(fs.readFileSync(__dirname + '/leaflet-measure-template-results.html', 'utf8'));
@@ -19,14 +21,16 @@ L.Control.Measure = L.Control.extend({
   _className: 'leaflet-control-measure',
   options: {
     position: 'topright',
-    markerSize: 4,    // size of point placed at each vertex - not reachable via css like other styles
-    popupOptions: {   // standard leaflet popup options http://leafletjs.com/reference.html#popup-options
+    activeColor: '#ABE67E',     // base color for map features while actively measuring
+    completedColor: '#C8F2BE',  // base color for permenant features generated from completed measure
+    popupOptions: {             // standard leaflet popup options http://leafletjs.com/reference.html#popup-options
       className: 'leaflet-measure-resultpopup',
       autoPanPadding: [10, 10]
     }
   },
   initialize: function (options) {
     L.setOptions(this, options);
+    this._symbols = new Symbology(_.pick(this.options, 'activeColor', 'completedColor'));
   },
   onAdd: function (map) {
     this._map = map;
@@ -135,12 +139,7 @@ L.Control.Measure = L.Control.extend({
 
     if (!this._measureCollector) {
       // polygon to cover all other layers and collection measure move and click events
-      this._measureCollector = L.polygon([[90, -180], [90, 180], [-90, 180], [-90, -180]], {
-        clickable: true,
-        stroke: false,
-        fillOpacity: 0.0,
-        className: 'layer-measurecollector'
-      }).addTo(this._layer);
+      this._measureCollector = L.polygon([[90, -180], [90, 180], [-90, 180], [-90, -180]], this._symbols.getSymbol('measureCollector')).addTo(this._layer);
       this._measureCollector.on('mousemove', this._handleMeasureMove, this);
       this._measureCollector.on('dblclick', this._handleMeasureDoubleClick, this);
       this._measureCollector.on('click', this._handleMeasureClick, this);
@@ -203,11 +202,7 @@ L.Control.Measure = L.Control.extend({
   // adds floating measure marker under cursor
   _handleMeasureMove: function (evt) {
     if (!this._measureDrag) {
-      this._measureDrag = L.circleMarker(evt.latlng, {
-        clickable: false,
-        radius: this.options.markerSize,
-        className: 'layer-measuredrag'
-      }).addTo(this._layer);
+      this._measureDrag = L.circleMarker(evt.latlng, this._symbols.getSymbol('measureDrag')).addTo(this._layer);
     } else {
       this._measureDrag.setLatLng(evt.latlng);
     }
@@ -231,30 +226,19 @@ L.Control.Measure = L.Control.extend({
     calced = calc.measure(latlngs);
 
     if (latlngs.length === 1) {
-      resultFeature = L.circleMarker(latlngs[0], {
-        clickable: true,
-        radius: this.options.markerSize,
-        className: 'layer-measure-resultpoint'
-      });
+      resultFeature = L.circleMarker(latlngs[0], this._symbols.getSymbol('resultPoint'));
       popupContent = pointPopupTemplate({
         model: calced,
         humanize: humanize
       });
     } else if (latlngs.length === 2) {
-      resultFeature = L.polyline(latlngs, {
-        clickable: true,
-        fill: false,
-        className: 'layer-measure-resultline'
-      }).addTo(this._map);
+      resultFeature = L.polyline(latlngs, this._symbols.getSymbol('resultLine')).addTo(this._map);
       popupContent = linePopupTemplate({
         model: calced,
         humanize: humanize
       });
     } else {
-      resultFeature = L.polygon(latlngs, {
-        clickable: true,
-        className: 'layer-measure-resultarea'
-      });
+      resultFeature = L.polygon(latlngs, this._symbols.getSymbol('resultArea'));
       popupContent = areaPopupTemplate({
         model: calced,
         humanize: humanize
@@ -291,7 +275,7 @@ L.Control.Measure = L.Control.extend({
   // handle map click during ongoing measurement
   // add new clicked point, update measure layers and results ui
   _handleMeasureClick: function (evt) {
-    var latlng = evt.latlng, lastClick = _.last(this._latlngs);
+    var latlng = evt.latlng, lastClick = _.last(this._latlngs), vertexSymbol = this._symbols.getSymbol('measureVertex');
 
     this._map.closePopup(); // open popups aren't closed on click. may be bug. close popup manually just in case.
 
@@ -301,11 +285,11 @@ L.Control.Measure = L.Control.extend({
       this._addMeasureBoundary(this._latlngs);
 
       this._measureVertexes.eachLayer(function (layer) {
+        layer.setStyle(vertexSymbol);
         // reset all vertexes to non-active class - only last vertex is active
         // `layer.setStyle({ className: 'layer-measurevertex'})` doesn't work. https://github.com/leaflet/leaflet/issues/2662
         // set attribute on path directly
-        // NOTE. could be issues with non-SVG browsers or issues because `layer.options.className` is out of sync with actual class
-        layer._path.setAttribute('class', 'layer-measurevertex');
+        layer._path.setAttribute('class', vertexSymbol.className);
       });
 
       this._addNewVertex(latlng);
@@ -329,11 +313,7 @@ L.Control.Measure = L.Control.extend({
   },
   // add various measure graphics to map - vertex, area, boundary
   _addNewVertex: function (latlng) {
-    L.circleMarker(latlng, {
-      clickable: false,
-      radius: this.options.markerSize,
-      className: 'layer-measurevertex active'
-    }).addTo(this._measureVertexes);
+    L.circleMarker(latlng, this._symbols.getSymbol('measureVertexActive')).addTo(this._measureVertexes);
   },
   _addMeasureArea: function (latlngs) {
     if (latlngs.length < 3) {
@@ -344,10 +324,7 @@ L.Control.Measure = L.Control.extend({
       return;
     }
     if (!this._measureArea) {
-      this._measureArea = L.polygon(latlngs, {
-        clickable: false,
-        className: 'layer-measurearea'
-      }).addTo(this._layer);
+      this._measureArea = L.polygon(latlngs, this._symbols.getSymbol('measureArea')).addTo(this._layer);
     } else {
       this._measureArea.setLatLngs(latlngs);
     }
@@ -361,11 +338,7 @@ L.Control.Measure = L.Control.extend({
       return;
     }
     if (!this._measureBoundary) {
-      this._measureBoundary = L.polyline(latlngs, {
-        clickable: false,
-        fill: false,
-        className: 'layer-measureboundary'
-      }).addTo(this._layer);
+      this._measureBoundary = L.polyline(latlngs, this._symbols.getSymbol('measureBoundary')).addTo(this._layer);
     } else {
       this._measureBoundary.setLatLngs(latlngs);
     }
