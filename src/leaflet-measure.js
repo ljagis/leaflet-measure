@@ -4,6 +4,7 @@ var _ = require('underscore');
 var L = require('leaflet');
 var humanize = require('humanize');
 
+var units = require('./units');
 var calc = require('./calc');
 var dom = require('./dom');
 var $ = dom.$;
@@ -21,6 +22,9 @@ L.Control.Measure = L.Control.extend({
   _className: 'leaflet-control-measure',
   options: {
     position: 'topright',
+    primaryLengthUnit: 'feet',
+    secondaryLengthUnit: 'miles',
+    primaryAreaUnit: 'acres',
     activeColor: '#ABE67E',     // base color for map features while actively measuring
     completedColor: '#C8F2BE',  // base color for permenant features generated from completed measure
     popupOptions: {             // standard leaflet popup options http://leafletjs.com/reference.html#popup-options
@@ -188,11 +192,28 @@ L.Control.Measure = L.Control.extend({
     this._measureArea = null;
     this._measureBoundary = null;
   },
+  // format measurements to nice display string based on units in options. `{ lengthDisplay: '100 Feet (0.02 Miles)', areaDisplay: ... }`
+  _getMeasurementDisplayStrings: function (measurement) {
+    var result = {};
+    if (this.options.primaryLengthUnit && units[this.options.primaryLengthUnit]) {
+      result.lengthDisplay = humanize.numberFormat(measurement.length[this.options.primaryLengthUnit], units[this.options.primaryLengthUnit].decimals) + ' ' + units[this.options.primaryLengthUnit].display;
+      if (this.options.secondaryLengthUnit && units[this.options.secondaryLengthUnit]) {
+        result.lengthDisplay = result.lengthDisplay + ' (' + humanize.numberFormat(measurement.length[this.options.secondaryLengthUnit], units[this.options.secondaryLengthUnit].decimals) + ' ' + units[this.options.secondaryLengthUnit].display + ')';
+      }
+    }
+    if (this.options.primaryAreaUnit && units[this.options.primaryAreaUnit]) {
+      result.areaDisplay = humanize.numberFormat(measurement.area[this.options.primaryAreaUnit], units[this.options.primaryAreaUnit].decimals) + ' ' + units[this.options.primaryAreaUnit].display;
+      if (this.options.secondaryAreaUnit && units[this.options.secondaryAreaUnit]) {
+        result.areaDisplay = result.areaDisplay + ' (' + humanize.numberFormat(measurement.area[this.options.secondaryAreaUnit], units[this.options.secondaryAreaUnit].decimals) + ' ' + units[this.options.secondaryAreaUnit].display + ')';
+      }
+    }
+    return result;
+  },
   // update results area of dom with calced measure from `this._latlngs`
   _updateResults: function () {
     var calced = calc.measure(this._latlngs);
     this.$results.innerHTML = resultsTemplate({
-      model: _.extend({}, calced, {
+      model: _.extend({}, calced, this._getMeasurementDisplayStrings(calced), {
         pointCount: this._latlngs.length
       }),
       humanize: humanize
@@ -234,14 +255,15 @@ L.Control.Measure = L.Control.extend({
     } else if (latlngs.length === 2) {
       resultFeature = L.polyline(latlngs, this._symbols.getSymbol('resultLine')).addTo(this._map);
       popupContent = linePopupTemplate({
-        model: calced,
+        model: _.extend({}, calced, this._getMeasurementDisplayStrings(calced)),
         humanize: humanize
       });
     } else {
       resultFeature = L.polygon(latlngs, this._symbols.getSymbol('resultArea'));
       popupContent = areaPopupTemplate({
-        model: calced,
-        humanize: humanize
+        model: _.extend({}, calced, this._getMeasurementDisplayStrings(calced)),
+        humanize: humanize,
+        units: this._units
       });
     }
 

@@ -5009,10 +5009,24 @@ var ddToDms = function (coordinate, posSymbol, negSymbol) {
 };
 
 var measure = function (latlngs) {
-  var last = _.last(latlngs);
+  var last = _.last(latlngs), feet, meters, miles, kilometers, sqMeters, acres, hectares, sqMiles;
   var path = geocrunch.path(_.map(latlngs, function (latlng) {
     return [latlng.lng, latlng.lat];
   }));
+
+  feet = path.distance({
+    units: 'feet'
+  });
+  meters = feet / 3.2808;
+  miles = feet / 5280;
+  kilometers = meters / 1000;
+  sqMeters = path.area({
+    units: 'sqmeters'
+  });
+  acres = sqMeters * 0.00024711;
+  hectares = sqMeters / 10000;
+  sqMiles = acres * 0.0015625;
+
   return {
     lastCoord: {
       dd: {
@@ -5025,17 +5039,16 @@ var measure = function (latlngs) {
       }
     },
     length: {
-      feet: path.distance({
-        units: 'feet'
-      }),
-      miles: path.distance({
-        units: 'miles'
-      })
+      feet: feet,
+      meters: meters,
+      miles: miles,
+      kilometers: kilometers
     },
     area: {
-      acres: path.area({
-        units: 'acres'
-      })
+      acres: acres,
+      hectares: hectares,
+      sqmeters: sqMeters,
+      sqmiles: sqMiles
     }
   };
 };
@@ -5089,6 +5102,7 @@ var _ = require('underscore');
 var L = (typeof window !== "undefined" ? window.L : typeof global !== "undefined" ? global.L : null);
 var humanize = require('humanize');
 
+var units = require('./units');
 var calc = require('./calc');
 var dom = require('./dom');
 var $ = dom.$;
@@ -5097,15 +5111,18 @@ var Symbology = require('./mapsymbology');
 
 
 var controlTemplate = _.template("<a class=\"<%= model.className %>-toggle js-toggle\" href=\"#\" title=\"Measure distances and areas\">Measure</a>\n<div class=\"<%= model.className %>-interaction js-interaction\">\n  <div class=\"js-startprompt startprompt\">\n    <h3>Measure Distances and Areas</h3>\n    <ul class=\"tasks\">\n      <a href=\"#\" class=\"js-start start\">Create a new measurement</a>\n    </ul>\n  </div>\n  <div class=\"js-measuringprompt\">\n    <h3>Measure Distances and Areas</h3>\n    <p class=\"js-starthelp\">Start creating a measurement by adding points to the map</h3>\n    <div class=\"js-results results\"></div>\n    <ul class=\"js-measuretasks tasks\">\n      <li><a href=\"#\" class=\"js-cancel cancel\">Cancel</a></li>\n      <li><a href=\"#\" class=\"js-finish finish\">Finish Measurement</a></li>\n    </ul>\n  </div>\n</div>");
-var resultsTemplate = _.template("<div class=\"group\">\n<p class=\"lastpoint heading\">Last Point</p>\n<p><%= model.lastCoord.dms.y %> <span class=\"coorddivider\">/</span> <%= model.lastCoord.dms.x %></p>\n<p><%= humanize.numberFormat(model.lastCoord.dd.y, 6) %> <span class=\"coorddivider\">/</span> <%= humanize.numberFormat(model.lastCoord.dd.x, 6) %></p>\n</div>\n<% if (model.pointCount > 1) { %>\n<div class=\"group\">\n<p><span class=\"heading\">Path Distance</span> <%= humanize.numberFormat(model.length.feet, 0) %> Feet (<%= humanize.numberFormat(model.length.miles, 2) %> Miles)</p>\n</div>\n<% } %>\n<% if (model.pointCount > 2) { %>\n<div class=\"group\">\n<p><span class=\"heading\">Area</span> <%= humanize.numberFormat(model.area.acres, 2) %> Acres</p>\n</div>\n<% } %>");
+var resultsTemplate = _.template("<div class=\"group\">\n<p class=\"lastpoint heading\">Last Point</p>\n<p><%= model.lastCoord.dms.y %> <span class=\"coorddivider\">/</span> <%= model.lastCoord.dms.x %></p>\n<p><%= humanize.numberFormat(model.lastCoord.dd.y, 6) %> <span class=\"coorddivider\">/</span> <%= humanize.numberFormat(model.lastCoord.dd.x, 6) %></p>\n</div>\n<% if (model.pointCount > 1) { %>\n<div class=\"group\">\n<p><span class=\"heading\">Path Distance</span> <%= model.lengthDisplay %></p>\n</div>\n<% } %>\n<% if (model.pointCount > 2) { %>\n<div class=\"group\">\n<p><span class=\"heading\">Area</span> <%= model.areaDisplay %></p>\n</div>\n<% } %>");
 var pointPopupTemplate = _.template("<h3>Point Location</h3>\n<p><%= model.lastCoord.dms.y %> <span class=\"coorddivider\">/</span> <%= model.lastCoord.dms.x %></p>\n<p><%= humanize.numberFormat(model.lastCoord.dd.y, 6) %> <span class=\"coorddivider\">/</span> <%= humanize.numberFormat(model.lastCoord.dd.x, 6) %></p>\n<ul class=\"tasks\">\n  <li><a href=\"#\" class=\"js-zoomto zoomto\">Center on this Location</a></li>\n  <li><a href=\"#\" class=\"js-deletemarkup deletemarkup\">Delete</a></li>\n</ul>");
-var linePopupTemplate = _.template("<h3>Linear Measurement</h3>\n<p><%= humanize.numberFormat(model.length.feet, 0) %> Feet</p>\n<p><%= humanize.numberFormat(model.length.miles, 2) %> Miles</p>\n<ul class=\"tasks\">\n  <li><a href=\"#\" class=\"js-zoomto zoomto\">Center on this Line</a></li>\n  <li><a href=\"#\" class=\"js-deletemarkup deletemarkup\">Delete</a></li>\n</ul>");
-var areaPopupTemplate = _.template("<h3>Area Measurement</h3>\n<p><%= humanize.numberFormat(model.area.acres, 2) %> Acres</p>\n<p><%= humanize.numberFormat(model.length.feet, 0) %> Feet (<%= humanize.numberFormat(model.length.miles, 2) %> Miles) Perimeter</p>\n<ul class=\"tasks\">\n  <li><a href=\"#\" class=\"js-zoomto zoomto\">Center on this Area</a></li>\n  <li><a href=\"#\" class=\"js-deletemarkup deletemarkup\">Delete</a></li>\n</ul>");
+var linePopupTemplate = _.template("<h3>Linear Measurement</h3>\n<p><%= model.lengthDisplay %></p>\n<ul class=\"tasks\">\n  <li><a href=\"#\" class=\"js-zoomto zoomto\">Center on this Line</a></li>\n  <li><a href=\"#\" class=\"js-deletemarkup deletemarkup\">Delete</a></li>\n</ul>");
+var areaPopupTemplate = _.template("<h3>Area Measurement</h3>\n<p><%= model.areaDisplay %></p>\n<p><%= model.lengthDisplay %> Perimeter</p>\n<ul class=\"tasks\">\n  <li><a href=\"#\" class=\"js-zoomto zoomto\">Center on this Area</a></li>\n  <li><a href=\"#\" class=\"js-deletemarkup deletemarkup\">Delete</a></li>\n</ul>");
 
 L.Control.Measure = L.Control.extend({
   _className: 'leaflet-control-measure',
   options: {
     position: 'topright',
+    primaryLengthUnit: 'feet',
+    secondaryLengthUnit: 'miles',
+    primaryAreaUnit: 'acres',
     activeColor: '#ABE67E',     // base color for map features while actively measuring
     completedColor: '#C8F2BE',  // base color for permenant features generated from completed measure
     popupOptions: {             // standard leaflet popup options http://leafletjs.com/reference.html#popup-options
@@ -5273,11 +5290,28 @@ L.Control.Measure = L.Control.extend({
     this._measureArea = null;
     this._measureBoundary = null;
   },
+  // format measurements to nice display string based on units in options. `{ lengthDisplay: '100 Feet (0.02 Miles)', areaDisplay: ... }`
+  _getMeasurementDisplayStrings: function (measurement) {
+    var result = {};
+    if (this.options.primaryLengthUnit && units[this.options.primaryLengthUnit]) {
+      result.lengthDisplay = humanize.numberFormat(measurement.length[this.options.primaryLengthUnit], units[this.options.primaryLengthUnit].decimals) + ' ' + units[this.options.primaryLengthUnit].display;
+      if (this.options.secondaryLengthUnit && units[this.options.secondaryLengthUnit]) {
+        result.lengthDisplay = result.lengthDisplay + ' (' + humanize.numberFormat(measurement.length[this.options.secondaryLengthUnit], units[this.options.secondaryLengthUnit].decimals) + ' ' + units[this.options.secondaryLengthUnit].display + ')';
+      }
+    }
+    if (this.options.primaryAreaUnit && units[this.options.primaryAreaUnit]) {
+      result.areaDisplay = humanize.numberFormat(measurement.area[this.options.primaryAreaUnit], units[this.options.primaryAreaUnit].decimals) + ' ' + units[this.options.primaryAreaUnit].display;
+      if (this.options.secondaryAreaUnit && units[this.options.secondaryAreaUnit]) {
+        result.areaDisplay = result.areaDisplay + ' (' + humanize.numberFormat(measurement.area[this.options.secondaryAreaUnit], units[this.options.secondaryAreaUnit].decimals) + ' ' + units[this.options.secondaryAreaUnit].display + ')';
+      }
+    }
+    return result;
+  },
   // update results area of dom with calced measure from `this._latlngs`
   _updateResults: function () {
     var calced = calc.measure(this._latlngs);
     this.$results.innerHTML = resultsTemplate({
-      model: _.extend({}, calced, {
+      model: _.extend({}, calced, this._getMeasurementDisplayStrings(calced), {
         pointCount: this._latlngs.length
       }),
       humanize: humanize
@@ -5319,14 +5353,15 @@ L.Control.Measure = L.Control.extend({
     } else if (latlngs.length === 2) {
       resultFeature = L.polyline(latlngs, this._symbols.getSymbol('resultLine')).addTo(this._map);
       popupContent = linePopupTemplate({
-        model: calced,
+        model: _.extend({}, calced, this._getMeasurementDisplayStrings(calced)),
         humanize: humanize
       });
     } else {
       resultFeature = L.polygon(latlngs, this._symbols.getSymbol('resultArea'));
       popupContent = areaPopupTemplate({
-        model: calced,
-        humanize: humanize
+        model: _.extend({}, calced, this._getMeasurementDisplayStrings(calced)),
+        humanize: humanize,
+        units: this._units
       });
     }
 
@@ -5444,7 +5479,7 @@ L.control.measure = function (options) {
   return new L.Control.Measure(options);
 };
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./calc":17,"./dom":18,"./mapsymbology":20,"humanize":15,"underscore":16}],20:[function(require,module,exports){
+},{"./calc":17,"./dom":18,"./mapsymbology":20,"./units":21,"humanize":15,"underscore":16}],20:[function(require,module,exports){
 // mapsymbology.js
 
 var _ = require('underscore');
@@ -5551,4 +5586,42 @@ _.extend(Symbology.prototype, {
 });
 
 module.exports = Symbology;
-},{"color":1,"underscore":16}]},{},[19]);
+},{"color":1,"underscore":16}],21:[function(require,module,exports){
+// units.js
+// Unit configurations
+
+module.exports = {
+  acres: {
+    display: 'Acres',
+    decimals: 2
+  },
+  feet: {
+    display: 'Feet',
+    decimals: 0
+  },
+  kilometers: {
+    display: 'Kilometers',
+    decimals: 2
+  },
+  hectares: {
+    display: 'Hectares',
+    decimals: 2
+  },
+  meters: {
+    display: 'Meters',
+    decimals: 0
+  },
+  miles: {
+    display: 'Miles',
+    decimals: 2
+  },
+  sqmeters: {
+    display: 'Sq Meters',
+    decimals: 0
+  },
+  sqmiles: {
+    display: 'Sq Miles',
+    decimals: 2
+  }
+};
+},{}]},{},[19]);

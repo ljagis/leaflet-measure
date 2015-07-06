@@ -5,11 +5,11 @@
 </div>
 <% if (model.pointCount > 1) { %>
 <div class="group">
-<p><span class="heading">Path Distance</span> <%= humanize.numberFormat(model.length.feet, 0) %> Feet (<%= humanize.numberFormat(model.length.miles, 2) %> Miles)</p>
+<p><span class="heading">Path Distance</span> <%= model.lengthDisplay %></p>
 </div>
 <% } %>
 <% if (model.pointCount > 2) { %>
 <div class="group">
-<p><span class="heading">Area</span> <%= humanize.numberFormat(model.area.acres, 2) %> Acres</p>
+<p><span class="heading">Area</span> <%= model.areaDisplay %></p>
 </div>
 <% } %>

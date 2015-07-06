@@ -86,6 +86,22 @@ var myMap = L.map('mapElementId', {
 
 Standard Leaflet control [position options](http://leafletjs.com/reference.html#control-positions)
 
+### primaryLengthUnit | secondaryLengthUnit
+
+`{ primaryLengthUnit: 'feet', secondaryLengthUnit: 'miles' }`
+
+Units used to display length results. `secondaryLengthUnit` is optional.
+
+Valid values are `feet`, `meters`, `miles`, and `kilometers`
+
+### primaryAreaUnit | secondaryAreaUnit
+
+`{ primaryAreaUnit: 'acres', secondaryAreaUnit: undefined }`
+
+Units used to display area results. `secondaryAreaUnit` is optional.
+
+Valid values are `acres`, `hectares`, `sqmeters`, and `sqmiles`
+
 ### activeColor
 
 `{ activeColor: '#ABE67E' }`
