@@ -20,10 +20,19 @@
       margin: 20px;
     }
     h1 {
+      display: inline;
       margin: 0;
       font-size: 1.4em;
       font-weight: normal;
       line-height: 1;
+    }
+    p {
+      display: inline;
+      margin-left: 16px;
+      font-size: 1.2em;
+    }
+    a, a:visited, a:hover, a:active, a:focus {
+      text-decoration: none;
     }
     #map {
       height: 500px;
@@ -33,6 +42,7 @@
 </head>
 <body>
   <h1>leaflet-measure</h1>
+  <p><a href="//github.com/ljagis/leaflet-measure">github.com/ljagis/leaflet-measure</a></p>
   <div id="map"></div>
   <script src="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
   <script src="../dist/leaflet-measure.js"></script>
