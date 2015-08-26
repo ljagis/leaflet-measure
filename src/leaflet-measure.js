@@ -194,20 +194,20 @@ L.Control.Measure = L.Control.extend({
   },
   // format measurements to nice display string based on units in options. `{ lengthDisplay: '100 Feet (0.02 Miles)', areaDisplay: ... }`
   _getMeasurementDisplayStrings: function (measurement) {
-    var result = {};
-    if (this.options.primaryLengthUnit && units[this.options.primaryLengthUnit]) {
-      result.lengthDisplay = humanize.numberFormat(measurement.length[this.options.primaryLengthUnit], units[this.options.primaryLengthUnit].decimals) + ' ' + units[this.options.primaryLengthUnit].display;
-      if (this.options.secondaryLengthUnit && units[this.options.secondaryLengthUnit]) {
-        result.lengthDisplay = result.lengthDisplay + ' (' + humanize.numberFormat(measurement.length[this.options.secondaryLengthUnit], units[this.options.secondaryLengthUnit].decimals) + ' ' + units[this.options.secondaryLengthUnit].display + ')';
+    function format (measurement, primaryUnit, secondaryUnit) {
+      var display;
+      if (primaryUnit && units[primaryUnit]) {
+        display = humanize.numberFormat(measurement[primaryUnit], units[primaryUnit].decimals) + ' ' + units[primaryUnit].display;
+        if (secondaryUnit && units[secondaryUnit]) {
+          display = display + ' (' + humanize.numberFormat(measurement[secondaryUnit], units[secondaryUnit].decimals) + ' ' + units[secondaryUnit].display + ')';
+        }
       }
+      return display;
     }
-    if (this.options.primaryAreaUnit && units[this.options.primaryAreaUnit]) {
-      result.areaDisplay = humanize.numberFormat(measurement.area[this.options.primaryAreaUnit], units[this.options.primaryAreaUnit].decimals) + ' ' + units[this.options.primaryAreaUnit].display;
-      if (this.options.secondaryAreaUnit && units[this.options.secondaryAreaUnit]) {
-        result.areaDisplay = result.areaDisplay + ' (' + humanize.numberFormat(measurement.area[this.options.secondaryAreaUnit], units[this.options.secondaryAreaUnit].decimals) + ' ' + units[this.options.secondaryAreaUnit].display + ')';
-      }
-    }
-    return result;
+    return {
+      lengthDisplay: format(measurement.length, this.options.primaryLengthUnit, this.options.secondaryLengthUnit),
+      areaDisplay: format(measurement.area, this.options.primaryAreaUnit, this.options.secondaryAreaUnit)
+    };
   },
   // update results area of dom with calced measure from `this._latlngs`
   _updateResults: function () {
