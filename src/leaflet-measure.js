@@ -194,12 +194,12 @@ L.Control.Measure = L.Control.extend({
   },
   // format measurements to nice display string based on units in options. `{ lengthDisplay: '100 Feet (0.02 Miles)', areaDisplay: ... }`
   _getMeasurementDisplayStrings: function (measurement) {
-    function format (measurement, primaryUnit, secondaryUnit) {
+    function format (value, primaryUnit, secondaryUnit) {
       var display;
       if (primaryUnit && units[primaryUnit]) {
-        display = humanize.numberFormat(measurement[primaryUnit], units[primaryUnit].decimals) + ' ' + units[primaryUnit].display;
+        display = humanize.numberFormat(value * units[primaryUnit].factor, units[primaryUnit].decimals) + ' ' + units[primaryUnit].display;
         if (secondaryUnit && units[secondaryUnit]) {
-          display = display + ' (' + humanize.numberFormat(measurement[secondaryUnit], units[secondaryUnit].decimals) + ' ' + units[secondaryUnit].display + ')';
+          display = display + ' (' + humanize.numberFormat(value * units[secondaryUnit].factor, units[secondaryUnit].decimals) + ' ' + units[secondaryUnit].display + ')';
         }
       }
       return display;

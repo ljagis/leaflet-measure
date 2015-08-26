@@ -18,23 +18,17 @@ var ddToDms = function (coordinate, posSymbol, negSymbol) {
 };
 
 var measure = function (latlngs) {
-  var last = _.last(latlngs), feet, meters, miles, kilometers, sqMeters, acres, hectares, sqMiles;
+  var last = _.last(latlngs);
   var path = geocrunch.path(_.map(latlngs, function (latlng) {
     return [latlng.lng, latlng.lat];
   }));
 
-  feet = path.distance({
-    units: 'feet'
+  var meters = path.distance({
+    units: 'meters'
   });
-  meters = feet / 3.2808;
-  miles = feet / 5280;
-  kilometers = meters / 1000;
-  sqMeters = path.area({
+  var sqMeters = path.area({
     units: 'sqmeters'
   });
-  acres = sqMeters * 0.00024711;
-  hectares = sqMeters / 10000;
-  sqMiles = acres * 0.0015625;
 
   return {
     lastCoord: {
@@ -47,18 +41,8 @@ var measure = function (latlngs) {
         y: ddToDms(last.lat, 'N', 'S')
       }
     },
-    length: {
-      feet: feet,
-      meters: meters,
-      miles: miles,
-      kilometers: kilometers
-    },
-    area: {
-      acres: acres,
-      hectares: hectares,
-      sqmeters: sqMeters,
-      sqmiles: sqMiles
-    }
+    length: meters,
+    area: sqMeters
   };
 };
 
