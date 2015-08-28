@@ -122,7 +122,24 @@ Options applied to the popup of the resulting measure feature. Properties may be
 
 ### units
 
-Allows to override unit display, see [src/units.js](blob/master/src/units.js).
+Custom units to make available to the measurement calculator. Packaged units are `feet`, `meters`, `miles`, and `kilometers` for length and `acres`, `hectares`, `sqmeters`, and `sqmiles` for areas. Additional unit definitions can be added to the packaged units using this option.
+
+Define units as
+
+```javascript
+{
+  someNewUnit: {
+    factor: 0.001, // Required. Factor to apply when converting to this unit. Length in meters or area in sq meters will be multiplied by this factor.
+    display: 'My New Unit', // Required. How to display in results, like.. "300 Meters (0.3 My New Unit)".
+    decimals: 2 // Number of decimals to round results when using this unit. `0` is the default value if not specified.
+  },
+  myOtherNewUnit: {
+    factor: 1234,
+    display: 'My Other Unit',
+    decimals: 0
+  }
+}
+```
 
 <hr>
 
