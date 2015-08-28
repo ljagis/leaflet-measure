@@ -14,12 +14,12 @@ module.exports = {
     decimals: 0
   },
   kilometers: {
-    factor: 1e-3,
+    factor: 0.001,
     display: 'Kilometers',
     decimals: 2
   },
   hectares: {
-    factor: 10e-4,
+    factor: 0.0001,
     display: 'Hectares',
     decimals: 2
   },
