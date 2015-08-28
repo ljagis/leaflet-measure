@@ -5102,7 +5102,6 @@ var _ = require('underscore');
 var L = (typeof window !== "undefined" ? window.L : typeof global !== "undefined" ? global.L : null);
 var humanize = require('humanize');
 
-var units = require('./units');
 var calc = require('./calc');
 var dom = require('./dom');
 var $ = dom.$;
@@ -5119,6 +5118,7 @@ var areaPopupTemplate = _.template("<h3>Area Measurement</h3>\n<p><%= model.area
 L.Control.Measure = L.Control.extend({
   _className: 'leaflet-control-measure',
   options: {
+    units: {},
     position: 'topright',
     primaryLengthUnit: 'feet',
     secondaryLengthUnit: 'miles',
@@ -5132,6 +5132,7 @@ L.Control.Measure = L.Control.extend({
   },
   initialize: function (options) {
     L.setOptions(this, options);
+    this.options.units = L.extend(require('./units'), this.options.units);
     this._symbols = new Symbology(_.pick(this.options, 'activeColor', 'completedColor'));
   },
   onAdd: function (map) {
@@ -5292,6 +5293,7 @@ L.Control.Measure = L.Control.extend({
   },
   // format measurements to nice display string based on units in options. `{ lengthDisplay: '100 Feet (0.02 Miles)', areaDisplay: ... }`
   _getMeasurementDisplayStrings: function (measurement) {
+    var units = this.options.units;
     var result = {};
     if (this.options.primaryLengthUnit && units[this.options.primaryLengthUnit]) {
       result.lengthDisplay = humanize.numberFormat(measurement.length[this.options.primaryLengthUnit], units[this.options.primaryLengthUnit].decimals) + ' ' + units[this.options.primaryLengthUnit].display;

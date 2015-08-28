@@ -120,6 +120,10 @@ Base color to use for features generated from a completed measurement. Value sho
 
 Options applied to the popup of the resulting measure feature. Properties may be any standard Leaflet [popup options](http://leafletjs.com/reference.html#popup-options).
 
+### units
+
+Allows to override unit display, see [src/units.js](blob/master/src/units.js).
+
 <hr>
 
 ## Customizing map feature styles
