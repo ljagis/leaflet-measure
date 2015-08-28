@@ -5009,23 +5009,17 @@ var ddToDms = function (coordinate, posSymbol, negSymbol) {
 };
 
 var measure = function (latlngs) {
-  var last = _.last(latlngs), feet, meters, miles, kilometers, sqMeters, acres, hectares, sqMiles;
+  var last = _.last(latlngs);
   var path = geocrunch.path(_.map(latlngs, function (latlng) {
     return [latlng.lng, latlng.lat];
   }));
 
-  feet = path.distance({
-    units: 'feet'
+  var meters = path.distance({
+    units: 'meters'
   });
-  meters = feet / 3.2808;
-  miles = feet / 5280;
-  kilometers = meters / 1000;
-  sqMeters = path.area({
+  var sqMeters = path.area({
     units: 'sqmeters'
   });
-  acres = sqMeters * 0.00024711;
-  hectares = sqMeters / 10000;
-  sqMiles = acres * 0.0015625;
 
   return {
     lastCoord: {
@@ -5038,18 +5032,8 @@ var measure = function (latlngs) {
         y: ddToDms(last.lat, 'N', 'S')
       }
     },
-    length: {
-      feet: feet,
-      meters: meters,
-      miles: miles,
-      kilometers: kilometers
-    },
-    area: {
-      acres: acres,
-      hectares: hectares,
-      sqmeters: sqMeters,
-      sqmiles: sqMiles
-    }
+    length: meters,
+    area: sqMeters
   };
 };
 
@@ -5294,21 +5278,20 @@ L.Control.Measure = L.Control.extend({
   },
   // format measurements to nice display string based on units in options. `{ lengthDisplay: '100 Feet (0.02 Miles)', areaDisplay: ... }`
   _getMeasurementDisplayStrings: function (measurement) {
-    var units = this.options.units;
-    var result = {};
-    if (this.options.primaryLengthUnit && units[this.options.primaryLengthUnit]) {
-      result.lengthDisplay = humanize.numberFormat(measurement.length[this.options.primaryLengthUnit], units[this.options.primaryLengthUnit].decimals) + ' ' + units[this.options.primaryLengthUnit].display;
-      if (this.options.secondaryLengthUnit && units[this.options.secondaryLengthUnit]) {
-        result.lengthDisplay = result.lengthDisplay + ' (' + humanize.numberFormat(measurement.length[this.options.secondaryLengthUnit], units[this.options.secondaryLengthUnit].decimals) + ' ' + units[this.options.secondaryLengthUnit].display + ')';
+    function format (value, primaryUnit, secondaryUnit) {
+      var display;
+      if (primaryUnit && units[primaryUnit]) {
+        display = humanize.numberFormat(value * units[primaryUnit].factor, units[primaryUnit].decimals) + ' ' + units[primaryUnit].display;
+        if (secondaryUnit && units[secondaryUnit]) {
+          display = display + ' (' + humanize.numberFormat(value * units[secondaryUnit].factor, units[secondaryUnit].decimals) + ' ' + units[secondaryUnit].display + ')';
+        }
       }
+      return display;
     }
-    if (this.options.primaryAreaUnit && units[this.options.primaryAreaUnit]) {
-      result.areaDisplay = humanize.numberFormat(measurement.area[this.options.primaryAreaUnit], units[this.options.primaryAreaUnit].decimals) + ' ' + units[this.options.primaryAreaUnit].display;
-      if (this.options.secondaryAreaUnit && units[this.options.secondaryAreaUnit]) {
-        result.areaDisplay = result.areaDisplay + ' (' + humanize.numberFormat(measurement.area[this.options.secondaryAreaUnit], units[this.options.secondaryAreaUnit].decimals) + ' ' + units[this.options.secondaryAreaUnit].display + ')';
-      }
-    }
-    return result;
+    return {
+      lengthDisplay: format(measurement.length, this.options.primaryLengthUnit, this.options.secondaryLengthUnit),
+      areaDisplay: format(measurement.area, this.options.primaryAreaUnit, this.options.secondaryAreaUnit)
+    };
   },
   // update results area of dom with calced measure from `this._latlngs`
   _updateResults: function () {
@@ -5481,6 +5464,7 @@ L.Map.addInitHook(function () {
 L.control.measure = function (options) {
   return new L.Control.Measure(options);
 };
+
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./calc":17,"./dom":18,"./mapsymbology":20,"./units":21,"humanize":15,"underscore":16}],20:[function(require,module,exports){
 // mapsymbology.js
@@ -5592,37 +5576,46 @@ module.exports = Symbology;
 },{"color":1,"underscore":16}],21:[function(require,module,exports){
 // units.js
 // Unit configurations
+// Factor is with respect to meters/sqmeters
 
 module.exports = {
   acres: {
+    factor: 0.00024711,
     display: 'Acres',
     decimals: 2
   },
   feet: {
+    factor: 3.2808,
     display: 'Feet',
     decimals: 0
   },
   kilometers: {
+    factor: 1e-3,
     display: 'Kilometers',
     decimals: 2
   },
   hectares: {
+    factor: 10e-4,
     display: 'Hectares',
     decimals: 2
   },
   meters: {
+    factor: 1,
     display: 'Meters',
     decimals: 0
   },
   miles: {
+    factor: 3.2808 / 5280,
     display: 'Miles',
     decimals: 2
   },
   sqmeters: {
+    factor: 1,
     display: 'Sq Meters',
     decimals: 0
   },
   sqmiles: {
+    factor: 0.0015625,
     display: 'Sq Miles',
     decimals: 2
   }
