@@ -4,6 +4,7 @@ var _ = require('underscore');
 var L = require('leaflet');
 var humanize = require('humanize');
 
+var units = require('./units');
 var calc = require('./calc');
 var dom = require('./dom');
 var $ = dom.$;
@@ -34,7 +35,7 @@ L.Control.Measure = L.Control.extend({
   },
   initialize: function (options) {
     L.setOptions(this, options);
-    this.options.units = L.extend(require('./units'), this.options.units);
+    this.options.units = L.extend({}, units, this.options.units);
     this._symbols = new Symbology(_.pick(this.options, 'activeColor', 'completedColor'));
   },
   onAdd: function (map) {
