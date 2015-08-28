@@ -5278,20 +5278,29 @@ L.Control.Measure = L.Control.extend({
   },
   // format measurements to nice display string based on units in options. `{ lengthDisplay: '100 Feet (0.02 Miles)', areaDisplay: ... }`
   _getMeasurementDisplayStrings: function (measurement) {
-    function format (value, primaryUnit, secondaryUnit) {
+    return {
+      lengthDisplay: buildDisplay(measurement.length, this.options.primaryLengthUnit, this.options.secondaryLengthUnit),
+      areaDisplay: buildDisplay(measurement.area, this.options.primaryAreaUnit, this.options.secondaryAreaUnit)
+    };
+
+    function buildDisplay (val, primaryUnit, secondaryUnit) {
       var display;
       if (primaryUnit && units[primaryUnit]) {
-        display = humanize.numberFormat(value * units[primaryUnit].factor, units[primaryUnit].decimals) + ' ' + units[primaryUnit].display;
+        display = formatMeasure(val, units[primaryUnit]);
         if (secondaryUnit && units[secondaryUnit]) {
-          display = display + ' (' + humanize.numberFormat(value * units[secondaryUnit].factor, units[secondaryUnit].decimals) + ' ' + units[secondaryUnit].display + ')';
+          display = display + ' (' +  formatMeasure(val, units[secondaryUnit]) + ')';
         }
+      } else {
+        display = formatMeasure(val);
       }
       return display;
     }
-    return {
-      lengthDisplay: format(measurement.length, this.options.primaryLengthUnit, this.options.secondaryLengthUnit),
-      areaDisplay: format(measurement.area, this.options.primaryAreaUnit, this.options.secondaryAreaUnit)
-    };
+
+    function formatMeasure (val, unit) {
+      return unit && unit.factor && unit.display ?
+        humanize.numberFormat(val * unit.factor, unit.decimals || 0) + ' ' + unit.display :
+        humanize.numberFormat(val, 0);
+    }
   },
   // update results area of dom with calced measure from `this._latlngs`
   _updateResults: function () {
@@ -5590,12 +5599,12 @@ module.exports = {
     decimals: 0
   },
   kilometers: {
-    factor: 1e-3,
+    factor: 0.001,
     display: 'Kilometers',
     decimals: 2
   },
   hectares: {
-    factor: 10e-4,
+    factor: 0.0001,
     display: 'Hectares',
     decimals: 2
   },
