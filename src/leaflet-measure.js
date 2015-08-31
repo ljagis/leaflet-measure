@@ -196,6 +196,8 @@ L.Control.Measure = L.Control.extend({
   },
   // format measurements to nice display string based on units in options. `{ lengthDisplay: '100 Feet (0.02 Miles)', areaDisplay: ... }`
   _getMeasurementDisplayStrings: function (measurement) {
+    var unitDefinitions = this.options.units;
+
     return {
       lengthDisplay: buildDisplay(measurement.length, this.options.primaryLengthUnit, this.options.secondaryLengthUnit),
       areaDisplay: buildDisplay(measurement.area, this.options.primaryAreaUnit, this.options.secondaryAreaUnit)
@@ -203,10 +205,10 @@ L.Control.Measure = L.Control.extend({
 
     function buildDisplay (val, primaryUnit, secondaryUnit) {
       var display;
-      if (primaryUnit && units[primaryUnit]) {
-        display = formatMeasure(val, units[primaryUnit]);
-        if (secondaryUnit && units[secondaryUnit]) {
-          display = display + ' (' +  formatMeasure(val, units[secondaryUnit]) + ')';
+      if (primaryUnit && unitDefinitions[primaryUnit]) {
+        display = formatMeasure(val, unitDefinitions[primaryUnit]);
+        if (secondaryUnit && unitDefinitions[secondaryUnit]) {
+          display = display + ' (' +  formatMeasure(val, unitDefinitions[secondaryUnit]) + ')';
         }
       } else {
         display = formatMeasure(val);
