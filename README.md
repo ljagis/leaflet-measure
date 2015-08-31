@@ -100,7 +100,7 @@ Valid values are `feet`, `meters`, `miles`, and `kilometers`
 
 Units used to display area results. `secondaryAreaUnit` is optional.
 
-Valid values are `acres`, `hectares`, `sqmeters`, and `sqmiles`
+Valid values are `acres`, `hectares`, `sqfeet`, `sqmeters`, and `sqmiles`
 
 ### activeColor
 
@@ -122,7 +122,7 @@ Options applied to the popup of the resulting measure feature. Properties may be
 
 ### units
 
-Custom units to make available to the measurement calculator. Packaged units are `feet`, `meters`, `miles`, and `kilometers` for length and `acres`, `hectares`, `sqmeters`, and `sqmiles` for areas. Additional unit definitions can be added to the packaged units using this option.
+Custom units to make available to the measurement calculator. Packaged units are `feet`, `meters`, `miles`, and `kilometers` for length and `acres`, `hectares`, `sqfeet`, `sqmeters`, and `sqmiles` for areas. Additional unit definitions can be added to the packaged units using this option.
 
 Define units as
 
