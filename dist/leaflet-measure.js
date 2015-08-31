@@ -5624,7 +5624,7 @@ module.exports = {
     decimals: 0
   },
   sqmiles: {
-    factor: 0.0015625,
+    factor: 0.000000386102,
     display: 'Sq Miles',
     decimals: 2
   }
