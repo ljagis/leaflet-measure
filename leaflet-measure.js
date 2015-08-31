@@ -5618,6 +5618,11 @@ module.exports = {
     display: 'Miles',
     decimals: 2
   },
+  sqfeet: {
+    factor: 10.7639,
+    display: 'Sq Feet',
+    decimals: 0
+  },
   sqmeters: {
     factor: 1,
     display: 'Sq Meters',
