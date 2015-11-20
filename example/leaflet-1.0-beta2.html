@@ -1,0 +1,64 @@
+<!doctype HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>leaflet-measure with Leaflet 1.0.0 Beta 2</title>
+  <link rel="stylesheet" href="../bower_components/normalize.css/normalize.css">
+  <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v1.0.0-beta.2/leaflet.css">
+  <link rel="stylesheet" href="../dist/leaflet-measure.css">
+  <style>
+    body {
+      font-size: 14px;
+      font-family: Helvetica, sans-serif;
+      font-weight: 400;
+      line-height: 1;
+      color: #222;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+    body {
+      margin: 20px;
+    }
+    h1 {
+      display: inline;
+      margin: 0;
+      font-size: 1.4em;
+      font-weight: normal;
+      line-height: 1;
+    }
+    p.github {
+      display: inline;
+      margin-left: 16px;
+      font-size: 1.2em;
+    }
+    a, a:visited, a:hover, a:active, a:focus {
+      text-decoration: none;
+    }
+    #map {
+      height: 500px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>leaflet-measure with Leaflet 1.0.0 Beta 2</h1>
+  <p class="github"><a href="//github.com/ljagis/leaflet-measure">github.com/ljagis/leaflet-measure</a></p>
+  <div id="map"></div>
+  <script src="http://cdn.leafletjs.com/leaflet/v1.0.0-beta.2/leaflet.js"></script>
+  <script src="../dist/leaflet-measure.js"></script>
+  <script>
+  (function (L) {
+    var map = L.map('map', {
+      measureControl: true,
+      layersControl: true
+    }).setView([29.7491289, -95.0807104], 16);
+    L.tileLayer('//server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      minZoom: 14,
+      maxZoom: 18,
+      attribution: '&copy; Esri &mdash; Sources: Esri, DigitalGlobe, Earthstar Geographics, CNES/Airbus DS, GeoEye, USDA FSA, USGS, Getmapping, Aerogrid, IGN, IGP, swisstopo, and the GIS User Community'
+    }).addTo(map);
+    L.marker([29.7491289, -95.0807104]).bindPopup('Marker popup message').addTo(map);
+  })(window.L);
+  </script>
+</body>
+</html>
