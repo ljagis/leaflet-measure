@@ -141,6 +141,15 @@ Define units as
 }
 ```
 
+### localization
+
+`{ localization: 'en' }`
+
+Desired locale to translate texts.
+
+Valid values are `en` and `es`. If not specified, defaults to `en`.
+
+
 <hr>
 
 ## Customizing map feature styles
