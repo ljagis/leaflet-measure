@@ -674,6 +674,13 @@ function hsl2hsv(hsl) {
       s = hsl[1] / 100,
       l = hsl[2] / 100,
       sv, v;
+
+  if(l === 0) {
+      // no need to do calc on black
+      // also avoids divide by 0 error
+      return [0, 0, 0];
+  }
+
   l *= 2;
   s *= (l <= 1) ? l : 2 - l;
   v = (l + s) / 2;
@@ -3097,6 +3104,329 @@ exports.degrees = {
 
 },{}],15:[function(require,module,exports){
 
+},{}],16:[function(require,module,exports){
+(function (process){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+// resolves . and .. elements in a path array with directory names there
+// must be no slashes, empty elements, or device names (c:\) in the array
+// (so also no leading and trailing slashes - it does not distinguish
+// relative and absolute paths)
+function normalizeArray(parts, allowAboveRoot) {
+  // if the path tries to go above the root, `up` ends up > 0
+  var up = 0;
+  for (var i = parts.length - 1; i >= 0; i--) {
+    var last = parts[i];
+    if (last === '.') {
+      parts.splice(i, 1);
+    } else if (last === '..') {
+      parts.splice(i, 1);
+      up++;
+    } else if (up) {
+      parts.splice(i, 1);
+      up--;
+    }
+  }
+
+  // if the path is allowed to go above the root, restore leading ..s
+  if (allowAboveRoot) {
+    for (; up--; up) {
+      parts.unshift('..');
+    }
+  }
+
+  return parts;
+}
+
+// Split a filename into [root, dir, basename, ext], unix version
+// 'root' is just a slash, or nothing.
+var splitPathRe =
+    /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
+var splitPath = function(filename) {
+  return splitPathRe.exec(filename).slice(1);
+};
+
+// path.resolve([from ...], to)
+// posix version
+exports.resolve = function() {
+  var resolvedPath = '',
+      resolvedAbsolute = false;
+
+  for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
+    var path = (i >= 0) ? arguments[i] : process.cwd();
+
+    // Skip empty and invalid entries
+    if (typeof path !== 'string') {
+      throw new TypeError('Arguments to path.resolve must be strings');
+    } else if (!path) {
+      continue;
+    }
+
+    resolvedPath = path + '/' + resolvedPath;
+    resolvedAbsolute = path.charAt(0) === '/';
+  }
+
+  // At this point the path should be resolved to a full absolute path, but
+  // handle relative paths to be safe (might happen when process.cwd() fails)
+
+  // Normalize the path
+  resolvedPath = normalizeArray(filter(resolvedPath.split('/'), function(p) {
+    return !!p;
+  }), !resolvedAbsolute).join('/');
+
+  return ((resolvedAbsolute ? '/' : '') + resolvedPath) || '.';
+};
+
+// path.normalize(path)
+// posix version
+exports.normalize = function(path) {
+  var isAbsolute = exports.isAbsolute(path),
+      trailingSlash = substr(path, -1) === '/';
+
+  // Normalize the path
+  path = normalizeArray(filter(path.split('/'), function(p) {
+    return !!p;
+  }), !isAbsolute).join('/');
+
+  if (!path && !isAbsolute) {
+    path = '.';
+  }
+  if (path && trailingSlash) {
+    path += '/';
+  }
+
+  return (isAbsolute ? '/' : '') + path;
+};
+
+// posix version
+exports.isAbsolute = function(path) {
+  return path.charAt(0) === '/';
+};
+
+// posix version
+exports.join = function() {
+  var paths = Array.prototype.slice.call(arguments, 0);
+  return exports.normalize(filter(paths, function(p, index) {
+    if (typeof p !== 'string') {
+      throw new TypeError('Arguments to path.join must be strings');
+    }
+    return p;
+  }).join('/'));
+};
+
+
+// path.relative(from, to)
+// posix version
+exports.relative = function(from, to) {
+  from = exports.resolve(from).substr(1);
+  to = exports.resolve(to).substr(1);
+
+  function trim(arr) {
+    var start = 0;
+    for (; start < arr.length; start++) {
+      if (arr[start] !== '') break;
+    }
+
+    var end = arr.length - 1;
+    for (; end >= 0; end--) {
+      if (arr[end] !== '') break;
+    }
+
+    if (start > end) return [];
+    return arr.slice(start, end - start + 1);
+  }
+
+  var fromParts = trim(from.split('/'));
+  var toParts = trim(to.split('/'));
+
+  var length = Math.min(fromParts.length, toParts.length);
+  var samePartsLength = length;
+  for (var i = 0; i < length; i++) {
+    if (fromParts[i] !== toParts[i]) {
+      samePartsLength = i;
+      break;
+    }
+  }
+
+  var outputParts = [];
+  for (var i = samePartsLength; i < fromParts.length; i++) {
+    outputParts.push('..');
+  }
+
+  outputParts = outputParts.concat(toParts.slice(samePartsLength));
+
+  return outputParts.join('/');
+};
+
+exports.sep = '/';
+exports.delimiter = ':';
+
+exports.dirname = function(path) {
+  var result = splitPath(path),
+      root = result[0],
+      dir = result[1];
+
+  if (!root && !dir) {
+    // No dirname whatsoever
+    return '.';
+  }
+
+  if (dir) {
+    // It has a dirname, strip trailing slash
+    dir = dir.substr(0, dir.length - 1);
+  }
+
+  return root + dir;
+};
+
+
+exports.basename = function(path, ext) {
+  var f = splitPath(path)[2];
+  // TODO: make this comparison case-insensitive on windows?
+  if (ext && f.substr(-1 * ext.length) === ext) {
+    f = f.substr(0, f.length - ext.length);
+  }
+  return f;
+};
+
+
+exports.extname = function(path) {
+  return splitPath(path)[3];
+};
+
+function filter (xs, f) {
+    if (xs.filter) return xs.filter(f);
+    var res = [];
+    for (var i = 0; i < xs.length; i++) {
+        if (f(xs[i], i, xs)) res.push(xs[i]);
+    }
+    return res;
+}
+
+// String.prototype.substr - negative index don't work in IE8
+var substr = 'ab'.substr(-1) === 'b'
+    ? function (str, start, len) { return str.substr(start, len) }
+    : function (str, start, len) {
+        if (start < 0) start = str.length + start;
+        return str.substr(start, len);
+    }
+;
+
+}).call(this,require('_process'))
+},{"_process":17}],17:[function(require,module,exports){
+// shim for using process in browser
+
+var process = module.exports = {};
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = setTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    clearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        setTimeout(drainQueue, 0);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+},{}],18:[function(require,module,exports){
+
 (function() {
 
   // Baseline setup
@@ -3571,10 +3901,733 @@ exports.degrees = {
 
 }).call(this);
 
-},{}],16:[function(require,module,exports){
-//     Underscore.js 1.7.0
+},{}],19:[function(require,module,exports){
+(function (process){
+/**
+ * @author  John Resig <jeresig@gmail.com>
+ * @author  Originally by Marcus Spiegel <marcus.spiegel@gmail.com>
+ * @link    https://github.com/jeresig/i18n-node
+ * @license http://opensource.org/licenses/MIT
+ *
+ * @version 0.4.7
+ */
+
+// dependencies
+var vsprintf = require("sprintf").vsprintf,
+		fs = require("fs"),
+		path = require("path");
+
+
+function dotNotation (obj, is, value) {
+	if (obj.hasOwnProperty(is)) {
+		return obj[is];
+	}
+
+	if (typeof is === 'string') {
+		return dotNotation(obj, is.split('.'), value);
+	} else if (is.length === 1 && value !== undefined) {
+		return obj[is[0]] = value;
+	} else if (is.length === 0) {
+		return obj;
+	} else {
+		if (obj.hasOwnProperty(is[0])) {
+			return dotNotation(obj[is[0]], is.slice(1), value);
+		} else {
+			return obj[is.join('.')] = is.join('.');
+		}
+	}
+}
+
+var i18n = module.exports = function (opt) {
+	var self = this;
+
+	// Put into dev or production mode
+	this.devMode = process.env.NODE_ENV !== "production";
+
+	// Copy over options
+	for (var prop in opt) {
+		this[prop] = opt[prop];
+	}
+
+	// you may register helpers in global scope, up to you
+	if (typeof this.register === "object") {
+		i18n.resMethods.forEach(function (method) {
+			self.register[method] = self[method].bind(self);
+		});
+	}
+
+	// implicitly read all locales
+	// if it's an array of locale names, read in the data
+	if (opt.locales && opt.locales.forEach) {
+		this.locales = {};
+
+		opt.locales.forEach(function (locale) {
+			self.readFile(locale);
+		});
+
+		this.defaultLocale = opt.locales[0];
+	}
+
+	// Set the locale to the default locale
+	this.setLocale(this.defaultLocale);
+
+	// Check the defaultLocale
+	if (!this.locales[this.defaultLocale]) {
+		console.error("Not a valid default locale.");
+	}
+
+	if (this.request) {
+		if (this.subdomain) {
+			this.setLocaleFromSubdomain(this.request);
+		}
+
+		if (this.query !== false) {
+			this.setLocaleFromQuery(this.request);
+		}
+
+		if (this.session !== false) {
+			this.setLocaleFromSessionVar(this.request);
+		}
+
+		this.prefLocale = this.preferredLocale();
+
+		if (this.prefLocale !== false && this.prefLocale !== this.locale) {
+			this.setLocale(this.prefLocale);
+		}
+	}
+};
+
+i18n.version = "0.4.7";
+
+i18n.localeCache = {};
+i18n.resMethods = ["__", "__n", "getLocale", "isPreferredLocale"];
+
+i18n.expressBind = function (app, opt) {
+	if (!app) {
+		return;
+	}
+
+	app.use(function (req, res, next) {
+		opt.request = req;
+		req.i18n = new i18n(opt);
+
+		// Express 3
+		if (res.locals) {
+			i18n.registerMethods(res.locals, req)
+		}
+
+		next();
+	});
+
+	// Express 2
+	if (app.dynamicHelpers) {
+		app.dynamicHelpers(i18n.registerMethods({}));
+	}
+};
+
+i18n.registerMethods = function (helpers, req) {
+	i18n.resMethods.forEach(function (method) {
+		if (req) {
+			helpers[method] = req.i18n[method].bind(req.i18n);
+		} else {
+			helpers[method] = function (req) {
+				return req.i18n[method].bind(req.i18n);
+			};
+		}
+
+	});
+
+	return helpers;
+};
+
+i18n.prototype = {
+	defaultLocale: "en",
+	extension: ".js",
+	directory: "./locales",
+	cookieName: "lang",
+	sessionVarName: "locale",
+	indent: "\t",
+
+	parse: JSON.parse,
+
+	dump: function (data, indent) {
+	  return JSON.stringify(data, null, indent);
+	},
+
+	__: function () {
+		var msg = this.translate(this.locale, arguments[0]);
+
+		if (arguments.length > 1) {
+			msg = vsprintf(msg, Array.prototype.slice.call(arguments, 1));
+		}
+
+		return msg;
+	},
+
+	__n: function (pathOrSingular, countOrPlural, additionalOrCount) {
+		var msg;
+		if (typeof countOrPlural === 'number') {
+			var path = pathOrSingular;
+			var count = countOrPlural;
+			msg = this.translate(this.locale, path);
+
+			msg = vsprintf(parseInt(count, 10) > 1 ? msg.other : msg.one, Array.prototype.slice.call(arguments, 1));
+		} else {
+			var singular = pathOrSingular;
+			var plural = countOrPlural;
+			var count = additionalOrCount;
+			msg = this.translate(this.locale, singular, plural);
+
+			msg = vsprintf(parseInt(count, 10) > 1 ? msg.other : msg.one, [count]);
+
+			if (arguments.length > 3) {
+				msg = vsprintf(msg, Array.prototype.slice.call(arguments, 3));
+			}
+		}
+
+		return msg;
+	},
+
+	setLocale: function (locale) {
+
+		if (!locale) return;
+
+		if (!this.locales[locale]) {
+			if (this.devMode) {
+				console.warn("Locale (" + locale + ") not found.");
+			}
+
+			locale = this.defaultLocale;
+		}
+
+		return (this.locale = locale);
+	},
+
+	getLocale: function () {
+		return this.locale;
+	},
+
+	isPreferredLocale: function () {
+		return !this.prefLocale ||
+				this.prefLocale === this.getLocale();
+	},
+
+	setLocaleFromSessionVar: function (req) {
+		req = req || this.request;
+
+		var locale = req.session[this.sessionVarName];
+
+		if (this.locales[locale]) {
+			if (this.devMode) {
+				console.log("Overriding locale from query: " + locale);
+			}
+			this.setLocale(locale);
+		}
+
+	},
+
+	setLocaleFromQuery: function (req) {
+		req = req || this.request;
+
+		if (!req || !req.query || !req.query.lang) {
+			return;
+		}
+
+		var locale = (req.query.lang+'').toLowerCase();
+
+		if (this.locales[locale]) {
+			if (this.devMode) {
+				console.log("Overriding locale from query: " + locale);
+			}
+
+			this.setLocale(locale);
+		}
+	},
+
+	setLocaleFromSubdomain: function (req) {
+		req = req || this.request;
+
+		if (!req || !req.headers || !req.headers.host) {
+			return;
+		}
+
+		if (/^([^.]+)/.test(req.headers.host) && this.locales[RegExp.$1]) {
+			if (this.devMode) {
+				console.log("Overriding locale from host: " + RegExp.$1);
+			}
+
+			this.setLocale(RegExp.$1);
+		}
+	},
+
+	setLocaleFromCookie: function (req) {
+		req = req || this.request;
+
+		if (!req || !req.cookies || !this.cookieName || !req.cookies[this.cookieName]) {
+			return;
+		}
+
+		var locale = req.cookies[this.cookieName].toLowerCase();
+
+		if (this.locales[locale]) {
+			if (this.devMode) {
+				console.log("Overriding locale from cookie: " + locale);
+			}
+
+			this.setLocale(locale);
+		}
+	},
+
+	setLocaleFromEnvironmentVariable: function () {
+		if (!process.env.LANG) {
+			return;
+		}
+		var locale = process.env.LANG.split("_")[0];
+		if (this.locales[locale]) {
+			if (this.devMode) {
+				console.log("Overriding locale from environment variable: " + locale);
+			}
+
+			this.setLocale(locale);
+		}
+	},
+
+	preferredLocale: function (req) {
+		req = req || this.request;
+
+		if (!req || !req.headers) {
+			return;
+		}
+
+		var accept = req.headers["accept-language"] || "",
+				regExp = /(^|,\s*)([a-z0-9-]+)/gi,
+				self = this,
+				prefLocale;
+
+		while (!prefLocale && (match = regExp.exec(accept))) {
+			var locale = match[2].toLowerCase();
+			var parts = locale.split("-");
+
+			if (self.locales[locale]) {
+				prefLocale = locale;
+			} else if (parts.length > 1 && self.locales[parts[0]]) {
+				prefLocale = parts[0];
+			}
+		}
+
+		return prefLocale || this.defaultLocale;
+	},
+
+	// read locale file, translate a msg and write to fs if new
+	translate: function (locale, singular, plural) {
+		if (!locale || !this.locales[locale]) {
+			if (this.devMode) {
+				console.warn("WARN: No locale found. Using the default (" +
+						this.defaultLocale + ") as current locale");
+			}
+
+			locale = this.defaultLocale;
+
+			this.initLocale(locale, {});
+		}
+
+		if (!this.locales[locale][singular]) {
+			if (this.devMode) {
+				dotNotation(this.locales[locale], singular, plural ? { one: singular, other: plural } : undefined);
+				this.writeFile(locale);
+			}
+		}
+
+		return dotNotation(this.locales[locale], singular, plural ? { one: singular, other: plural } : undefined);
+	},
+
+	// try reading a file
+	readFile: function (locale) {
+		var file = this.locateFile(locale);
+
+		if (!this.devMode && i18n.localeCache[file]) {
+			this.initLocale(locale, i18n.localeCache[file]);
+			return;
+		}
+
+		try {
+			var localeFile = fs.readFileSync(file);
+			var base;
+
+			// reading base file if 'base' provided
+			if (typeof this.base === "function") {
+				var baseFilename;
+
+				try {
+					baseFilename = this.base(locale);
+				} catch (e) {
+					console.error('base function threw exception for locale %s', locale, e);
+				}
+
+				if (typeof baseFilename === "string") {
+					try {
+						base = this.parse(fs.readFileSync(this.locateFile(baseFilename)));
+					} catch (e) {
+						console.error('unable to read or parse base file %s for locale %s', baseFilename, locale, e);
+					}
+				}
+			}
+
+			try {
+				// parsing file content
+				var content = this.parse(localeFile);
+
+				if (base) {
+					// writing content to the base and swapping
+					for (var prop in content) {
+						base[prop] = content[prop];
+					}
+					content = base;
+				}
+
+				// putting content to locales[locale]
+				this.initLocale(locale, content);
+			} catch (e) {
+				console.error('unable to parse locales from file (maybe ' + file +
+						' is empty or invalid ' + this.extension + '?): ', e);
+			}
+
+		} catch (e) {
+			// unable to read, so intialize that file
+			// locales[locale] are already set in memory, so no extra read required
+			// or locales[locale] are empty, which initializes an empty locale.json file
+			if (!fs.existsSync(file)) {
+				this.writeFile(locale);
+			}
+		}
+	},
+
+	// try writing a file in a created directory
+	writeFile: function (locale) {
+		// don't write new locale information to disk if we're not in dev mode
+		if (!this.devMode) {
+			// Initialize the locale if didn't exist already
+			this.initLocale(locale, {});
+			return;
+		}
+
+		// creating directory if necessary
+		try {
+			fs.lstatSync(this.directory);
+
+		} catch (e) {
+			if (this.devMode) {
+				console.log('creating locales dir in: ' + this.directory);
+			}
+
+			fs.mkdirSync(this.directory, 0755);
+		}
+
+		// Initialize the locale if didn't exist already
+		this.initLocale(locale, {});
+
+		// writing to tmp and rename on success
+		try {
+			var target = this.locateFile(locale),
+					tmp = target + ".tmp";
+
+			fs.writeFileSync(tmp,
+							 this.dump(this.locales[locale], this.indent),
+							 "utf8");
+
+			if (fs.statSync(tmp).isFile()) {
+				fs.renameSync(tmp, target);
+
+			} else {
+				console.error('unable to write locales to file (either ' + tmp +
+						' or ' + target + ' are not writeable?): ');
+			}
+
+		} catch (e) {
+			console.error('unexpected error writing files (either ' + tmp +
+					' or ' + target + ' are not writeable?): ', e);
+		}
+	},
+
+	// basic normalization of filepath
+	locateFile: function (locale) {
+		return path.normalize(this.directory + '/' + locale + this.extension);
+	},
+
+	initLocale: function (locale, data) {
+		if (!this.locales[locale]) {
+			this.locales[locale] = data;
+
+			// Only cache the files when we're not in dev mode
+			if (!this.devMode) {
+				var file = this.locateFile(locale);
+				if (!i18n.localeCache[file]) {
+					i18n.localeCache[file] = data;
+				}
+			}
+		}
+	}
+};
+
+}).call(this,require('_process'))
+},{"_process":17,"fs":15,"path":16,"sprintf":21}],20:[function(require,module,exports){
+module.exports = require('./i18n');
+
+},{"./i18n":19}],21:[function(require,module,exports){
+/**
+sprintf() for JavaScript 0.7-beta1
+http://www.diveintojavascript.com/projects/javascript-sprintf
+
+Copyright (c) Alexandru Marasteanu <alexaholic [at) gmail (dot] com>
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of sprintf() for JavaScript nor the
+      names of its contributors may be used to endorse or promote products
+      derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL Alexandru Marasteanu BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+Changelog:
+2010.11.07 - 0.7-beta1-node
+  - converted it to a node.js compatible module
+
+2010.09.06 - 0.7-beta1
+  - features: vsprintf, support for named placeholders
+  - enhancements: format cache, reduced global namespace pollution
+
+2010.05.22 - 0.6:
+ - reverted to 0.4 and fixed the bug regarding the sign of the number 0
+ Note:
+ Thanks to Raphael Pigulla <raph (at] n3rd [dot) org> (http://www.n3rd.org/)
+ who warned me about a bug in 0.5, I discovered that the last update was
+ a regress. I appologize for that.
+
+2010.05.09 - 0.5:
+ - bug fix: 0 is now preceeded with a + sign
+ - bug fix: the sign was not at the right position on padded results (Kamal Abdali)
+ - switched from GPL to BSD license
+
+2007.10.21 - 0.4:
+ - unit test and patch (David Baird)
+
+2007.09.17 - 0.3:
+ - bug fix: no longer throws exception on empty paramenters (Hans Pufal)
+
+2007.09.11 - 0.2:
+ - feature: added argument swapping
+
+2007.04.03 - 0.1:
+ - initial release
+**/
+
+var sprintf = (function() {
+	function get_type(variable) {
+		return Object.prototype.toString.call(variable).slice(8, -1).toLowerCase();
+	}
+	function str_repeat(input, multiplier) {
+		for (var output = []; multiplier > 0; output[--multiplier] = input) {/* do nothing */}
+		return output.join('');
+	}
+
+	var str_format = function() {
+		if (!str_format.cache.hasOwnProperty(arguments[0])) {
+			str_format.cache[arguments[0]] = str_format.parse(arguments[0]);
+		}
+		return str_format.format.call(null, str_format.cache[arguments[0]], arguments);
+	};
+
+	// convert object to simple one line string without indentation or
+	// newlines. Note that this implementation does not print array
+	// values to their actual place for sparse arrays. 
+	//
+	// For example sparse array like this
+	//    l = []
+	//    l[4] = 1
+	// Would be printed as "[1]" instead of "[, , , , 1]"
+	// 
+	// If argument 'seen' is not null and array the function will check for 
+	// circular object references from argument.
+	str_format.object_stringify = function(obj, depth, maxdepth, seen) {
+		var str = '';
+		if (obj != null) {
+			switch( typeof(obj) ) {
+			case 'function': 
+				return '[Function' + (obj.name ? ': '+obj.name : '') + ']';
+			    break;
+			case 'object':
+				if ( obj instanceof Error) { return '[' + obj.toString() + ']' };
+				if (depth >= maxdepth) return '[Object]'
+				if (seen) {
+					// add object to seen list
+					seen = seen.slice(0)
+					seen.push(obj);
+				}
+				if (obj.length != null) { //array
+					str += '[';
+					var arr = []
+					for (var i in obj) {
+						if (seen && seen.indexOf(obj[i]) >= 0) arr.push('[Circular]');
+						else arr.push(str_format.object_stringify(obj[i], depth+1, maxdepth, seen));
+					}
+					str += arr.join(', ') + ']';
+				} else if ('getMonth' in obj) { // date
+					return 'Date(' + obj + ')';
+				} else { // object
+					str += '{';
+					var arr = []
+					for (var k in obj) { 
+						if(obj.hasOwnProperty(k)) {
+							if (seen && seen.indexOf(obj[k]) >= 0) arr.push(k + ': [Circular]');
+							else arr.push(k +': ' +str_format.object_stringify(obj[k], depth+1, maxdepth, seen)); 
+						}
+					}
+					str += arr.join(', ') + '}';
+				}
+				return str;
+				break;
+			case 'string':				
+				return '"' + obj + '"';
+				break
+			}
+		}
+		return '' + obj;
+	}
+
+	str_format.format = function(parse_tree, argv) {
+		var cursor = 1, tree_length = parse_tree.length, node_type = '', arg, output = [], i, k, match, pad, pad_character, pad_length;
+		for (i = 0; i < tree_length; i++) {
+			node_type = get_type(parse_tree[i]);
+			if (node_type === 'string') {
+				output.push(parse_tree[i]);
+			}
+			else if (node_type === 'array') {
+				match = parse_tree[i]; // convenience purposes only
+				if (match[2]) { // keyword argument
+					arg = argv[cursor];
+					for (k = 0; k < match[2].length; k++) {
+						if (!arg.hasOwnProperty(match[2][k])) {
+							throw new Error(sprintf('[sprintf] property "%s" does not exist', match[2][k]));
+						}
+						arg = arg[match[2][k]];
+					}
+				}
+				else if (match[1]) { // positional argument (explicit)
+					arg = argv[match[1]];
+				}
+				else { // positional argument (implicit)
+					arg = argv[cursor++];
+				}
+
+				if (/[^sO]/.test(match[8]) && (get_type(arg) != 'number')) {
+					throw new Error(sprintf('[sprintf] expecting number but found %s "' + arg + '"', get_type(arg)));
+				}
+				switch (match[8]) {
+					case 'b': arg = arg.toString(2); break;
+					case 'c': arg = String.fromCharCode(arg); break;
+					case 'd': arg = parseInt(arg, 10); break;
+					case 'e': arg = match[7] ? arg.toExponential(match[7]) : arg.toExponential(); break;
+					case 'f': arg = match[7] ? parseFloat(arg).toFixed(match[7]) : parseFloat(arg); break;
+				    case 'O': arg = str_format.object_stringify(arg, 0, parseInt(match[7]) || 5); break;
+					case 'o': arg = arg.toString(8); break;
+					case 's': arg = ((arg = String(arg)) && match[7] ? arg.substring(0, match[7]) : arg); break;
+					case 'u': arg = Math.abs(arg); break;
+					case 'x': arg = arg.toString(16); break;
+					case 'X': arg = arg.toString(16).toUpperCase(); break;
+				}
+				arg = (/[def]/.test(match[8]) && match[3] && arg >= 0 ? '+'+ arg : arg);
+				pad_character = match[4] ? match[4] == '0' ? '0' : match[4].charAt(1) : ' ';
+				pad_length = match[6] - String(arg).length;
+				pad = match[6] ? str_repeat(pad_character, pad_length) : '';
+				output.push(match[5] ? arg + pad : pad + arg);
+			}
+		}
+		return output.join('');
+	};
+
+	str_format.cache = {};
+
+	str_format.parse = function(fmt) {
+		var _fmt = fmt, match = [], parse_tree = [], arg_names = 0;
+		while (_fmt) {
+			if ((match = /^[^\x25]+/.exec(_fmt)) !== null) {
+				parse_tree.push(match[0]);
+			}
+			else if ((match = /^\x25{2}/.exec(_fmt)) !== null) {
+				parse_tree.push('%');
+			}
+			else if ((match = /^\x25(?:([1-9]\d*)\$|\(([^\)]+)\))?(\+)?(0|'[^$])?(-)?(\d+)?(?:\.(\d+))?([b-fosOuxX])/.exec(_fmt)) !== null) {
+				if (match[2]) {
+					arg_names |= 1;
+					var field_list = [], replacement_field = match[2], field_match = [];
+					if ((field_match = /^([a-z_][a-z_\d]*)/i.exec(replacement_field)) !== null) {
+						field_list.push(field_match[1]);
+						while ((replacement_field = replacement_field.substring(field_match[0].length)) !== '') {
+							if ((field_match = /^\.([a-z_][a-z_\d]*)/i.exec(replacement_field)) !== null) {
+								field_list.push(field_match[1]);
+							}
+							else if ((field_match = /^\[(\d+)\]/.exec(replacement_field)) !== null) {
+								field_list.push(field_match[1]);
+							}
+							else {
+								throw new Error('[sprintf] ' + replacement_field);
+							}
+						}
+					}
+					else {
+                        throw new Error('[sprintf] ' + replacement_field);
+					}
+					match[2] = field_list;
+				}
+				else {
+					arg_names |= 2;
+				}
+				if (arg_names === 3) {
+					throw new Error('[sprintf] mixing positional and named placeholders is not (yet) supported');
+				}
+				parse_tree.push(match);
+			}
+			else {
+				throw new Error('[sprintf] ' + _fmt);
+			}
+			_fmt = _fmt.substring(match[0].length);
+		}
+		return parse_tree;
+	};
+
+	return str_format;
+})();
+
+var vsprintf = function(fmt, argv) {
+	var argvClone = argv.slice();
+	argvClone.unshift(fmt);
+	return sprintf.apply(null, argvClone);
+};
+
+module.exports = sprintf;
+sprintf.sprintf = sprintf;
+sprintf.vsprintf = vsprintf;
+
+},{}],22:[function(require,module,exports){
+//     Underscore.js 1.8.3
 //     http://underscorejs.org
-//     (c) 2009-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+//     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 //     Underscore may be freely distributed under the MIT license.
 
 (function() {
@@ -3595,7 +4648,6 @@ exports.degrees = {
   var
     push             = ArrayProto.push,
     slice            = ArrayProto.slice,
-    concat           = ArrayProto.concat,
     toString         = ObjProto.toString,
     hasOwnProperty   = ObjProto.hasOwnProperty;
 
@@ -3604,7 +4656,11 @@ exports.degrees = {
   var
     nativeIsArray      = Array.isArray,
     nativeKeys         = Object.keys,
-    nativeBind         = FuncProto.bind;
+    nativeBind         = FuncProto.bind,
+    nativeCreate       = Object.create;
+
+  // Naked function reference for surrogate-prototype-swapping.
+  var Ctor = function(){};
 
   // Create a safe reference to the Underscore object for use below.
   var _ = function(obj) {
@@ -3626,12 +4682,12 @@ exports.degrees = {
   }
 
   // Current version.
-  _.VERSION = '1.7.0';
+  _.VERSION = '1.8.3';
 
   // Internal function that returns an efficient (for current engines) version
   // of the passed-in callback, to be repeatedly applied in other Underscore
   // functions.
-  var createCallback = function(func, context, argCount) {
+  var optimizeCb = function(func, context, argCount) {
     if (context === void 0) return func;
     switch (argCount == null ? 3 : argCount) {
       case 1: return function(value) {
@@ -3655,11 +4711,59 @@ exports.degrees = {
   // A mostly-internal function to generate callbacks that can be applied
   // to each element in a collection, returning the desired result — either
   // identity, an arbitrary callback, a property matcher, or a property accessor.
-  _.iteratee = function(value, context, argCount) {
+  var cb = function(value, context, argCount) {
     if (value == null) return _.identity;
-    if (_.isFunction(value)) return createCallback(value, context, argCount);
-    if (_.isObject(value)) return _.matches(value);
+    if (_.isFunction(value)) return optimizeCb(value, context, argCount);
+    if (_.isObject(value)) return _.matcher(value);
     return _.property(value);
+  };
+  _.iteratee = function(value, context) {
+    return cb(value, context, Infinity);
+  };
+
+  // An internal function for creating assigner functions.
+  var createAssigner = function(keysFunc, undefinedOnly) {
+    return function(obj) {
+      var length = arguments.length;
+      if (length < 2 || obj == null) return obj;
+      for (var index = 1; index < length; index++) {
+        var source = arguments[index],
+            keys = keysFunc(source),
+            l = keys.length;
+        for (var i = 0; i < l; i++) {
+          var key = keys[i];
+          if (!undefinedOnly || obj[key] === void 0) obj[key] = source[key];
+        }
+      }
+      return obj;
+    };
+  };
+
+  // An internal function for creating a new object that inherits from another.
+  var baseCreate = function(prototype) {
+    if (!_.isObject(prototype)) return {};
+    if (nativeCreate) return nativeCreate(prototype);
+    Ctor.prototype = prototype;
+    var result = new Ctor;
+    Ctor.prototype = null;
+    return result;
+  };
+
+  var property = function(key) {
+    return function(obj) {
+      return obj == null ? void 0 : obj[key];
+    };
+  };
+
+  // Helper for collection methods to determine whether a collection
+  // should be iterated as an array or as an object
+  // Related: http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength
+  // Avoids a very nasty iOS 8 JIT bug on ARM-64. #2094
+  var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
+  var getLength = property('length');
+  var isArrayLike = function(collection) {
+    var length = getLength(collection);
+    return typeof length == 'number' && length >= 0 && length <= MAX_ARRAY_INDEX;
   };
 
   // Collection Functions
@@ -3669,11 +4773,10 @@ exports.degrees = {
   // Handles raw objects in addition to array-likes. Treats all
   // sparse array-likes as if they were dense.
   _.each = _.forEach = function(obj, iteratee, context) {
-    if (obj == null) return obj;
-    iteratee = createCallback(iteratee, context);
-    var i, length = obj.length;
-    if (length === +length) {
-      for (i = 0; i < length; i++) {
+    iteratee = optimizeCb(iteratee, context);
+    var i, length;
+    if (isArrayLike(obj)) {
+      for (i = 0, length = obj.length; i < length; i++) {
         iteratee(obj[i], i, obj);
       }
     } else {
@@ -3687,77 +4790,66 @@ exports.degrees = {
 
   // Return the results of applying the iteratee to each element.
   _.map = _.collect = function(obj, iteratee, context) {
-    if (obj == null) return [];
-    iteratee = _.iteratee(iteratee, context);
-    var keys = obj.length !== +obj.length && _.keys(obj),
+    iteratee = cb(iteratee, context);
+    var keys = !isArrayLike(obj) && _.keys(obj),
         length = (keys || obj).length,
-        results = Array(length),
-        currentKey;
+        results = Array(length);
     for (var index = 0; index < length; index++) {
-      currentKey = keys ? keys[index] : index;
+      var currentKey = keys ? keys[index] : index;
       results[index] = iteratee(obj[currentKey], currentKey, obj);
     }
     return results;
   };
 
-  var reduceError = 'Reduce of empty array with no initial value';
+  // Create a reducing function iterating left or right.
+  function createReduce(dir) {
+    // Optimized iterator function as using arguments.length
+    // in the main function will deoptimize the, see #1991.
+    function iterator(obj, iteratee, memo, keys, index, length) {
+      for (; index >= 0 && index < length; index += dir) {
+        var currentKey = keys ? keys[index] : index;
+        memo = iteratee(memo, obj[currentKey], currentKey, obj);
+      }
+      return memo;
+    }
+
+    return function(obj, iteratee, memo, context) {
+      iteratee = optimizeCb(iteratee, context, 4);
+      var keys = !isArrayLike(obj) && _.keys(obj),
+          length = (keys || obj).length,
+          index = dir > 0 ? 0 : length - 1;
+      // Determine the initial value if none is provided.
+      if (arguments.length < 3) {
+        memo = obj[keys ? keys[index] : index];
+        index += dir;
+      }
+      return iterator(obj, iteratee, memo, keys, index, length);
+    };
+  }
 
   // **Reduce** builds up a single result from a list of values, aka `inject`,
   // or `foldl`.
-  _.reduce = _.foldl = _.inject = function(obj, iteratee, memo, context) {
-    if (obj == null) obj = [];
-    iteratee = createCallback(iteratee, context, 4);
-    var keys = obj.length !== +obj.length && _.keys(obj),
-        length = (keys || obj).length,
-        index = 0, currentKey;
-    if (arguments.length < 3) {
-      if (!length) throw new TypeError(reduceError);
-      memo = obj[keys ? keys[index++] : index++];
-    }
-    for (; index < length; index++) {
-      currentKey = keys ? keys[index] : index;
-      memo = iteratee(memo, obj[currentKey], currentKey, obj);
-    }
-    return memo;
-  };
+  _.reduce = _.foldl = _.inject = createReduce(1);
 
   // The right-associative version of reduce, also known as `foldr`.
-  _.reduceRight = _.foldr = function(obj, iteratee, memo, context) {
-    if (obj == null) obj = [];
-    iteratee = createCallback(iteratee, context, 4);
-    var keys = obj.length !== + obj.length && _.keys(obj),
-        index = (keys || obj).length,
-        currentKey;
-    if (arguments.length < 3) {
-      if (!index) throw new TypeError(reduceError);
-      memo = obj[keys ? keys[--index] : --index];
-    }
-    while (index--) {
-      currentKey = keys ? keys[index] : index;
-      memo = iteratee(memo, obj[currentKey], currentKey, obj);
-    }
-    return memo;
-  };
+  _.reduceRight = _.foldr = createReduce(-1);
 
   // Return the first value which passes a truth test. Aliased as `detect`.
   _.find = _.detect = function(obj, predicate, context) {
-    var result;
-    predicate = _.iteratee(predicate, context);
-    _.some(obj, function(value, index, list) {
-      if (predicate(value, index, list)) {
-        result = value;
-        return true;
-      }
-    });
-    return result;
+    var key;
+    if (isArrayLike(obj)) {
+      key = _.findIndex(obj, predicate, context);
+    } else {
+      key = _.findKey(obj, predicate, context);
+    }
+    if (key !== void 0 && key !== -1) return obj[key];
   };
 
   // Return all the elements that pass a truth test.
   // Aliased as `select`.
   _.filter = _.select = function(obj, predicate, context) {
     var results = [];
-    if (obj == null) return results;
-    predicate = _.iteratee(predicate, context);
+    predicate = cb(predicate, context);
     _.each(obj, function(value, index, list) {
       if (predicate(value, index, list)) results.push(value);
     });
@@ -3766,19 +4858,17 @@ exports.degrees = {
 
   // Return all the elements for which a truth test fails.
   _.reject = function(obj, predicate, context) {
-    return _.filter(obj, _.negate(_.iteratee(predicate)), context);
+    return _.filter(obj, _.negate(cb(predicate)), context);
   };
 
   // Determine whether all of the elements match a truth test.
   // Aliased as `all`.
   _.every = _.all = function(obj, predicate, context) {
-    if (obj == null) return true;
-    predicate = _.iteratee(predicate, context);
-    var keys = obj.length !== +obj.length && _.keys(obj),
-        length = (keys || obj).length,
-        index, currentKey;
-    for (index = 0; index < length; index++) {
-      currentKey = keys ? keys[index] : index;
+    predicate = cb(predicate, context);
+    var keys = !isArrayLike(obj) && _.keys(obj),
+        length = (keys || obj).length;
+    for (var index = 0; index < length; index++) {
+      var currentKey = keys ? keys[index] : index;
       if (!predicate(obj[currentKey], currentKey, obj)) return false;
     }
     return true;
@@ -3787,24 +4877,22 @@ exports.degrees = {
   // Determine if at least one element in the object matches a truth test.
   // Aliased as `any`.
   _.some = _.any = function(obj, predicate, context) {
-    if (obj == null) return false;
-    predicate = _.iteratee(predicate, context);
-    var keys = obj.length !== +obj.length && _.keys(obj),
-        length = (keys || obj).length,
-        index, currentKey;
-    for (index = 0; index < length; index++) {
-      currentKey = keys ? keys[index] : index;
+    predicate = cb(predicate, context);
+    var keys = !isArrayLike(obj) && _.keys(obj),
+        length = (keys || obj).length;
+    for (var index = 0; index < length; index++) {
+      var currentKey = keys ? keys[index] : index;
       if (predicate(obj[currentKey], currentKey, obj)) return true;
     }
     return false;
   };
 
-  // Determine if the array or object contains a given value (using `===`).
-  // Aliased as `include`.
-  _.contains = _.include = function(obj, target) {
-    if (obj == null) return false;
-    if (obj.length !== +obj.length) obj = _.values(obj);
-    return _.indexOf(obj, target) >= 0;
+  // Determine if the array or object contains a given item (using `===`).
+  // Aliased as `includes` and `include`.
+  _.contains = _.includes = _.include = function(obj, item, fromIndex, guard) {
+    if (!isArrayLike(obj)) obj = _.values(obj);
+    if (typeof fromIndex != 'number' || guard) fromIndex = 0;
+    return _.indexOf(obj, item, fromIndex) >= 0;
   };
 
   // Invoke a method (with arguments) on every item in a collection.
@@ -3812,7 +4900,8 @@ exports.degrees = {
     var args = slice.call(arguments, 2);
     var isFunc = _.isFunction(method);
     return _.map(obj, function(value) {
-      return (isFunc ? method : value[method]).apply(value, args);
+      var func = isFunc ? method : value[method];
+      return func == null ? func : func.apply(value, args);
     });
   };
 
@@ -3824,13 +4913,13 @@ exports.degrees = {
   // Convenience version of a common use case of `filter`: selecting only objects
   // containing specific `key:value` pairs.
   _.where = function(obj, attrs) {
-    return _.filter(obj, _.matches(attrs));
+    return _.filter(obj, _.matcher(attrs));
   };
 
   // Convenience version of a common use case of `find`: getting the first object
   // containing specific `key:value` pairs.
   _.findWhere = function(obj, attrs) {
-    return _.find(obj, _.matches(attrs));
+    return _.find(obj, _.matcher(attrs));
   };
 
   // Return the maximum element (or element-based computation).
@@ -3838,7 +4927,7 @@ exports.degrees = {
     var result = -Infinity, lastComputed = -Infinity,
         value, computed;
     if (iteratee == null && obj != null) {
-      obj = obj.length === +obj.length ? obj : _.values(obj);
+      obj = isArrayLike(obj) ? obj : _.values(obj);
       for (var i = 0, length = obj.length; i < length; i++) {
         value = obj[i];
         if (value > result) {
@@ -3846,7 +4935,7 @@ exports.degrees = {
         }
       }
     } else {
-      iteratee = _.iteratee(iteratee, context);
+      iteratee = cb(iteratee, context);
       _.each(obj, function(value, index, list) {
         computed = iteratee(value, index, list);
         if (computed > lastComputed || computed === -Infinity && result === -Infinity) {
@@ -3863,7 +4952,7 @@ exports.degrees = {
     var result = Infinity, lastComputed = Infinity,
         value, computed;
     if (iteratee == null && obj != null) {
-      obj = obj.length === +obj.length ? obj : _.values(obj);
+      obj = isArrayLike(obj) ? obj : _.values(obj);
       for (var i = 0, length = obj.length; i < length; i++) {
         value = obj[i];
         if (value < result) {
@@ -3871,7 +4960,7 @@ exports.degrees = {
         }
       }
     } else {
-      iteratee = _.iteratee(iteratee, context);
+      iteratee = cb(iteratee, context);
       _.each(obj, function(value, index, list) {
         computed = iteratee(value, index, list);
         if (computed < lastComputed || computed === Infinity && result === Infinity) {
@@ -3886,7 +4975,7 @@ exports.degrees = {
   // Shuffle a collection, using the modern version of the
   // [Fisher-Yates shuffle](http://en.wikipedia.org/wiki/Fisher–Yates_shuffle).
   _.shuffle = function(obj) {
-    var set = obj && obj.length === +obj.length ? obj : _.values(obj);
+    var set = isArrayLike(obj) ? obj : _.values(obj);
     var length = set.length;
     var shuffled = Array(length);
     for (var index = 0, rand; index < length; index++) {
@@ -3902,7 +4991,7 @@ exports.degrees = {
   // The internal `guard` argument allows it to work with `map`.
   _.sample = function(obj, n, guard) {
     if (n == null || guard) {
-      if (obj.length !== +obj.length) obj = _.values(obj);
+      if (!isArrayLike(obj)) obj = _.values(obj);
       return obj[_.random(obj.length - 1)];
     }
     return _.shuffle(obj).slice(0, Math.max(0, n));
@@ -3910,7 +4999,7 @@ exports.degrees = {
 
   // Sort the object's values by a criterion produced by an iteratee.
   _.sortBy = function(obj, iteratee, context) {
-    iteratee = _.iteratee(iteratee, context);
+    iteratee = cb(iteratee, context);
     return _.pluck(_.map(obj, function(value, index, list) {
       return {
         value: value,
@@ -3932,7 +5021,7 @@ exports.degrees = {
   var group = function(behavior) {
     return function(obj, iteratee, context) {
       var result = {};
-      iteratee = _.iteratee(iteratee, context);
+      iteratee = cb(iteratee, context);
       _.each(obj, function(value, index) {
         var key = iteratee(value, index, obj);
         behavior(result, value, key);
@@ -3960,37 +5049,24 @@ exports.degrees = {
     if (_.has(result, key)) result[key]++; else result[key] = 1;
   });
 
-  // Use a comparator function to figure out the smallest index at which
-  // an object should be inserted so as to maintain order. Uses binary search.
-  _.sortedIndex = function(array, obj, iteratee, context) {
-    iteratee = _.iteratee(iteratee, context, 1);
-    var value = iteratee(obj);
-    var low = 0, high = array.length;
-    while (low < high) {
-      var mid = low + high >>> 1;
-      if (iteratee(array[mid]) < value) low = mid + 1; else high = mid;
-    }
-    return low;
-  };
-
   // Safely create a real, live array from anything iterable.
   _.toArray = function(obj) {
     if (!obj) return [];
     if (_.isArray(obj)) return slice.call(obj);
-    if (obj.length === +obj.length) return _.map(obj, _.identity);
+    if (isArrayLike(obj)) return _.map(obj, _.identity);
     return _.values(obj);
   };
 
   // Return the number of elements in an object.
   _.size = function(obj) {
     if (obj == null) return 0;
-    return obj.length === +obj.length ? obj.length : _.keys(obj).length;
+    return isArrayLike(obj) ? obj.length : _.keys(obj).length;
   };
 
   // Split a collection into two arrays: one whose elements all satisfy the given
   // predicate, and one whose elements all do not satisfy the predicate.
   _.partition = function(obj, predicate, context) {
-    predicate = _.iteratee(predicate, context);
+    predicate = cb(predicate, context);
     var pass = [], fail = [];
     _.each(obj, function(value, key, obj) {
       (predicate(value, key, obj) ? pass : fail).push(value);
@@ -4007,30 +5083,27 @@ exports.degrees = {
   _.first = _.head = _.take = function(array, n, guard) {
     if (array == null) return void 0;
     if (n == null || guard) return array[0];
-    if (n < 0) return [];
-    return slice.call(array, 0, n);
+    return _.initial(array, array.length - n);
   };
 
   // Returns everything but the last entry of the array. Especially useful on
   // the arguments object. Passing **n** will return all the values in
-  // the array, excluding the last N. The **guard** check allows it to work with
-  // `_.map`.
+  // the array, excluding the last N.
   _.initial = function(array, n, guard) {
     return slice.call(array, 0, Math.max(0, array.length - (n == null || guard ? 1 : n)));
   };
 
   // Get the last element of an array. Passing **n** will return the last N
-  // values in the array. The **guard** check allows it to work with `_.map`.
+  // values in the array.
   _.last = function(array, n, guard) {
     if (array == null) return void 0;
     if (n == null || guard) return array[array.length - 1];
-    return slice.call(array, Math.max(array.length - n, 0));
+    return _.rest(array, Math.max(0, array.length - n));
   };
 
   // Returns everything but the first entry of the array. Aliased as `tail` and `drop`.
   // Especially useful on the arguments object. Passing an **n** will return
-  // the rest N values in the array. The **guard**
-  // check allows it to work with `_.map`.
+  // the rest N values in the array.
   _.rest = _.tail = _.drop = function(array, n, guard) {
     return slice.call(array, n == null || guard ? 1 : n);
   };
@@ -4041,18 +5114,20 @@ exports.degrees = {
   };
 
   // Internal implementation of a recursive `flatten` function.
-  var flatten = function(input, shallow, strict, output) {
-    if (shallow && _.every(input, _.isArray)) {
-      return concat.apply(output, input);
-    }
-    for (var i = 0, length = input.length; i < length; i++) {
+  var flatten = function(input, shallow, strict, startIndex) {
+    var output = [], idx = 0;
+    for (var i = startIndex || 0, length = getLength(input); i < length; i++) {
       var value = input[i];
-      if (!_.isArray(value) && !_.isArguments(value)) {
-        if (!strict) output.push(value);
-      } else if (shallow) {
-        push.apply(output, value);
-      } else {
-        flatten(value, shallow, strict, output);
+      if (isArrayLike(value) && (_.isArray(value) || _.isArguments(value))) {
+        //flatten current level of array or arguments object
+        if (!shallow) value = flatten(value, shallow, strict);
+        var j = 0, len = value.length;
+        output.length += len;
+        while (j < len) {
+          output[idx++] = value[j++];
+        }
+      } else if (!strict) {
+        output[idx++] = value;
       }
     }
     return output;
@@ -4060,7 +5135,7 @@ exports.degrees = {
 
   // Flatten out an array, either recursively (by default), or just one level.
   _.flatten = function(array, shallow) {
-    return flatten(array, shallow, false, []);
+    return flatten(array, shallow, false);
   };
 
   // Return a version of the array that does not contain the specified value(s).
@@ -4072,27 +5147,26 @@ exports.degrees = {
   // been sorted, you have the option of using a faster algorithm.
   // Aliased as `unique`.
   _.uniq = _.unique = function(array, isSorted, iteratee, context) {
-    if (array == null) return [];
     if (!_.isBoolean(isSorted)) {
       context = iteratee;
       iteratee = isSorted;
       isSorted = false;
     }
-    if (iteratee != null) iteratee = _.iteratee(iteratee, context);
+    if (iteratee != null) iteratee = cb(iteratee, context);
     var result = [];
     var seen = [];
-    for (var i = 0, length = array.length; i < length; i++) {
-      var value = array[i];
+    for (var i = 0, length = getLength(array); i < length; i++) {
+      var value = array[i],
+          computed = iteratee ? iteratee(value, i, array) : value;
       if (isSorted) {
-        if (!i || seen !== value) result.push(value);
-        seen = value;
+        if (!i || seen !== computed) result.push(value);
+        seen = computed;
       } else if (iteratee) {
-        var computed = iteratee(value, i, array);
-        if (_.indexOf(seen, computed) < 0) {
+        if (!_.contains(seen, computed)) {
           seen.push(computed);
           result.push(value);
         }
-      } else if (_.indexOf(result, value) < 0) {
+      } else if (!_.contains(result, value)) {
         result.push(value);
       }
     }
@@ -4102,16 +5176,15 @@ exports.degrees = {
   // Produce an array that contains the union: each distinct element from all of
   // the passed-in arrays.
   _.union = function() {
-    return _.uniq(flatten(arguments, true, true, []));
+    return _.uniq(flatten(arguments, true, true));
   };
 
   // Produce an array that contains every item shared between all the
   // passed-in arrays.
   _.intersection = function(array) {
-    if (array == null) return [];
     var result = [];
     var argsLength = arguments.length;
-    for (var i = 0, length = array.length; i < length; i++) {
+    for (var i = 0, length = getLength(array); i < length; i++) {
       var item = array[i];
       if (_.contains(result, item)) continue;
       for (var j = 1; j < argsLength; j++) {
@@ -4125,7 +5198,7 @@ exports.degrees = {
   // Take the difference between one array and a number of other arrays.
   // Only the elements present in just the first array will remain.
   _.difference = function(array) {
-    var rest = flatten(slice.call(arguments, 1), true, true, []);
+    var rest = flatten(arguments, true, true, 1);
     return _.filter(array, function(value){
       return !_.contains(rest, value);
     });
@@ -4133,23 +5206,28 @@ exports.degrees = {
 
   // Zip together multiple lists into a single array -- elements that share
   // an index go together.
-  _.zip = function(array) {
-    if (array == null) return [];
-    var length = _.max(arguments, 'length').length;
-    var results = Array(length);
-    for (var i = 0; i < length; i++) {
-      results[i] = _.pluck(arguments, i);
+  _.zip = function() {
+    return _.unzip(arguments);
+  };
+
+  // Complement of _.zip. Unzip accepts an array of arrays and groups
+  // each array's elements on shared indices
+  _.unzip = function(array) {
+    var length = array && _.max(array, getLength).length || 0;
+    var result = Array(length);
+
+    for (var index = 0; index < length; index++) {
+      result[index] = _.pluck(array, index);
     }
-    return results;
+    return result;
   };
 
   // Converts lists into objects. Pass either a single array of `[key, value]`
   // pairs, or two parallel arrays of the same length -- one of keys, and one of
   // the corresponding values.
   _.object = function(list, values) {
-    if (list == null) return {};
     var result = {};
-    for (var i = 0, length = list.length; i < length; i++) {
+    for (var i = 0, length = getLength(list); i < length; i++) {
       if (values) {
         result[list[i]] = values[i];
       } else {
@@ -4159,40 +5237,73 @@ exports.degrees = {
     return result;
   };
 
+  // Generator function to create the findIndex and findLastIndex functions
+  function createPredicateIndexFinder(dir) {
+    return function(array, predicate, context) {
+      predicate = cb(predicate, context);
+      var length = getLength(array);
+      var index = dir > 0 ? 0 : length - 1;
+      for (; index >= 0 && index < length; index += dir) {
+        if (predicate(array[index], index, array)) return index;
+      }
+      return -1;
+    };
+  }
+
+  // Returns the first index on an array-like that passes a predicate test
+  _.findIndex = createPredicateIndexFinder(1);
+  _.findLastIndex = createPredicateIndexFinder(-1);
+
+  // Use a comparator function to figure out the smallest index at which
+  // an object should be inserted so as to maintain order. Uses binary search.
+  _.sortedIndex = function(array, obj, iteratee, context) {
+    iteratee = cb(iteratee, context, 1);
+    var value = iteratee(obj);
+    var low = 0, high = getLength(array);
+    while (low < high) {
+      var mid = Math.floor((low + high) / 2);
+      if (iteratee(array[mid]) < value) low = mid + 1; else high = mid;
+    }
+    return low;
+  };
+
+  // Generator function to create the indexOf and lastIndexOf functions
+  function createIndexFinder(dir, predicateFind, sortedIndex) {
+    return function(array, item, idx) {
+      var i = 0, length = getLength(array);
+      if (typeof idx == 'number') {
+        if (dir > 0) {
+            i = idx >= 0 ? idx : Math.max(idx + length, i);
+        } else {
+            length = idx >= 0 ? Math.min(idx + 1, length) : idx + length + 1;
+        }
+      } else if (sortedIndex && idx && length) {
+        idx = sortedIndex(array, item);
+        return array[idx] === item ? idx : -1;
+      }
+      if (item !== item) {
+        idx = predicateFind(slice.call(array, i, length), _.isNaN);
+        return idx >= 0 ? idx + i : -1;
+      }
+      for (idx = dir > 0 ? i : length - 1; idx >= 0 && idx < length; idx += dir) {
+        if (array[idx] === item) return idx;
+      }
+      return -1;
+    };
+  }
+
   // Return the position of the first occurrence of an item in an array,
   // or -1 if the item is not included in the array.
   // If the array is large and already in sort order, pass `true`
   // for **isSorted** to use binary search.
-  _.indexOf = function(array, item, isSorted) {
-    if (array == null) return -1;
-    var i = 0, length = array.length;
-    if (isSorted) {
-      if (typeof isSorted == 'number') {
-        i = isSorted < 0 ? Math.max(0, length + isSorted) : isSorted;
-      } else {
-        i = _.sortedIndex(array, item);
-        return array[i] === item ? i : -1;
-      }
-    }
-    for (; i < length; i++) if (array[i] === item) return i;
-    return -1;
-  };
-
-  _.lastIndexOf = function(array, item, from) {
-    if (array == null) return -1;
-    var idx = array.length;
-    if (typeof from == 'number') {
-      idx = from < 0 ? idx + from + 1 : Math.min(idx, from + 1);
-    }
-    while (--idx >= 0) if (array[idx] === item) return idx;
-    return -1;
-  };
+  _.indexOf = createIndexFinder(1, _.findIndex, _.sortedIndex);
+  _.lastIndexOf = createIndexFinder(-1, _.findLastIndex);
 
   // Generate an integer Array containing an arithmetic progression. A port of
   // the native Python `range()` function. See
   // [the Python documentation](http://docs.python.org/library/functions.html#range).
   _.range = function(start, stop, step) {
-    if (arguments.length <= 1) {
+    if (stop == null) {
       stop = start || 0;
       start = 0;
     }
@@ -4211,25 +5322,25 @@ exports.degrees = {
   // Function (ahem) Functions
   // ------------------
 
-  // Reusable constructor function for prototype setting.
-  var Ctor = function(){};
+  // Determines whether to execute a function as a constructor
+  // or a normal function with the provided arguments
+  var executeBound = function(sourceFunc, boundFunc, context, callingContext, args) {
+    if (!(callingContext instanceof boundFunc)) return sourceFunc.apply(context, args);
+    var self = baseCreate(sourceFunc.prototype);
+    var result = sourceFunc.apply(self, args);
+    if (_.isObject(result)) return result;
+    return self;
+  };
 
   // Create a function bound to a given object (assigning `this`, and arguments,
   // optionally). Delegates to **ECMAScript 5**'s native `Function.bind` if
   // available.
   _.bind = function(func, context) {
-    var args, bound;
     if (nativeBind && func.bind === nativeBind) return nativeBind.apply(func, slice.call(arguments, 1));
     if (!_.isFunction(func)) throw new TypeError('Bind must be called on a function');
-    args = slice.call(arguments, 2);
-    bound = function() {
-      if (!(this instanceof bound)) return func.apply(context, args.concat(slice.call(arguments)));
-      Ctor.prototype = func.prototype;
-      var self = new Ctor;
-      Ctor.prototype = null;
-      var result = func.apply(self, args.concat(slice.call(arguments)));
-      if (_.isObject(result)) return result;
-      return self;
+    var args = slice.call(arguments, 2);
+    var bound = function() {
+      return executeBound(func, bound, context, this, args.concat(slice.call(arguments)));
     };
     return bound;
   };
@@ -4239,15 +5350,16 @@ exports.degrees = {
   // as a placeholder, allowing any combination of arguments to be pre-filled.
   _.partial = function(func) {
     var boundArgs = slice.call(arguments, 1);
-    return function() {
-      var position = 0;
-      var args = boundArgs.slice();
-      for (var i = 0, length = args.length; i < length; i++) {
-        if (args[i] === _) args[i] = arguments[position++];
+    var bound = function() {
+      var position = 0, length = boundArgs.length;
+      var args = Array(length);
+      for (var i = 0; i < length; i++) {
+        args[i] = boundArgs[i] === _ ? arguments[position++] : boundArgs[i];
       }
       while (position < arguments.length) args.push(arguments[position++]);
-      return func.apply(this, args);
+      return executeBound(func, bound, this, this, args);
     };
+    return bound;
   };
 
   // Bind a number of an object's methods to that object. Remaining arguments
@@ -4267,7 +5379,7 @@ exports.degrees = {
   _.memoize = function(func, hasher) {
     var memoize = function(key) {
       var cache = memoize.cache;
-      var address = hasher ? hasher.apply(this, arguments) : key;
+      var address = '' + (hasher ? hasher.apply(this, arguments) : key);
       if (!_.has(cache, address)) cache[address] = func.apply(this, arguments);
       return cache[address];
     };
@@ -4286,9 +5398,7 @@ exports.degrees = {
 
   // Defers a function, scheduling it to run after the current call stack has
   // cleared.
-  _.defer = function(func) {
-    return _.delay.apply(_, [func, 1].concat(slice.call(arguments, 1)));
-  };
+  _.defer = _.partial(_.delay, _, 1);
 
   // Returns a function, that, when invoked, will only be triggered at most once
   // during a given window of time. Normally, the throttled function will run
@@ -4313,8 +5423,10 @@ exports.degrees = {
       context = this;
       args = arguments;
       if (remaining <= 0 || remaining > wait) {
-        clearTimeout(timeout);
-        timeout = null;
+        if (timeout) {
+          clearTimeout(timeout);
+          timeout = null;
+        }
         previous = now;
         result = func.apply(context, args);
         if (!timeout) context = args = null;
@@ -4335,7 +5447,7 @@ exports.degrees = {
     var later = function() {
       var last = _.now() - timestamp;
 
-      if (last < wait && last > 0) {
+      if (last < wait && last >= 0) {
         timeout = setTimeout(later, wait - last);
       } else {
         timeout = null;
@@ -4388,7 +5500,7 @@ exports.degrees = {
     };
   };
 
-  // Returns a function that will only be executed after being called N times.
+  // Returns a function that will only be executed on and after the Nth call.
   _.after = function(times, func) {
     return function() {
       if (--times < 1) {
@@ -4397,15 +5509,14 @@ exports.degrees = {
     };
   };
 
-  // Returns a function that will only be executed before being called N times.
+  // Returns a function that will only be executed up to (but not including) the Nth call.
   _.before = function(times, func) {
     var memo;
     return function() {
       if (--times > 0) {
         memo = func.apply(this, arguments);
-      } else {
-        func = null;
       }
+      if (times <= 1) func = null;
       return memo;
     };
   };
@@ -4417,13 +5528,47 @@ exports.degrees = {
   // Object Functions
   // ----------------
 
-  // Retrieve the names of an object's properties.
+  // Keys in IE < 9 that won't be iterated by `for key in ...` and thus missed.
+  var hasEnumBug = !{toString: null}.propertyIsEnumerable('toString');
+  var nonEnumerableProps = ['valueOf', 'isPrototypeOf', 'toString',
+                      'propertyIsEnumerable', 'hasOwnProperty', 'toLocaleString'];
+
+  function collectNonEnumProps(obj, keys) {
+    var nonEnumIdx = nonEnumerableProps.length;
+    var constructor = obj.constructor;
+    var proto = (_.isFunction(constructor) && constructor.prototype) || ObjProto;
+
+    // Constructor is a special case.
+    var prop = 'constructor';
+    if (_.has(obj, prop) && !_.contains(keys, prop)) keys.push(prop);
+
+    while (nonEnumIdx--) {
+      prop = nonEnumerableProps[nonEnumIdx];
+      if (prop in obj && obj[prop] !== proto[prop] && !_.contains(keys, prop)) {
+        keys.push(prop);
+      }
+    }
+  }
+
+  // Retrieve the names of an object's own properties.
   // Delegates to **ECMAScript 5**'s native `Object.keys`
   _.keys = function(obj) {
     if (!_.isObject(obj)) return [];
     if (nativeKeys) return nativeKeys(obj);
     var keys = [];
     for (var key in obj) if (_.has(obj, key)) keys.push(key);
+    // Ahem, IE < 9.
+    if (hasEnumBug) collectNonEnumProps(obj, keys);
+    return keys;
+  };
+
+  // Retrieve all the property names of an object.
+  _.allKeys = function(obj) {
+    if (!_.isObject(obj)) return [];
+    var keys = [];
+    for (var key in obj) keys.push(key);
+    // Ahem, IE < 9.
+    if (hasEnumBug) collectNonEnumProps(obj, keys);
     return keys;
   };
 
@@ -4436,6 +5581,21 @@ exports.degrees = {
       values[i] = obj[keys[i]];
     }
     return values;
+  };
+
+  // Returns the results of applying the iteratee to each element of the object
+  // In contrast to _.map it returns an object
+  _.mapObject = function(obj, iteratee, context) {
+    iteratee = cb(iteratee, context);
+    var keys =  _.keys(obj),
+          length = keys.length,
+          results = {},
+          currentKey;
+      for (var index = 0; index < length; index++) {
+        currentKey = keys[index];
+        results[currentKey] = iteratee(obj[currentKey], currentKey, obj);
+      }
+      return results;
   };
 
   // Convert an object into a list of `[key, value]` pairs.
@@ -4470,37 +5630,38 @@ exports.degrees = {
   };
 
   // Extend a given object with all the properties in passed-in object(s).
-  _.extend = function(obj) {
-    if (!_.isObject(obj)) return obj;
-    var source, prop;
-    for (var i = 1, length = arguments.length; i < length; i++) {
-      source = arguments[i];
-      for (prop in source) {
-        if (hasOwnProperty.call(source, prop)) {
-            obj[prop] = source[prop];
-        }
-      }
+  _.extend = createAssigner(_.allKeys);
+
+  // Assigns a given object with all the own properties in the passed-in object(s)
+  // (https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object/assign)
+  _.extendOwn = _.assign = createAssigner(_.keys);
+
+  // Returns the first key on an object that passes a predicate test
+  _.findKey = function(obj, predicate, context) {
+    predicate = cb(predicate, context);
+    var keys = _.keys(obj), key;
+    for (var i = 0, length = keys.length; i < length; i++) {
+      key = keys[i];
+      if (predicate(obj[key], key, obj)) return key;
     }
-    return obj;
   };
 
   // Return a copy of the object only containing the whitelisted properties.
-  _.pick = function(obj, iteratee, context) {
-    var result = {}, key;
+  _.pick = function(object, oiteratee, context) {
+    var result = {}, obj = object, iteratee, keys;
     if (obj == null) return result;
-    if (_.isFunction(iteratee)) {
-      iteratee = createCallback(iteratee, context);
-      for (key in obj) {
-        var value = obj[key];
-        if (iteratee(value, key, obj)) result[key] = value;
-      }
+    if (_.isFunction(oiteratee)) {
+      keys = _.allKeys(obj);
+      iteratee = optimizeCb(oiteratee, context);
     } else {
-      var keys = concat.apply([], slice.call(arguments, 1));
-      obj = new Object(obj);
-      for (var i = 0, length = keys.length; i < length; i++) {
-        key = keys[i];
-        if (key in obj) result[key] = obj[key];
-      }
+      keys = flatten(arguments, false, false, 1);
+      iteratee = function(value, key, obj) { return key in obj; };
+      obj = Object(obj);
+    }
+    for (var i = 0, length = keys.length; i < length; i++) {
+      var key = keys[i];
+      var value = obj[key];
+      if (iteratee(value, key, obj)) result[key] = value;
     }
     return result;
   };
@@ -4510,7 +5671,7 @@ exports.degrees = {
     if (_.isFunction(iteratee)) {
       iteratee = _.negate(iteratee);
     } else {
-      var keys = _.map(concat.apply([], slice.call(arguments, 1)), String);
+      var keys = _.map(flatten(arguments, false, false, 1), String);
       iteratee = function(value, key) {
         return !_.contains(keys, key);
       };
@@ -4519,15 +5680,15 @@ exports.degrees = {
   };
 
   // Fill in a given object with default properties.
-  _.defaults = function(obj) {
-    if (!_.isObject(obj)) return obj;
-    for (var i = 1, length = arguments.length; i < length; i++) {
-      var source = arguments[i];
-      for (var prop in source) {
-        if (obj[prop] === void 0) obj[prop] = source[prop];
-      }
-    }
-    return obj;
+  _.defaults = createAssigner(_.allKeys, true);
+
+  // Creates an object that inherits from the given prototype object.
+  // If additional properties are provided then they will be added to the
+  // created object.
+  _.create = function(prototype, props) {
+    var result = baseCreate(prototype);
+    if (props) _.extendOwn(result, props);
+    return result;
   };
 
   // Create a (shallow-cloned) duplicate of an object.
@@ -4543,6 +5704,19 @@ exports.degrees = {
     interceptor(obj);
     return obj;
   };
+
+  // Returns whether an object has a given set of `key:value` pairs.
+  _.isMatch = function(object, attrs) {
+    var keys = _.keys(attrs), length = keys.length;
+    if (object == null) return !length;
+    var obj = Object(object);
+    for (var i = 0; i < length; i++) {
+      var key = keys[i];
+      if (attrs[key] !== obj[key] || !(key in obj)) return false;
+    }
+    return true;
+  };
+
 
   // Internal recursive comparison function for `isEqual`.
   var eq = function(a, b, aStack, bStack) {
@@ -4578,74 +5752,76 @@ exports.degrees = {
         // of `NaN` are not equivalent.
         return +a === +b;
     }
-    if (typeof a != 'object' || typeof b != 'object') return false;
+
+    var areArrays = className === '[object Array]';
+    if (!areArrays) {
+      if (typeof a != 'object' || typeof b != 'object') return false;
+
+      // Objects with different constructors are not equivalent, but `Object`s or `Array`s
+      // from different frames are.
+      var aCtor = a.constructor, bCtor = b.constructor;
+      if (aCtor !== bCtor && !(_.isFunction(aCtor) && aCtor instanceof aCtor &&
+                               _.isFunction(bCtor) && bCtor instanceof bCtor)
+                          && ('constructor' in a && 'constructor' in b)) {
+        return false;
+      }
+    }
     // Assume equality for cyclic structures. The algorithm for detecting cyclic
     // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
+
+    // Initializing stack of traversed objects.
+    // It's done here since we only need them for objects and arrays comparison.
+    aStack = aStack || [];
+    bStack = bStack || [];
     var length = aStack.length;
     while (length--) {
       // Linear search. Performance is inversely proportional to the number of
       // unique nested structures.
       if (aStack[length] === a) return bStack[length] === b;
     }
-    // Objects with different constructors are not equivalent, but `Object`s
-    // from different frames are.
-    var aCtor = a.constructor, bCtor = b.constructor;
-    if (
-      aCtor !== bCtor &&
-      // Handle Object.create(x) cases
-      'constructor' in a && 'constructor' in b &&
-      !(_.isFunction(aCtor) && aCtor instanceof aCtor &&
-        _.isFunction(bCtor) && bCtor instanceof bCtor)
-    ) {
-      return false;
-    }
+
     // Add the first object to the stack of traversed objects.
     aStack.push(a);
     bStack.push(b);
-    var size, result;
+
     // Recursively compare objects and arrays.
-    if (className === '[object Array]') {
+    if (areArrays) {
       // Compare array lengths to determine if a deep comparison is necessary.
-      size = a.length;
-      result = size === b.length;
-      if (result) {
-        // Deep compare the contents, ignoring non-numeric properties.
-        while (size--) {
-          if (!(result = eq(a[size], b[size], aStack, bStack))) break;
-        }
+      length = a.length;
+      if (length !== b.length) return false;
+      // Deep compare the contents, ignoring non-numeric properties.
+      while (length--) {
+        if (!eq(a[length], b[length], aStack, bStack)) return false;
       }
     } else {
       // Deep compare objects.
       var keys = _.keys(a), key;
-      size = keys.length;
+      length = keys.length;
       // Ensure that both objects contain the same number of properties before comparing deep equality.
-      result = _.keys(b).length === size;
-      if (result) {
-        while (size--) {
-          // Deep compare each member
-          key = keys[size];
-          if (!(result = _.has(b, key) && eq(a[key], b[key], aStack, bStack))) break;
-        }
+      if (_.keys(b).length !== length) return false;
+      while (length--) {
+        // Deep compare each member
+        key = keys[length];
+        if (!(_.has(b, key) && eq(a[key], b[key], aStack, bStack))) return false;
       }
     }
     // Remove the first object from the stack of traversed objects.
     aStack.pop();
     bStack.pop();
-    return result;
+    return true;
   };
 
   // Perform a deep comparison to check if two objects are equal.
   _.isEqual = function(a, b) {
-    return eq(a, b, [], []);
+    return eq(a, b);
   };
 
   // Is a given array, string, or object empty?
   // An "empty" object has no enumerable own-properties.
   _.isEmpty = function(obj) {
     if (obj == null) return true;
-    if (_.isArray(obj) || _.isString(obj) || _.isArguments(obj)) return obj.length === 0;
-    for (var key in obj) if (_.has(obj, key)) return false;
-    return true;
+    if (isArrayLike(obj) && (_.isArray(obj) || _.isString(obj) || _.isArguments(obj))) return obj.length === 0;
+    return _.keys(obj).length === 0;
   };
 
   // Is a given value a DOM element?
@@ -4665,14 +5841,14 @@ exports.degrees = {
     return type === 'function' || type === 'object' && !!obj;
   };
 
-  // Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp.
-  _.each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp'], function(name) {
+  // Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp, isError.
+  _.each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp', 'Error'], function(name) {
     _['is' + name] = function(obj) {
       return toString.call(obj) === '[object ' + name + ']';
     };
   });
 
-  // Define a fallback version of the method in browsers (ahem, IE), where
+  // Define a fallback version of the method in browsers (ahem, IE < 9), where
   // there isn't any inspectable "Arguments" type.
   if (!_.isArguments(arguments)) {
     _.isArguments = function(obj) {
@@ -4680,8 +5856,9 @@ exports.degrees = {
     };
   }
 
-  // Optimize `isFunction` if appropriate. Work around an IE 11 bug.
-  if (typeof /./ !== 'function') {
+  // Optimize `isFunction` if appropriate. Work around some typeof bugs in old v8,
+  // IE 11 (#1621), and in Safari 8 (#1929).
+  if (typeof /./ != 'function' && typeof Int8Array != 'object') {
     _.isFunction = function(obj) {
       return typeof obj == 'function' || false;
     };
@@ -4733,6 +5910,7 @@ exports.degrees = {
     return value;
   };
 
+  // Predicate-generating functions. Often useful outside of Underscore.
   _.constant = function(value) {
     return function() {
       return value;
@@ -4741,30 +5919,28 @@ exports.degrees = {
 
   _.noop = function(){};
 
-  _.property = function(key) {
-    return function(obj) {
+  _.property = property;
+
+  // Generates a function for a given object that returns a given property.
+  _.propertyOf = function(obj) {
+    return obj == null ? function(){} : function(key) {
       return obj[key];
     };
   };
 
-  // Returns a predicate for checking whether an object has a given set of `key:value` pairs.
-  _.matches = function(attrs) {
-    var pairs = _.pairs(attrs), length = pairs.length;
+  // Returns a predicate for checking whether an object has a given set of
+  // `key:value` pairs.
+  _.matcher = _.matches = function(attrs) {
+    attrs = _.extendOwn({}, attrs);
     return function(obj) {
-      if (obj == null) return !length;
-      obj = new Object(obj);
-      for (var i = 0; i < length; i++) {
-        var pair = pairs[i], key = pair[0];
-        if (pair[1] !== obj[key] || !(key in obj)) return false;
-      }
-      return true;
+      return _.isMatch(obj, attrs);
     };
   };
 
   // Run a function **n** times.
   _.times = function(n, iteratee, context) {
     var accum = Array(Math.max(0, n));
-    iteratee = createCallback(iteratee, context, 1);
+    iteratee = optimizeCb(iteratee, context, 1);
     for (var i = 0; i < n; i++) accum[i] = iteratee(i);
     return accum;
   };
@@ -4813,10 +5989,12 @@ exports.degrees = {
 
   // If the value of the named `property` is a function then invoke it with the
   // `object` as context; otherwise, return it.
-  _.result = function(object, property) {
-    if (object == null) return void 0;
-    var value = object[property];
-    return _.isFunction(value) ? object[property]() : value;
+  _.result = function(object, property, fallback) {
+    var value = object == null ? void 0 : object[property];
+    if (value === void 0) {
+      value = fallback;
+    }
+    return _.isFunction(value) ? value.call(object) : value;
   };
 
   // Generate a unique integer id (unique within the entire client session).
@@ -4931,8 +6109,8 @@ exports.degrees = {
   // underscore functions. Wrapped objects may be chained.
 
   // Helper function to continue chaining intermediate results.
-  var result = function(obj) {
-    return this._chain ? _(obj).chain() : obj;
+  var result = function(instance, obj) {
+    return instance._chain ? _(obj).chain() : obj;
   };
 
   // Add your own custom functions to the Underscore object.
@@ -4942,7 +6120,7 @@ exports.degrees = {
       _.prototype[name] = function() {
         var args = [this._wrapped];
         push.apply(args, arguments);
-        return result.call(this, func.apply(_, args));
+        return result(this, func.apply(_, args));
       };
     });
   };
@@ -4957,7 +6135,7 @@ exports.degrees = {
       var obj = this._wrapped;
       method.apply(obj, arguments);
       if ((name === 'shift' || name === 'splice') && obj.length === 0) delete obj[0];
-      return result.call(this, obj);
+      return result(this, obj);
     };
   });
 
@@ -4965,13 +6143,21 @@ exports.degrees = {
   _.each(['concat', 'join', 'slice'], function(name) {
     var method = ArrayProto[name];
     _.prototype[name] = function() {
-      return result.call(this, method.apply(this._wrapped, arguments));
+      return result(this, method.apply(this._wrapped, arguments));
     };
   });
 
   // Extracts the result from a wrapped and chained object.
   _.prototype.value = function() {
     return this._wrapped;
+  };
+
+  // Provide unwrapping proxy for some methods used in engine operations
+  // such as arithmetic and JSON stringification.
+  _.prototype.valueOf = _.prototype.toJSON = _.prototype.value;
+
+  _.prototype.toString = function() {
+    return '' + this._wrapped;
   };
 
   // AMD registration happens at the end for compatibility with AMD loaders
@@ -4988,7 +6174,7 @@ exports.degrees = {
   }
 }.call(this));
 
-},{}],17:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 // calc.js
 // measure calculations
 
@@ -5040,7 +6226,7 @@ var measure = function (latlngs) {
 module.exports = {
   measure: measure // `measure(latLngArray)` - returns object with calced measurements for passed points
 };
-},{"geocrunch":6,"underscore":16}],18:[function(require,module,exports){
+},{"geocrunch":6,"underscore":22}],24:[function(require,module,exports){
 // dom.js
 // utility functions for managing DOM elements
 
@@ -5078,12 +6264,76 @@ module.exports = {
   hide: hide,    // `hide(someElement)` - hide passed dom element
   show: show     // `show(someElement)` - show passed dom element
 };
-},{}],19:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
+// en.js
+// Translations
+
+module.exports = {
+  'measure': 'Measure',
+  'measureDistancesAndAreas': 'Measure distances and areas',
+  'createNewMeasurement': 'Create a new measurement',
+  'startCreating': 'Start creating a measurement by adding points to the map',
+  'finishMeasurement': 'Finish measurement',
+  'lastPoint': 'Last point',
+  'area': 'Area',
+  'perimeter': 'Perimeter',
+  'pointLocation': 'Point location',
+  'areaMeasurement': 'Area measurement',
+  'linearMeasurement': 'Linear measurement',
+  'pathDistance': 'Path distance',
+  'centerOnArea': 'Center on this area',
+  'centerOnLine': 'Center on this line',
+  'centerOnLocation': 'Center on this location',
+  'cancel': 'Cancel',
+  'delete': 'Delete',
+  'acres': 'Acres',
+  'feet': 'Feet',
+  'kilometers': 'Kilometers',
+  'hectares': 'Hectares',
+  'meters': 'Meters',
+  'miles': 'Miles',
+  'sqfeet': 'Sq Feet',
+  'sqmeters': 'Sq Meters',
+  'sqmiles': 'Sq Miles'
+};
+},{}],26:[function(require,module,exports){
+// es.js
+// Translations
+
+module.exports = {
+  'measure': 'Medición',
+  'measureDistancesAndAreas': 'Mida distancias y áreas',
+  'createNewMeasurement': 'Crear nueva medición',
+  'startCreating': 'Empiece a crear la medición añadiendo puntos al mapa',
+  'finishMeasurement': 'Terminar medición',
+  'lastPoint': 'Último punto',
+  'area': 'Área',
+  'perimeter': 'Perímetro',
+  'pointLocation': 'Localización del punto',
+  'areaMeasurement': 'Medición de área',
+  'linearMeasurement': 'Medición linear',
+  'pathDistance': 'Distancia de ruta',
+  'centerOnArea': 'Centrar en este área',
+  'centerOnLine': 'Centrar en esta línea',
+  'centerOnLocation': 'Centrar en esta localización',
+  'cancel': 'Cancelar',
+  'delete': 'Eliminar',
+  'acres': 'Acres',
+  'feet': 'Pies',
+  'kilometers': 'Kilómetros',
+  'hectares': 'Hectáreas',
+  'meters': 'Metros',
+  'miles': 'Millas',
+  'sqfeet': 'Pies cuadrados',
+  'sqmeters': 'Metros cuadrados',
+  'sqmiles': 'Millas cuadradas'
+};
+},{}],27:[function(require,module,exports){
 (function (global){
 // leaflet-measure.js
 
 var _ = require('underscore');
-var L = (typeof window !== "undefined" ? window.L : typeof global !== "undefined" ? global.L : null);
+var L = (typeof window !== "undefined" ? window['L'] : typeof global !== "undefined" ? global['L'] : null);
 var humanize = require('humanize');
 
 var units = require('./units');
@@ -5094,11 +6344,18 @@ var $ = dom.$;
 var Symbology = require('./mapsymbology');
 
 
-var controlTemplate = _.template("<a class=\"<%= model.className %>-toggle js-toggle\" href=\"#\" title=\"Measure distances and areas\">Measure</a>\n<div class=\"<%= model.className %>-interaction js-interaction\">\n  <div class=\"js-startprompt startprompt\">\n    <h3>Measure Distances and Areas</h3>\n    <ul class=\"tasks\">\n      <a href=\"#\" class=\"js-start start\">Create a new measurement</a>\n    </ul>\n  </div>\n  <div class=\"js-measuringprompt\">\n    <h3>Measure Distances and Areas</h3>\n    <p class=\"js-starthelp\">Start creating a measurement by adding points to the map</h3>\n    <div class=\"js-results results\"></div>\n    <ul class=\"js-measuretasks tasks\">\n      <li><a href=\"#\" class=\"js-cancel cancel\">Cancel</a></li>\n      <li><a href=\"#\" class=\"js-finish finish\">Finish Measurement</a></li>\n    </ul>\n  </div>\n</div>");
-var resultsTemplate = _.template("<div class=\"group\">\n<p class=\"lastpoint heading\">Last Point</p>\n<p><%= model.lastCoord.dms.y %> <span class=\"coorddivider\">/</span> <%= model.lastCoord.dms.x %></p>\n<p><%= humanize.numberFormat(model.lastCoord.dd.y, 6) %> <span class=\"coorddivider\">/</span> <%= humanize.numberFormat(model.lastCoord.dd.x, 6) %></p>\n</div>\n<% if (model.pointCount > 1) { %>\n<div class=\"group\">\n<p><span class=\"heading\">Path Distance</span> <%= model.lengthDisplay %></p>\n</div>\n<% } %>\n<% if (model.pointCount > 2) { %>\n<div class=\"group\">\n<p><span class=\"heading\">Area</span> <%= model.areaDisplay %></p>\n</div>\n<% } %>");
-var pointPopupTemplate = _.template("<h3>Point Location</h3>\n<p><%= model.lastCoord.dms.y %> <span class=\"coorddivider\">/</span> <%= model.lastCoord.dms.x %></p>\n<p><%= humanize.numberFormat(model.lastCoord.dd.y, 6) %> <span class=\"coorddivider\">/</span> <%= humanize.numberFormat(model.lastCoord.dd.x, 6) %></p>\n<ul class=\"tasks\">\n  <li><a href=\"#\" class=\"js-zoomto zoomto\">Center on this Location</a></li>\n  <li><a href=\"#\" class=\"js-deletemarkup deletemarkup\">Delete</a></li>\n</ul>");
-var linePopupTemplate = _.template("<h3>Linear Measurement</h3>\n<p><%= model.lengthDisplay %></p>\n<ul class=\"tasks\">\n  <li><a href=\"#\" class=\"js-zoomto zoomto\">Center on this Line</a></li>\n  <li><a href=\"#\" class=\"js-deletemarkup deletemarkup\">Delete</a></li>\n</ul>");
-var areaPopupTemplate = _.template("<h3>Area Measurement</h3>\n<p><%= model.areaDisplay %></p>\n<p><%= model.lengthDisplay %> Perimeter</p>\n<ul class=\"tasks\">\n  <li><a href=\"#\" class=\"js-zoomto zoomto\">Center on this Area</a></li>\n  <li><a href=\"#\" class=\"js-deletemarkup deletemarkup\">Delete</a></li>\n</ul>");
+var controlTemplate = _.template("<a class=\"<%= model.className %>-toggle js-toggle\" href=\"#\" title=\"<%= i18n.__('measureDistancesAndAreas') %>\"><%= i18n.__(\"measure\") %></a>\n<div class=\"<%= model.className %>-interaction js-interaction\">\n  <div class=\"js-startprompt startprompt\">\n    <h3><%= i18n.__(\"measureDistancesAndAreas\") %></h3>\n    <ul class=\"tasks\">\n      <a href=\"#\" class=\"js-start start\"><%= i18n.__(\"createNewMeasurement\") %></a>\n    </ul>\n  </div>\n  <div class=\"js-measuringprompt\">\n    <h3><%= i18n.__(\"measureDistancesAndAreas\") %></h3>\n    <p class=\"js-starthelp\"><%= i18n.__(\"startCreating\") %></h3>\n    <div class=\"js-results results\"></div>\n    <ul class=\"js-measuretasks tasks\">\n      <li><a href=\"#\" class=\"js-cancel cancel\"><%= i18n.__(\"cancel\") %></a></li>\n      <li><a href=\"#\" class=\"js-finish finish\"><%= i18n.__(\"finishMeasurement\") %></a></li>\n    </ul>\n  </div>\n</div>");
+var resultsTemplate = _.template("<div class=\"group\">\n<p class=\"lastpoint heading\"><%= i18n.__(\"lastPoint\") %></p>\n<p><%= model.lastCoord.dms.y %> <span class=\"coorddivider\">/</span> <%= model.lastCoord.dms.x %></p>\n<p><%= humanize.numberFormat(model.lastCoord.dd.y, 6) %> <span class=\"coorddivider\">/</span> <%= humanize.numberFormat(model.lastCoord.dd.x, 6) %></p>\n</div>\n<% if (model.pointCount > 1) { %>\n<div class=\"group\">\n<p><span class=\"heading\"><%= i18n.__(\"pathDistance\") %></span> <%= model.lengthDisplay %></p>\n</div>\n<% } %>\n<% if (model.pointCount > 2) { %>\n<div class=\"group\">\n<p><span class=\"heading\"><%= i18n.__(\"area\") %></span> <%= model.areaDisplay %></p>\n</div>\n<% } %>");
+var pointPopupTemplate = _.template("<h3><%= i18n.__(\"pointLocation\") %></h3>\n<p><%= model.lastCoord.dms.y %> <span class=\"coorddivider\">/</span> <%= model.lastCoord.dms.x %></p>\n<p><%= humanize.numberFormat(model.lastCoord.dd.y, 6) %> <span class=\"coorddivider\">/</span> <%= humanize.numberFormat(model.lastCoord.dd.x, 6) %></p>\n<ul class=\"tasks\">\n  <li><a href=\"#\" class=\"js-zoomto zoomto\"><%= i18n.__(\"centerOnLocation\") %></a></li>\n  <li><a href=\"#\" class=\"js-deletemarkup deletemarkup\"><%= i18n.__(\"delete\") %></a></li>\n</ul>");
+var linePopupTemplate = _.template("<h3><%= i18n.__(\"linearMeasurement\") %></h3>\n<p><%= model.lengthDisplay %></p>\n<ul class=\"tasks\">\n  <li><a href=\"#\" class=\"js-zoomto zoomto\"><%= i18n.__(\"centerOnLine\") %></a></li>\n  <li><a href=\"#\" class=\"js-deletemarkup deletemarkup\"><%= i18n.__(\"delete\") %></a></li>\n</ul>");
+var areaPopupTemplate = _.template("<h3><%= i18n.__(\"areaMeasurement\") %></h3>\n<p><%= model.areaDisplay %></p>\n<p><%= model.lengthDisplay %> <%= i18n.__(\"perimeter\") %></p>\n<ul class=\"tasks\">\n  <li><a href=\"#\" class=\"js-zoomto zoomto\"><%= i18n.__(\"centerOnArea\") %></a></li>\n  <li><a href=\"#\" class=\"js-deletemarkup deletemarkup\"><%= i18n.__(\"delete\") %></a></li>\n</ul>");
+
+var i18n = new (require('i18n-2'))({
+  locales: {
+    'en': require('./i18n/en'),
+    'es': require('./i18n/es')
+  }
+});
 
 L.Control.Measure = L.Control.extend({
   _className: 'leaflet-control-measure',
@@ -5119,6 +6376,7 @@ L.Control.Measure = L.Control.extend({
     L.setOptions(this, options);
     this.options.units = L.extend({}, units, this.options.units);
     this._symbols = new Symbology(_.pick(this.options, 'activeColor', 'completedColor'));
+    i18n.setLocale(this.options.localization);
   },
   onAdd: function (map) {
     this._map = map;
@@ -5139,7 +6397,8 @@ L.Control.Measure = L.Control.extend({
     container.innerHTML = controlTemplate({
       model: {
         className: className
-      }
+      },
+      i18n: i18n
     });
 
     // copied from leaflet
@@ -5295,7 +6554,7 @@ L.Control.Measure = L.Control.extend({
 
     function formatMeasure (val, unit) {
       return unit && unit.factor && unit.display ?
-        humanize.numberFormat(val * unit.factor, unit.decimals || 0) + ' ' + unit.display :
+        humanize.numberFormat(val * unit.factor, unit.decimals || 0) + ' ' + i18n.__([unit.display]) || unit.display :
         humanize.numberFormat(val, 0);
     }
   },
@@ -5306,7 +6565,8 @@ L.Control.Measure = L.Control.extend({
       model: _.extend({}, calced, this._getMeasurementDisplayStrings(calced), {
         pointCount: this._latlngs.length
       }),
-      humanize: humanize
+      humanize: humanize,
+      i18n: i18n
     });
   },
   // mouse move handler while measure in progress
@@ -5340,20 +6600,23 @@ L.Control.Measure = L.Control.extend({
       resultFeature = L.circleMarker(latlngs[0], this._symbols.getSymbol('resultPoint'));
       popupContent = pointPopupTemplate({
         model: calced,
-        humanize: humanize
+        humanize: humanize,
+        i18n: i18n
       });
     } else if (latlngs.length === 2) {
       resultFeature = L.polyline(latlngs, this._symbols.getSymbol('resultLine')).addTo(this._map);
       popupContent = linePopupTemplate({
         model: _.extend({}, calced, this._getMeasurementDisplayStrings(calced)),
-        humanize: humanize
+        humanize: humanize,
+        i18n: i18n
       });
     } else {
       resultFeature = L.polygon(latlngs, this._symbols.getSymbol('resultArea'));
       popupContent = areaPopupTemplate({
         model: _.extend({}, calced, this._getMeasurementDisplayStrings(calced)),
         humanize: humanize,
-        units: this._units
+        units: this._units,
+        i18n: i18n
       });
     }
 
@@ -5470,7 +6733,7 @@ L.control.measure = function (options) {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./calc":17,"./dom":18,"./mapsymbology":20,"./units":21,"humanize":15,"underscore":16}],20:[function(require,module,exports){
+},{"./calc":23,"./dom":24,"./i18n/en":25,"./i18n/es":26,"./mapsymbology":28,"./units":29,"humanize":18,"i18n-2":20,"underscore":22}],28:[function(require,module,exports){
 // mapsymbology.js
 
 var _ = require('underscore');
@@ -5571,7 +6834,7 @@ _.extend(Symbology.prototype, {
 });
 
 module.exports = Symbology;
-},{"color":1,"underscore":16}],21:[function(require,module,exports){
+},{"color":1,"underscore":22}],29:[function(require,module,exports){
 // units.js
 // Unit configurations
 // Factor is with respect to meters/sqmeters
@@ -5579,48 +6842,48 @@ module.exports = Symbology;
 module.exports = {
   acres: {
     factor: 0.00024711,
-    display: 'Acres',
+    display: 'acres',
     decimals: 2
   },
   feet: {
     factor: 3.2808,
-    display: 'Feet',
+    display: 'feet',
     decimals: 0
   },
   kilometers: {
     factor: 0.001,
-    display: 'Kilometers',
+    display: 'kilometers',
     decimals: 2
   },
   hectares: {
     factor: 0.0001,
-    display: 'Hectares',
+    display: 'hectares',
     decimals: 2
   },
   meters: {
     factor: 1,
-    display: 'Meters',
+    display: 'meters',
     decimals: 0
   },
   miles: {
     factor: 3.2808 / 5280,
-    display: 'Miles',
+    display: 'miles',
     decimals: 2
   },
   sqfeet: {
     factor: 10.7639,
-    display: 'Sq Feet',
+    display: 'sqfeet',
     decimals: 0
   },
   sqmeters: {
     factor: 1,
-    display: 'Sq Meters',
+    display: 'sqmeters',
     decimals: 0
   },
   sqmiles: {
     factor: 0.000000386102,
-    display: 'Sq Miles',
+    display: 'sqmiles',
     decimals: 2
   }
 };
-},{}]},{},[19]);
+},{}]},{},[27]);
