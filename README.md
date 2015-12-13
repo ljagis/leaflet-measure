@@ -143,11 +143,11 @@ Define units as
 
 ### localization
 
-`{ localization: 'en' }`
+`{ localization: 'ru' }`
 
 Desired locale to translate texts.
 
-Valid values are `en` and `es`. If not specified, defaults to `en`.
+Valid values are `en`, `es` and `ru`. If not specified, defaults to `en`.
 
 
 <hr>
