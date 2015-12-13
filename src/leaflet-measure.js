@@ -18,6 +18,13 @@ var pointPopupTemplate = _.template(fs.readFileSync(__dirname + '/popuptemplates
 var linePopupTemplate = _.template(fs.readFileSync(__dirname + '/popuptemplates/line-popuptemplate.html', 'utf8'));
 var areaPopupTemplate = _.template(fs.readFileSync(__dirname + '/popuptemplates/area-popuptemplate.html', 'utf8'));
 
+var i18n = new (require('i18n-2'))({
+  locales: {
+    'en': require('./i18n/en'),
+    'es': require('./i18n/es')
+  }
+});
+
 L.Control.Measure = L.Control.extend({
   _className: 'leaflet-control-measure',
   options: {
@@ -37,6 +44,7 @@ L.Control.Measure = L.Control.extend({
     L.setOptions(this, options);
     this.options.units = L.extend({}, units, this.options.units);
     this._symbols = new Symbology(_.pick(this.options, 'activeColor', 'completedColor'));
+    i18n.setLocale(this.options.localization);
   },
   onAdd: function (map) {
     this._map = map;
@@ -57,7 +65,8 @@ L.Control.Measure = L.Control.extend({
     container.innerHTML = controlTemplate({
       model: {
         className: className
-      }
+      },
+      i18n: i18n
     });
 
     // copied from leaflet
@@ -213,7 +222,7 @@ L.Control.Measure = L.Control.extend({
 
     function formatMeasure (val, unit) {
       return unit && unit.factor && unit.display ?
-        humanize.numberFormat(val * unit.factor, unit.decimals || 0) + ' ' + unit.display :
+        humanize.numberFormat(val * unit.factor, unit.decimals || 0) + ' ' + i18n.__([unit.display]) || unit.display :
         humanize.numberFormat(val, 0);
     }
   },
@@ -224,7 +233,8 @@ L.Control.Measure = L.Control.extend({
       model: _.extend({}, calced, this._getMeasurementDisplayStrings(calced), {
         pointCount: this._latlngs.length
       }),
-      humanize: humanize
+      humanize: humanize,
+      i18n: i18n
     });
   },
   // mouse move handler while measure in progress
@@ -258,20 +268,23 @@ L.Control.Measure = L.Control.extend({
       resultFeature = L.circleMarker(latlngs[0], this._symbols.getSymbol('resultPoint'));
       popupContent = pointPopupTemplate({
         model: calced,
-        humanize: humanize
+        humanize: humanize,
+        i18n: i18n
       });
     } else if (latlngs.length === 2) {
       resultFeature = L.polyline(latlngs, this._symbols.getSymbol('resultLine')).addTo(this._map);
       popupContent = linePopupTemplate({
         model: _.extend({}, calced, this._getMeasurementDisplayStrings(calced)),
-        humanize: humanize
+        humanize: humanize,
+        i18n: i18n
       });
     } else {
       resultFeature = L.polygon(latlngs, this._symbols.getSymbol('resultArea'));
       popupContent = areaPopupTemplate({
         model: _.extend({}, calced, this._getMeasurementDisplayStrings(calced)),
         humanize: humanize,
-        units: this._units
+        units: this._units,
+        i18n: i18n
       });
     }
 

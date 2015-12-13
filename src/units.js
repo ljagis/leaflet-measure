@@ -5,47 +5,47 @@
 module.exports = {
   acres: {
     factor: 0.00024711,
-    display: 'Acres',
+    display: 'acres',
     decimals: 2
   },
   feet: {
     factor: 3.2808,
-    display: 'Feet',
+    display: 'feet',
     decimals: 0
   },
   kilometers: {
     factor: 0.001,
-    display: 'Kilometers',
+    display: 'kilometers',
     decimals: 2
   },
   hectares: {
     factor: 0.0001,
-    display: 'Hectares',
+    display: 'hectares',
     decimals: 2
   },
   meters: {
     factor: 1,
-    display: 'Meters',
+    display: 'meters',
     decimals: 0
   },
   miles: {
     factor: 3.2808 / 5280,
-    display: 'Miles',
+    display: 'miles',
     decimals: 2
   },
   sqfeet: {
     factor: 10.7639,
-    display: 'Sq Feet',
+    display: 'sqfeet',
     decimals: 0
   },
   sqmeters: {
     factor: 1,
-    display: 'Sq Meters',
+    display: 'sqmeters',
     decimals: 0
   },
   sqmiles: {
     factor: 0.000000386102,
-    display: 'Sq Miles',
+    display: 'sqmiles',
     decimals: 2
   }
 };
