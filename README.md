@@ -143,7 +143,7 @@ Define units as
 
 ### localization
 
-`{ localization: 'ru' }`
+`{ localization: 'en' }`
 
 Desired locale to translate texts.
 
