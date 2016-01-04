@@ -22,6 +22,7 @@ var i18n = new (require('i18n-2'))({
   locales: {
     'en': require('./i18n/en'),
     'es': require('./i18n/es'),
+    'fr': require('./i18n/fr'),
     'ru': require('./i18n/ru')
   }
 });
@@ -39,7 +40,9 @@ L.Control.Measure = L.Control.extend({
     popupOptions: {             // standard leaflet popup options http://leafletjs.com/reference.html#popup-options
       className: 'leaflet-measure-resultpopup',
       autoPanPadding: [10, 10]
-    }
+    },
+    decPoint: '.',
+    thousandsSep: ','
   },
   initialize: function (options) {
     L.setOptions(this, options);
@@ -223,8 +226,8 @@ L.Control.Measure = L.Control.extend({
 
     function formatMeasure (val, unit) {
       return unit && unit.factor && unit.display ?
-        humanize.numberFormat(val * unit.factor, unit.decimals || 0) + ' ' + i18n.__([unit.display]) || unit.display :
-        humanize.numberFormat(val, 0);
+        humanize.numberFormat(val * unit.factor, unit.decimals || 0, i18n.__('decPoint') || this.options.decPoint, i18n.__('thousandsSep') || this.options.thousandsSep) + ' ' + i18n.__([unit.display]) || unit.display :
+        humanize.numberFormat(val, 0, i18n.__('decPoint') || this.options.decPoint, i18n.__('thousandsSep') || this.options.thousandsSep);
     }
   },
   // update results area of dom with calced measure from `this._latlngs`
