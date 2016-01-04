@@ -27,5 +27,7 @@ module.exports = {
   'miles': 'миль',
   'sqfeet': 'футов²',
   'sqmeters': 'м²',
-  'sqmiles': 'миль²'
+  'sqmiles': 'миль²',
+  'decPoint': '.',
+  'thousandsSep': ','
 };
