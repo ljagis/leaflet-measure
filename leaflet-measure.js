@@ -1,6 +1,4 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-
-},{}],2:[function(require,module,exports){
 /* MIT license */
 
 module.exports = {
@@ -700,7 +698,7 @@ for (var key in cssKeywords) {
   reverseKeywords[JSON.stringify(cssKeywords[key])] = key;
 }
 
-},{}],3:[function(require,module,exports){
+},{}],2:[function(require,module,exports){
 var conversions = require("./conversions");
 
 var convert = function() {
@@ -793,8 +791,8 @@ Converter.prototype.getValues = function(space) {
 });
 
 module.exports = convert;
-},{"./conversions":2}],4:[function(require,module,exports){
-module.exports = {
+},{"./conversions":1}],3:[function(require,module,exports){
+module.exports={
 	"aliceblue": [240, 248, 255],
 	"antiquewhite": [250, 235, 215],
 	"aqua": [0, 255, 255],
@@ -943,8 +941,8 @@ module.exports = {
 	"whitesmoke": [245, 245, 245],
 	"yellow": [255, 255, 0],
 	"yellowgreen": [154, 205, 50]
-};
-},{}],5:[function(require,module,exports){
+}
+},{}],4:[function(require,module,exports){
 /* MIT license */
 var colorNames = require('color-name');
 
@@ -1167,7 +1165,7 @@ for (var name in colorNames) {
    reverseNames[colorNames[name]] = name;
 }
 
-},{"color-name":4}],6:[function(require,module,exports){
+},{"color-name":3}],5:[function(require,module,exports){
 /* MIT license */
 var convert = require("color-convert"),
     string = require("color-string");
@@ -1602,9 +1600,9 @@ Color.prototype.setChannel = function(space, index, val) {
 
 module.exports = Color;
 
-},{"color-convert":3,"color-string":5}],7:[function(require,module,exports){
+},{"color-convert":2,"color-string":4}],6:[function(require,module,exports){
 module.exports = require('./lib/geocrunch');
-},{"./lib/geocrunch":12}],8:[function(require,module,exports){
+},{"./lib/geocrunch":11}],7:[function(require,module,exports){
 // distance.js - Distance mixins for Paths
 
 var _ = require('underscore');
@@ -1687,13 +1685,13 @@ module.exports = {
     return this._options.imBackwards === true ? flipCoords(this._calcedCenter) : this._calcedCenter;
   }
 };
-},{"./constants":9,"./flipcoords":11,"./units":14,"underscore":15}],9:[function(require,module,exports){
+},{"./constants":8,"./flipcoords":10,"./units":13,"underscore":14}],8:[function(require,module,exports){
 // utils/constants.js
 
 module.exports = {
   EARTHRADIUS: 6371000 // R in meters
 };
-},{}],10:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 // distance.js - Distance mixins for Paths
 
 var _ = require('underscore');
@@ -1758,7 +1756,7 @@ module.exports = {
     // TODO. Handle non-matching units
   }
 };
-},{"./constants":9,"./units":14,"underscore":15}],11:[function(require,module,exports){
+},{"./constants":8,"./units":13,"underscore":14}],10:[function(require,module,exports){
 // utils/flipcoords.js - Util functions for working with backwards coordinates [lat, lng]
 
 var _ = require('underscore');
@@ -1768,7 +1766,7 @@ module.exports = function (backwardsCoordArray) {
     return [backwardsCoord[1], backwardsCoord[0]];
   });
 };
-},{"underscore":15}],12:[function(require,module,exports){
+},{"underscore":14}],11:[function(require,module,exports){
 // geocrunch.js
 
 var _ = require('underscore');
@@ -1782,7 +1780,7 @@ _.extend(Path.prototype, distanceMixins, areaMixins);
 exports.path = function (coords, options) {
   return new Path(coords, options);
 };
-},{"./area":8,"./distance":10,"./path":13,"underscore":15}],13:[function(require,module,exports){
+},{"./area":7,"./distance":9,"./path":12,"underscore":14}],12:[function(require,module,exports){
 // path.js - Object for working with a linear path of coordinates
 
 var flipCoords = require('./flipcoords');
@@ -1797,7 +1795,7 @@ var Path = function (coords, options) {
 
 module.exports = Path;
 
-},{"./flipcoords":11}],14:[function(require,module,exports){
+},{"./flipcoords":10}],13:[function(require,module,exports){
 // units.js - Standard unit conversions
 
 exports.meters = {
@@ -1826,7 +1824,7 @@ exports.degrees = {
     return d * Math.PI / 180;
   }
 };
-},{}],15:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 //     Underscore.js 1.5.2
 //     http://underscorejs.org
 //     (c) 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -3104,7 +3102,102 @@ exports.degrees = {
 
 }).call(this);
 
+},{}],15:[function(require,module,exports){
+
 },{}],16:[function(require,module,exports){
+// shim for using process in browser
+
+var process = module.exports = {};
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = setTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    clearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        setTimeout(drainQueue, 0);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+},{}],17:[function(require,module,exports){
 
 (function() {
 
@@ -3580,7 +3673,7 @@ exports.degrees = {
 
 }).call(this);
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 (function (process){
 /**
  * @author  John Resig <jeresig@gmail.com>
@@ -4049,10 +4142,10 @@ i18n.prototype = {
 };
 
 }).call(this,require('_process'))
-},{"_process":20,"fs":1,"path":19,"sprintf":21}],18:[function(require,module,exports){
+},{"_process":16,"fs":15,"path":20,"sprintf":21}],19:[function(require,module,exports){
 module.exports = require('./i18n');
 
-},{"./i18n":17}],19:[function(require,module,exports){
+},{"./i18n":18}],20:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -4280,100 +4373,7 @@ var substr = 'ab'.substr(-1) === 'b'
 ;
 
 }).call(this,require('_process'))
-},{"_process":20}],20:[function(require,module,exports){
-// shim for using process in browser
-
-var process = module.exports = {};
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = setTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    clearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        setTimeout(drainQueue, 0);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-},{}],21:[function(require,module,exports){
+},{"_process":16}],21:[function(require,module,exports){
 /**
 sprintf() for JavaScript 0.7-beta1
 http://www.diveintojavascript.com/projects/javascript-sprintf
@@ -6226,7 +6226,7 @@ var measure = function (latlngs) {
 module.exports = {
   measure: measure // `measure(latLngArray)` - returns object with calced measurements for passed points
 };
-},{"geocrunch":7,"underscore":22}],24:[function(require,module,exports){
+},{"geocrunch":6,"underscore":22}],24:[function(require,module,exports){
 // dom.js
 // utility functions for managing DOM elements
 
@@ -6298,6 +6298,7 @@ module.exports = {
   'decPoint': '.',
   'thousandsSep': ','
 };
+
 },{}],26:[function(require,module,exports){
 // es.js
 // Translations
@@ -6330,8 +6331,9 @@ module.exports = {
   'sqmeters': 'Metros cuadrados',
   'sqmiles': 'Millas cuadradas',
   'decPoint': '.',
-  'thousandsSep': ','
+  'thousandsSep': ' '
 };
+
 },{}],27:[function(require,module,exports){
 // fr.js
 // Translations
@@ -6366,6 +6368,7 @@ module.exports = {
   'decPoint': ',',
   'thousandsSep': ' '
 };
+
 },{}],28:[function(require,module,exports){
 // ru.js
 // Translations
@@ -6445,9 +6448,7 @@ L.Control.Measure = L.Control.extend({
     popupOptions: {             // standard leaflet popup options http://leafletjs.com/reference.html#popup-options
       className: 'leaflet-measure-resultpopup',
       autoPanPadding: [10, 10]
-    },
-    decPoint: '.',
-    thousandsSep: ','
+    }
   },
   initialize: function (options) {
     L.setOptions(this, options);
@@ -6612,27 +6613,27 @@ L.Control.Measure = L.Control.extend({
     var unitDefinitions = this.options.units;
 
     return {
-      lengthDisplay: buildDisplay(measurement.length, this.options.primaryLengthUnit, this.options.secondaryLengthUnit),
-      areaDisplay: buildDisplay(measurement.area, this.options.primaryAreaUnit, this.options.secondaryAreaUnit)
+      lengthDisplay: buildDisplay(measurement.length, this.options.primaryLengthUnit, this.options.secondaryLengthUnit, this.options.decPoint, this.options.thousandsSep),
+      areaDisplay: buildDisplay(measurement.area, this.options.primaryAreaUnit, this.options.secondaryAreaUnit, this.options.decPoint, this.options.thousandsSep)
     };
 
-    function buildDisplay (val, primaryUnit, secondaryUnit) {
+    function buildDisplay (val, primaryUnit, secondaryUnit, decPoint, thousandsSep) {
       var display;
       if (primaryUnit && unitDefinitions[primaryUnit]) {
-        display = formatMeasure(val, unitDefinitions[primaryUnit]);
+        display = formatMeasure(val, unitDefinitions[primaryUnit], decPoint, thousandsSep);
         if (secondaryUnit && unitDefinitions[secondaryUnit]) {
-          display = display + ' (' +  formatMeasure(val, unitDefinitions[secondaryUnit]) + ')';
+          display = display + ' (' +  formatMeasure(val, unitDefinitions[secondaryUnit], decPoint, thousandsSep) + ')';
         }
       } else {
-        display = formatMeasure(val);
+        display = formatMeasure(val, null, decPoint, thousandsSep);
       }
       return display;
     }
 
-    function formatMeasure (val, unit) {
+    function formatMeasure (val, unit, decPoint, thousandsSep) {
       return unit && unit.factor && unit.display ?
-        humanize.numberFormat(val * unit.factor, unit.decimals || 0, i18n.__('decPoint') || this.options.decPoint, i18n.__('thousandsSep') || this.options.thousandsSep) + ' ' + i18n.__([unit.display]) || unit.display :
-        humanize.numberFormat(val, 0, i18n.__('decPoint') || this.options.decPoint, i18n.__('thousandsSep') || this.options.thousandsSep);
+        humanize.numberFormat(val * unit.factor, unit.decimals || 0, decPoint || i18n.__('decPoint'), thousandsSep || i18n.__('thousandsSep')) + ' ' + i18n.__([unit.display]) || unit.display :
+        humanize.numberFormat(val, 0, decPoint || i18n.__('decPoint'), thousandsSep || i18n.__('thousandsSep'));
     }
   },
   // update results area of dom with calced measure from `this._latlngs`
@@ -6810,7 +6811,7 @@ L.control.measure = function (options) {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./calc":23,"./dom":24,"./i18n/en":25,"./i18n/es":26,"./i18n/fr":27,"./i18n/ru":28,"./mapsymbology":30,"./units":31,"humanize":16,"i18n-2":18,"underscore":22}],30:[function(require,module,exports){
+},{"./calc":23,"./dom":24,"./i18n/en":25,"./i18n/es":26,"./i18n/fr":27,"./i18n/ru":28,"./mapsymbology":30,"./units":31,"humanize":17,"i18n-2":19,"underscore":22}],30:[function(require,module,exports){
 // mapsymbology.js
 
 var _ = require('underscore');
@@ -6911,7 +6912,7 @@ _.extend(Symbology.prototype, {
 });
 
 module.exports = Symbology;
-},{"color":6,"underscore":22}],31:[function(require,module,exports){
+},{"color":5,"underscore":22}],31:[function(require,module,exports){
 // units.js
 // Unit configurations
 // Factor is with respect to meters/sqmeters
