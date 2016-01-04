@@ -40,9 +40,7 @@ L.Control.Measure = L.Control.extend({
     popupOptions: {             // standard leaflet popup options http://leafletjs.com/reference.html#popup-options
       className: 'leaflet-measure-resultpopup',
       autoPanPadding: [10, 10]
-    },
-    decPoint: '.',
-    thousandsSep: ','
+    }
   },
   initialize: function (options) {
     L.setOptions(this, options);
@@ -207,27 +205,27 @@ L.Control.Measure = L.Control.extend({
     var unitDefinitions = this.options.units;
 
     return {
-      lengthDisplay: buildDisplay(measurement.length, this.options.primaryLengthUnit, this.options.secondaryLengthUnit),
-      areaDisplay: buildDisplay(measurement.area, this.options.primaryAreaUnit, this.options.secondaryAreaUnit)
+      lengthDisplay: buildDisplay(measurement.length, this.options.primaryLengthUnit, this.options.secondaryLengthUnit, this.options.decPoint, this.options.thousandsSep),
+      areaDisplay: buildDisplay(measurement.area, this.options.primaryAreaUnit, this.options.secondaryAreaUnit, this.options.decPoint, this.options.thousandsSep)
     };
 
-    function buildDisplay (val, primaryUnit, secondaryUnit) {
+    function buildDisplay (val, primaryUnit, secondaryUnit, decPoint, thousandsSep) {
       var display;
       if (primaryUnit && unitDefinitions[primaryUnit]) {
-        display = formatMeasure(val, unitDefinitions[primaryUnit]);
+        display = formatMeasure(val, unitDefinitions[primaryUnit], decPoint, thousandsSep);
         if (secondaryUnit && unitDefinitions[secondaryUnit]) {
-          display = display + ' (' +  formatMeasure(val, unitDefinitions[secondaryUnit]) + ')';
+          display = display + ' (' +  formatMeasure(val, unitDefinitions[secondaryUnit], decPoint, thousandsSep) + ')';
         }
       } else {
-        display = formatMeasure(val);
+        display = formatMeasure(val, null, decPoint, thousandsSep);
       }
       return display;
     }
 
-    function formatMeasure (val, unit) {
+    function formatMeasure (val, unit, decPoint, thousandsSep) {
       return unit && unit.factor && unit.display ?
-        humanize.numberFormat(val * unit.factor, unit.decimals || 0, i18n.__('decPoint') || this.options.decPoint, i18n.__('thousandsSep') || this.options.thousandsSep) + ' ' + i18n.__([unit.display]) || unit.display :
-        humanize.numberFormat(val, 0, i18n.__('decPoint') || this.options.decPoint, i18n.__('thousandsSep') || this.options.thousandsSep);
+        humanize.numberFormat(val * unit.factor, unit.decimals || 0, decPoint || i18n.__('decPoint'), thousandsSep || i18n.__('thousandsSep')) + ' ' + i18n.__([unit.display]) || unit.display :
+        humanize.numberFormat(val, 0, decPoint || i18n.__('decPoint'), thousandsSep || i18n.__('thousandsSep'));
     }
   },
   // update results area of dom with calced measure from `this._latlngs`

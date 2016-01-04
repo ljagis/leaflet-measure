@@ -29,5 +29,5 @@ module.exports = {
   'sqmeters': 'Metros cuadrados',
   'sqmiles': 'Millas cuadradas',
   'decPoint': '.',
-  'thousandsSep': ','
+  'thousandsSep': ' '
 };
