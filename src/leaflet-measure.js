@@ -285,7 +285,6 @@ L.Control.Measure = L.Control.extend({
       popupContent = areaPopupTemplate({
         model: _.extend({}, calced, this._getMeasurementDisplayStrings(calced)),
         humanize: humanize,
-        units: this._units,
         i18n: i18n
       });
     }

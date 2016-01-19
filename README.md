@@ -145,12 +145,11 @@ Define units as
 
 `{ localization: 'en' }`
 
-Desired locale to translate texts.
+Locale to translate displayed text.
 
-Valid values are `en`, `es`, `ru` and `fr`. If not specified, defaults to `en`.
+Available locales include `en` (default), `es`, `ru` and `fr`.
 
-
-### decimal and thousands separators
+### decPoint | thousandsSep
 
 ```javascript
 {
@@ -159,9 +158,7 @@ Valid values are `en`, `es`, `ru` and `fr`. If not specified, defaults to `en`.
 }
 ```
 
-Optional separators for decimal and thousands. If not specified, defaults to
-values defined by localization.
-
+Decimal point and thousands separator used when displaying measurements. If not specified, values are defined by the localization.
 
 <hr>
 

@@ -1,5 +1,5 @@
 // ru.js
-// Translations
+// Russian i18n translations
 
 module.exports = {
   'measure': 'Измерение',
