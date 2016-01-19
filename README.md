@@ -141,6 +141,28 @@ Define units as
 }
 ```
 
+### localization
+
+`{ localization: 'en' }`
+
+Desired locale to translate texts.
+
+Valid values are `en`, `es`, `ru` and `fr`. If not specified, defaults to `en`.
+
+
+### decimal and thousands separators
+
+```javascript
+{
+    decPoint: '.',
+    thousandsSep: ','
+}
+```
+
+Optional separators for decimal and thousands. If not specified, defaults to
+values defined by localization.
+
+
 <hr>
 
 ## Customizing map feature styles
