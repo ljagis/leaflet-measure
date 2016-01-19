@@ -274,7 +274,7 @@ L.Control.Measure = L.Control.extend({
         i18n: i18n
       });
     } else if (latlngs.length === 2) {
-      resultFeature = L.polyline(latlngs, this._symbols.getSymbol('resultLine')).addTo(this._map);
+      resultFeature = L.polyline(latlngs, this._symbols.getSymbol('resultLine'));
       popupContent = linePopupTemplate({
         model: _.extend({}, calced, this._getMeasurementDisplayStrings(calced)),
         humanize: humanize,
@@ -308,11 +308,11 @@ L.Control.Measure = L.Control.extend({
       L.DomEvent.on(deleteLink, 'click', L.DomEvent.stop);
       L.DomEvent.on(deleteLink, 'click', function () {
         // TODO. maybe remove any event handlers on zoom and delete buttons?
-        this._map.removeLayer(resultFeature);
+        this._layer.removeLayer(resultFeature);
       }, this);
     }
 
-    resultFeature.addTo(this._map);
+    resultFeature.addTo(this._layer);
     resultFeature.bindPopup(popupContainer, this.options.popupOptions);
     resultFeature.openPopup(resultFeature.getBounds().getCenter());
   },
