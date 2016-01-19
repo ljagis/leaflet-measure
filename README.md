@@ -151,12 +151,7 @@ Available locales include `en` (default), `es`, `ru` and `fr`.
 
 ### decPoint | thousandsSep
 
-```javascript
-{
-    decPoint: '.',
-    thousandsSep: ','
-}
-```
+`{ decPoint: '.', thousandsSep: ',' }`
 
 Decimal point and thousands separator used when displaying measurements. If not specified, values are defined by the localization.
 
