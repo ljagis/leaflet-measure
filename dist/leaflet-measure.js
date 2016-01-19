@@ -6387,7 +6387,8 @@ L.Control.Measure = L.Control.extend({
   _startMeasure: function () {
     this._locked = true;
 
-    this._map.doubleClickZoom.disable(); // double click now finishes measure
+    this._wasDoubleClickEnabled = this._map.doubleClickZoom.enabled();
+    this._map.doubleClickZoom.disable(); // Allow double click to temporarily handle measurment actions
     this._map.on('mouseout', this._handleMapMouseOut, this);
 
     L.DomEvent.on(this._container, 'mouseenter', this._handleMapMouseOut, this);
@@ -6404,7 +6405,9 @@ L.Control.Measure = L.Control.extend({
   _finishMeasure: function () {
     this._locked = false;
 
-    this._map.doubleClickZoom.enable();
+    if (this._wasDoubleClickEnabled) {
+      this._map.doubleClickZoom.enable();
+    }
     this._map.off('mouseout', this._handleMapMouseOut, this);
 
     L.DomEvent.off(this._container, 'mouseover', this._handleMapMouseOut, this);
