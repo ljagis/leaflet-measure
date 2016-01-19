@@ -1,5 +1,5 @@
 // fr.js
-// Translations
+// French i18n translations
 
 module.exports = {
   'measure': 'Mesure',
