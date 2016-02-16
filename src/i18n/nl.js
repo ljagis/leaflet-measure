@@ -24,10 +24,10 @@ module.exports = {
   'kilometers': 'Kilometers',
   'hectares': 'Hectares',
   'meters': 'Meters',
-  'miles': 'Miles',
-  'sqfeet': 'Sq Feet',
+  'miles': 'Mijlen',
+  'sqfeet': 'Vierkante voet',
   'sqmeters': 'Vierkante meters',
-  'sqmiles': 'Sq Miles',
+  'sqmiles': 'Vierkante mijlen',
   'decPoint': '.',
   'thousandsSep': ','
 };
