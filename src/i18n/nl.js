@@ -1,5 +1,5 @@
-// en.js
-// English i18n translations
+// nl.js
+// Dutch i18n translations
 
 module.exports = {
   'measure': 'Meten',
