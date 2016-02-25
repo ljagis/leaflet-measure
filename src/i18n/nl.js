@@ -13,7 +13,7 @@ module.exports = {
   'pointLocation': 'Punt Lokatie',
   'areaMeasurement': 'Oppervlakte meting',
   'linearMeasurement': 'Lijnmeting',
-  'pathDistance': 'Path distance',
+  'pathDistance': 'Pad afstand',
   'centerOnArea': 'Centrum van deze opervlakte',
   'centerOnLine': 'Centrum op deze lijn',
   'centerOnLocation': 'Centrum op deze locatie',
