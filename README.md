@@ -12,7 +12,7 @@ Coordinate, linear, and area measure control for [Leaflet](http://leafletjs.com)
 
 ## Install Options
 
-- Clone.. `git clone https://github.com/ljagis/leaflet-measure.git`
+- Clone.. `git clone https://github.com/DatapuntAmsterdam/leaflet-measure.git`
 
 - Install with [Bower](http://bower.io/).. `bower install leaflet-measure`
 
