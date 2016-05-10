@@ -14,7 +14,7 @@ module.exports = {
   'areaMeasurement': 'Oppervlakte meting',
   'linearMeasurement': 'Lijnmeting',
   'pathDistance': 'Pad afstand',
-  'centerOnArea': 'Centrum van deze opervlakte',
+  'centerOnArea': 'Centrum van deze oppervlakte',
   'centerOnLine': 'Centrum op deze lijn',
   'centerOnLocation': 'Centrum op deze locatie',
   'cancel': 'Annuleren',
