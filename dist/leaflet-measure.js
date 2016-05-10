@@ -6389,7 +6389,7 @@ module.exports = {
   'pointLocation': 'Punt Lokatie',
   'areaMeasurement': 'Oppervlakte meting',
   'linearMeasurement': 'Lijnmeting',
-  'pathDistance': 'Path distance',
+  'pathDistance': 'Omtrek',
   'centerOnArea': 'Centrum van deze oppervlakte',
   'centerOnLine': 'Centrum op deze lijn',
   'centerOnLocation': 'Centrum op deze locatie',
