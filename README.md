@@ -157,13 +157,13 @@ Decimal point and thousands separator used when displaying measurements. If not 
 
 <hr>
 
-## Control events added to leaflet instance
+## Events
 
-Can be listened like any other Leaflet map events `map.on(<event>, <callback>)`
+You can subscribe to the following events on the [Map](http://leafletjs.com/reference.html#map-class) using [these methods](http://leafletjs.com/reference.html#events)
 
-- **startMeasure**: Fired when measurement starts.
+- **measurestart**: Fired when measurement starts
 
-- **finishMeasure**: Fired when measurement finishes.
+- **measurefinish**: Fired when measurement finishes
 
 <hr>
 

@@ -163,7 +163,7 @@ L.Control.Measure = L.Control.extend({
 
     this._updateMeasureStartedNoPoints();
 
-    this._map.fire('startMeasure', null, false);
+    this._map.fire('measurestart', null, false);
   },
   // return to state with no measure in progress, undo `this._startMeasure`
   _finishMeasure: function () {
@@ -188,7 +188,7 @@ L.Control.Measure = L.Control.extend({
     this._updateMeasureNotStarted();
     this._collapse();
 
-    this._map.fire('finishMeasure', null, false);
+    this._map.fire('measurefinish', null, false);
   },
   // clear all running measure data
   _clearMeasure: function () {
