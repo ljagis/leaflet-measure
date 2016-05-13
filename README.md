@@ -157,6 +157,16 @@ Decimal point and thousands separator used when displaying measurements. If not 
 
 <hr>
 
+## Events
+
+You can subscribe to the following events on the [Map](http://leafletjs.com/reference.html#map-class) using [these methods](http://leafletjs.com/reference.html#events)
+
+- **measurestart**: Fired when measurement starts
+
+- **measurefinish**: Fired when measurement finishes
+
+<hr>
+
 ## Customizing map feature styles
 
 Map features may be styled using CSS SVG style attributes. Features generated from `leaflet-measure` measurements are given the following class names:
