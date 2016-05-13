@@ -171,8 +171,6 @@ You can subscribe to the following events on the [Map](http://leafletjs.com/refe
 
 Map features may be styled using CSS SVG style attributes. Features generated from `leaflet-measure` measurements are given the following class names:
 
-- **layer-measurecollector**: Transparent layer covering full map and catching click and drag events
-
 - **layer-measurearea**: Feature displaying area of an active measurement
 
 - **layer-measureboundary**: Feature displaying the linear path of an active measurement
