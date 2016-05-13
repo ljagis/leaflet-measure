@@ -147,7 +147,7 @@ Define units as
 
 Locale to translate displayed text.
 
-Available locales include `en` (default), `es`, `ru` and `fr`.
+Available locales include `en` (default), `es`, `fr`, `it`, `nl`, and `ru`.
 
 ### decPoint | thousandsSep
 
