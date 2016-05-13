@@ -162,6 +162,8 @@ L.Control.Measure = L.Control.extend({
     this._measureVertexes = L.featureGroup().addTo(this._layer);
 
     this._updateMeasureStartedNoPoints();
+
+    this._map.fire('startMeasure', null, false);
   },
   // return to state with no measure in progress, undo `this._startMeasure`
   _finishMeasure: function () {
@@ -185,6 +187,8 @@ L.Control.Measure = L.Control.extend({
 
     this._updateMeasureNotStarted();
     this._collapse();
+
+    this._map.fire('finishMeasure', null, false);
   },
   // clear all running measure data
   _clearMeasure: function () {
