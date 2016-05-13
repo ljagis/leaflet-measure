@@ -6200,6 +6200,76 @@ module.exports = {
 };
 
 },{}],28:[function(require,module,exports){
+// it.js
+// Italian i18n translations
+
+module.exports = {
+  'measure': 'Misura',
+  'measureDistancesAndAreas': 'Misura distanze e aree',
+  'createNewMeasurement': 'Crea una nuova misurazione',
+  'startCreating': 'Comincia a creare una misurazione aggiungendo punti alla mappa',
+  'finishMeasurement': 'Misurazione conclusa',
+  'lastPoint': 'Ultimo punto',
+  'area': 'Area',
+  'perimeter': 'Perimetro',
+  'pointLocation': 'Posizione punto',
+  'areaMeasurement': 'Misura area',
+  'linearMeasurement': 'Misura lineare',
+  'pathDistance': 'Distanza percorso',
+  'centerOnArea': 'Centra su questa area',
+  'centerOnLine': 'Centra su questa linea',
+  'centerOnLocation': 'Centra su questa posizione',
+  'cancel': 'Annulla',
+  'delete': 'Cancella',
+  'acres': 'Acri',
+  'feet': 'Piedi',
+  'kilometers': 'Chilometri',
+  'hectares': 'Ettari',
+  'meters': 'Metri',
+  'miles': 'Miglia',
+  'sqfeet': 'Piedi quadri',
+  'sqmeters': 'Metri quadri',
+  'sqmiles': 'Miglia quadre',
+  'decPoint': '.',
+  'thousandsSep': ','
+};
+
+},{}],29:[function(require,module,exports){
+// nl.js
+// Dutch i18n translations
+
+module.exports = {
+  'measure': 'Meet',
+  'measureDistancesAndAreas': 'Meet afstanden en oppervlakken',
+  'createNewMeasurement': 'Maak een nieuwe meting',
+  'startCreating': 'Begin een meting door punten toe te voegen aan de kaart',
+  'finishMeasurement': 'Beëindig meting',
+  'lastPoint': 'Laatste punt',
+  'area': 'Oppervlakte',
+  'perimeter': 'Omtrek',
+  'pointLocation': 'Locatie punt',
+  'areaMeasurement': 'Oppervlakte meting',
+  'linearMeasurement': 'Gemeten afstand',
+  'pathDistance': 'Afstand over de lijn',
+  'centerOnArea': 'Centreer op dit gebied',
+  'centerOnLine': 'Centreer op deze lijn',
+  'centerOnLocation': 'Centreer op deze locatie',
+  'cancel': 'Annuleer',
+  'delete': 'Wis',
+  'acres': 'are',
+  'feet': 'Voet',
+  'kilometers': 'km',
+  'hectares': 'ha',
+  'meters': 'm',
+  'miles': 'Mijl',
+  'sqfeet': 'Vierkante Feet',
+  'sqmeters': 'm2',
+  'sqmiles': 'Vierkante Mijl',
+  'decPoint': ',',
+  'thousandsSep': '.'
+};
+
+},{}],30:[function(require,module,exports){
 // ru.js
 // Russian i18n translations
 
@@ -6234,7 +6304,7 @@ module.exports = {
   'thousandsSep': ','
 };
 
-},{}],29:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 (function (global){
 // leaflet-measure.js
 
@@ -6261,6 +6331,8 @@ var i18n = new (require('i18n-2'))({
     'en': require('./i18n/en'),
     'es': require('./i18n/es'),
     'fr': require('./i18n/fr'),
+    'it': require('./i18n/it'),
+    'nl': require('./i18n/nl'),
     'ru': require('./i18n/ru')
   }
 });
@@ -6647,7 +6719,7 @@ L.control.measure = function (options) {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./calc":23,"./dom":24,"./i18n/en":25,"./i18n/es":26,"./i18n/fr":27,"./i18n/ru":28,"./mapsymbology":30,"./units":31,"humanize":18,"i18n-2":20,"underscore":22}],30:[function(require,module,exports){
+},{"./calc":23,"./dom":24,"./i18n/en":25,"./i18n/es":26,"./i18n/fr":27,"./i18n/it":28,"./i18n/nl":29,"./i18n/ru":30,"./mapsymbology":32,"./units":33,"humanize":18,"i18n-2":20,"underscore":22}],32:[function(require,module,exports){
 // mapsymbology.js
 
 var _ = require('underscore');
@@ -6748,7 +6820,7 @@ _.extend(Symbology.prototype, {
 });
 
 module.exports = Symbology;
-},{"color":1,"underscore":22}],31:[function(require,module,exports){
+},{"color":1,"underscore":22}],33:[function(require,module,exports){
 // units.js
 // Unit configurations
 // Factor is with respect to meters/sqmeters
@@ -6800,4 +6872,4 @@ module.exports = {
     decimals: 2
   }
 };
-},{}]},{},[29]);
+},{}]},{},[31]);
