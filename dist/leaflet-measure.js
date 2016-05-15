@@ -6719,7 +6719,7 @@ L.control.measure = function (options) {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./calc":23,"./dom":24,"./i18n/en":25,"./i18n/es":26,"./i18n/fr":27,"./i18n/it":28,"./i18n/nl":29,"./i18n/ru":30,"./mapsymbology":32,"./units":33,"humanize":18,"i18n-2":20,"underscore":22}],32:[function(require,module,exports){
+},{"./calc":23,"./dom":24,"./i18n/en":25,"./i18n/es":26,"./i18n/fr":27,"./i18n/it":28,"./i18n/nl":29,"./i18n/ru":30,"./i18n/tr":31,"./mapsymbology":32,"./units":33,"humanize":18,"i18n-2":20,"underscore":22}],32:[function(require,module,exports){
 // mapsymbology.js
 
 var _ = require('underscore');
@@ -6872,4 +6872,4 @@ module.exports = {
     decimals: 2
   }
 };
-},{}]},{},[31]);
+},{}]},{},[34]);
