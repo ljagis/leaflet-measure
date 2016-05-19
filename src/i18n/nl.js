@@ -3,7 +3,7 @@
 
 module.exports = {
   'measure': 'Meet',
-  'measureDistancesAndAreas': 'Meet afstanden en oppervlakken',
+  'measureDistancesAndAreas': 'Meet afstanden en oppervlakten',
   'createNewMeasurement': 'Maak een nieuwe meting',
   'startCreating': 'Begin een meting door punten toe te voegen aan de kaart',
   'finishMeasurement': 'Beëindig meting',
