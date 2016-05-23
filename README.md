@@ -110,7 +110,7 @@ Base color to use for map features rendered while actively performing a measurem
 
 ### completedColor
 
-`{ completedColor: #C8F2BE }`
+`{ completedColor: '#C8F2BE' }`
 
 Base color to use for features generated from a completed measurement. Value should be a color represented as a hexadecimal string.
 
