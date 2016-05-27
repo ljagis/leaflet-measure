@@ -22,7 +22,7 @@ module.exports = {
   'acres': 'акры',
   'feet': 'фут',
   'kilometers': 'км',
-  'hectares': 'гк',
+  'hectares': 'га',
   'meters': 'м',
   'miles': 'миль',
   'sqfeet': 'футов²',
