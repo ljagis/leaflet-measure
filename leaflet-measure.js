@@ -6305,6 +6305,41 @@ module.exports = {
 };
 
 },{}],31:[function(require,module,exports){
+// tr.js
+// Turkish i18n translations
+
+module.exports = {
+    'measure': 'Hesapla',
+    'measureDistancesAndAreas': 'Uzaklık ve alan hesapla',
+    'createNewMeasurement': 'Yeni hesaplama',
+    'startCreating': 'Yeni nokta ekleyerek hesaplamaya başla',
+    'finishMeasurement': 'Hesaplamayı bitir',
+    'lastPoint': 'Son nokta',
+    'area': 'Alan',
+    'perimeter': 'Çevre uzunluğu',
+    'pointLocation': 'Nokta yeri',
+    'areaMeasurement': 'Alan hesaplaması',
+    'linearMeasurement': 'Doğrusal hesaplama',
+    'pathDistance': 'Yol uzunluğu',
+    'centerOnArea': 'Bu alana odaklan',
+    'centerOnLine': 'Bu doğtuya odaklan',
+    'centerOnLocation': 'Bu yere odaklan',
+    'cancel': 'Çıkış',
+    'delete': 'Sil',
+    'acres': 'Dönüm',
+    'feet': 'Feet',
+    'kilometers': 'Kilometre',
+    'hectares': 'Hektar',
+    'meters': 'Metre',
+    'miles': 'Mil',
+    'sqfeet': 'Feet kare',
+    'sqmeters': 'Metre kare',
+    'sqmiles': 'Mil kare',
+    'decPoint': '.',
+    'thousandsSep': ','
+};
+
+},{}],32:[function(require,module,exports){
 (function (global){
 // leaflet-measure.js
 
@@ -6333,7 +6368,8 @@ var i18n = new (require('i18n-2'))({
     'fr': require('./i18n/fr'),
     'it': require('./i18n/it'),
     'nl': require('./i18n/nl'),
-    'ru': require('./i18n/ru')
+    'ru': require('./i18n/ru'),
+    'tr': require('./i18n/tr')
   }
 });
 
@@ -6719,7 +6755,7 @@ L.control.measure = function (options) {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./calc":23,"./dom":24,"./i18n/en":25,"./i18n/es":26,"./i18n/fr":27,"./i18n/it":28,"./i18n/nl":29,"./i18n/ru":30,"./mapsymbology":32,"./units":33,"humanize":18,"i18n-2":20,"underscore":22}],32:[function(require,module,exports){
+},{"./calc":23,"./dom":24,"./i18n/en":25,"./i18n/es":26,"./i18n/fr":27,"./i18n/it":28,"./i18n/nl":29,"./i18n/ru":30,"./i18n/tr":31,"./mapsymbology":33,"./units":34,"humanize":18,"i18n-2":20,"underscore":22}],33:[function(require,module,exports){
 // mapsymbology.js
 
 var _ = require('underscore');
@@ -6820,7 +6856,7 @@ _.extend(Symbology.prototype, {
 });
 
 module.exports = Symbology;
-},{"color":1,"underscore":22}],33:[function(require,module,exports){
+},{"color":1,"underscore":22}],34:[function(require,module,exports){
 // units.js
 // Unit configurations
 // Factor is with respect to meters/sqmeters
@@ -6872,4 +6908,4 @@ module.exports = {
     decimals: 2
   }
 };
-},{}]},{},[31]);
+},{}]},{},[32]);
