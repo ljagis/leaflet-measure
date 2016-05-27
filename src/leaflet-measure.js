@@ -170,6 +170,10 @@ L.Control.Measure = L.Control.extend({
   },
   // return to state with no measure in progress, undo `this._startMeasure`
   _finishMeasure: function () {
+    var model = _.extend({}, this._resultsModel, {
+      points: this._latlngs
+    });
+
     this._locked = false;
 
     if (this._wasDoubleClickEnabled) {
@@ -191,11 +195,12 @@ L.Control.Measure = L.Control.extend({
     this._updateMeasureNotStarted();
     this._collapse();
 
-    this._map.fire('measurefinish', null, false);
+    this._map.fire('measurefinish', model, false);
   },
   // clear all running measure data
   _clearMeasure: function () {
     this._latlngs = [];
+    this._resultsModel = null;
     this._measureVertexes.clearLayers();
     if (this._measureDrag) {
       this._layer.removeLayer(this._measureDrag);
@@ -241,10 +246,11 @@ L.Control.Measure = L.Control.extend({
   // update results area of dom with calced measure from `this._latlngs`
   _updateResults: function () {
     var calced = calc.measure(this._latlngs);
+    var resultsModel = this._resultsModel = _.extend({}, calced, this._getMeasurementDisplayStrings(calced), {
+      pointCount: this._latlngs.length
+    });
     this.$results.innerHTML = resultsTemplate({
-      model: _.extend({}, calced, this._getMeasurementDisplayStrings(calced), {
-        pointCount: this._latlngs.length
-      }),
+      model: resultsModel,
       humanize: humanize,
       i18n: i18n
     });

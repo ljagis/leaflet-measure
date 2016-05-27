@@ -161,9 +161,27 @@ Decimal point and thousands separator used when displaying measurements. If not 
 
 You can subscribe to the following events on the [Map](http://leafletjs.com/reference.html#map-class) using [these methods](http://leafletjs.com/reference.html#events)
 
-- **measurestart**: Fired when measurement starts
+### measurestart
 
-- **measurefinish**: Fired when measurement finishes
+Fired when measurement starts
+
+### measurefinish
+
+Fired when measurement finishes with results of the measurement. Results data includes:
+
+- `area`: Area of a polygon measurement in sq meters. 0 for measurements with less than 3 points.
+
+- `areaDisplay`: Area formatted as displayed in the popup.
+
+- `lastCoord`: Last point clicked in both decimal degrees and degress/min/seconds.
+
+- `length`: Length of the measurement in meters. 0 for measurements with less than 2 points.
+
+- `lengthDisplay`: Length formatted as displayed in the popup.
+
+- `pointCount`: Number of points directly added by the user.
+
+- `points`: Array of points as [`LatLng`](http://leafletjs.com/reference.html#latlng) used to calculate the measurement. Number of items in the array may differ from `pointCoint` because an additional point is added to close polygons during polygon measurements.
 
 <hr>
 
