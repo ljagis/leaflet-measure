@@ -21,6 +21,7 @@ var areaPopupTemplate = _.template(fs.readFileSync(__dirname + '/popuptemplates/
 var i18n = new (require('i18n-2'))({
   locales: {
     'en': require('./i18n/en'),
+    'pt_BR': require('./i18n/pt_BR'),
     'es': require('./i18n/es'),
     'fr': require('./i18n/fr'),
     'it': require('./i18n/it'),
