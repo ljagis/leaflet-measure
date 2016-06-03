@@ -147,19 +147,27 @@ L.Control.Measure = L.Control.extend({
   },
   // get state vars and interface ready for measure
   _startMeasure: function () {
+    var mapSize = this._map.getSize();
     this._locked = true;
+    this._measureVertexes = L.featureGroup().addTo(this._layer);
+    this._captureMarker = L.marker(this._map.getCenter(), {
+      clickable: true,
+      zIndexOffset: 1000,
+      opacity: 0,
+      icon: L.divIcon({
+        iconSize: [mapSize.x * 2, mapSize.y * 2]
+      })
+    });
+    this._captureMarker
+      .on('mouseout', this._handleMapMouseOut, this)
+      .on('mousemove', this._handleMeasureMove, this)
+      .on('dblclick', this._handleMeasureDoubleClick, this)
+      .on('click', this._handleMeasureClick, this)
+      .addTo(this._layer);
 
-    this._wasDoubleClickEnabled = this._map.doubleClickZoom.enabled();
-    this._map.doubleClickZoom.disable(); // Allow double click to temporarily handle measurment actions
-    this._map.on('mouseout', this._handleMapMouseOut, this);
+    this._map.on('move', this._centerCaptureMarker, this);
 
     L.DomEvent.on(this._container, 'mouseenter', this._handleMapMouseOut, this);
-
-    this._map.on('mousemove', this._handleMeasureMove, this);
-    this._map.on('dblclick', this._handleMeasureDoubleClick, this);
-    this._map.on('click', this._handleMeasureClick, this);
-
-    this._measureVertexes = L.featureGroup().addTo(this._layer);
 
     this._updateMeasureStartedNoPoints();
   },
@@ -167,24 +175,29 @@ L.Control.Measure = L.Control.extend({
   _finishMeasure: function () {
     this._locked = false;
 
-    if (this._wasDoubleClickEnabled) {
-      this._map.doubleClickZoom.enable();
-    }
-    this._map.off('mouseout', this._handleMapMouseOut, this);
-
     L.DomEvent.off(this._container, 'mouseover', this._handleMapMouseOut, this);
 
     this._clearMeasure();
 
-    this._map.off('mousemove', this._handleMeasureMove, this);
-    this._map.off('dblclick', this._handleMeasureDoubleClick, this);
-    this._map.off('click', this._handleMeasureClick, this);
+    this._captureMarker
+      .off('mouseout', this._handleMapMouseOut, this)
+      .off('mousemove', this._handleMeasureMove, this)
+      .off('dblclick', this._handleMeasureDoubleClick, this)
+      .off('click', this._handleMeasureClick, this);
 
-    this._layer.removeLayer(this._measureVertexes);
+    this._map.off('move', this._centerCaptureMarker, this);
+
+    this._layer
+      .removeLayer(this._measureVertexes)
+      .removeLayer(this._captureMarker);
     this._measureVertexes = null;
 
     this._updateMeasureNotStarted();
     this._collapse();
+  },
+  // centers the event capture marker
+  _centerCaptureMarker: function () {
+    this._captureMarker.setLatLng(this._map.getCenter());
   },
   // clear all running measure data
   _clearMeasure: function () {
@@ -322,7 +335,9 @@ L.Control.Measure = L.Control.extend({
   // handle map click during ongoing measurement
   // add new clicked point, update measure layers and results ui
   _handleMeasureClick: function (evt) {
-    var latlng = evt.latlng, lastClick = _.last(this._latlngs), vertexSymbol = this._symbols.getSymbol('measureVertex');
+    var latlng = this._map.mouseEventToLatLng(evt.originalEvent), // get actual latlng instead of the marker's latlng from originalEvent
+      lastClick = _.last(this._latlngs),
+      vertexSymbol = this._symbols.getSymbol('measureVertex');
 
     if (!lastClick || !latlng.equals(lastClick)) { // skip if same point as last click, happens on `dblclick`
       this._latlngs.push(latlng);
