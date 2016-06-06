@@ -4,7 +4,7 @@ Coordinate, linear, and area measure control for [Leaflet](http://leafletjs.com)
 
 <hr>
 
-[Demo](http://ljagis.github.io/leaflet-measure)
+## [Demo](http://ljagis.github.io/leaflet-measure)
 
 [![Demo](https://raw.githubusercontent.com/ljagis/leaflet-measure/master/example/leaflet-measure-demo.jpg)](http://ljagis.github.io/leaflet-measure)
 
@@ -140,6 +140,12 @@ Define units as
   }
 }
 ```
+
+### captureZIndex
+
+`{ captureZIndex: 10000 }`
+
+Z-index of the marker used to capture measure clicks. Set this value higher than the z-index of all other map layers to disable click events on other layers while a measurement is active.
 
 ### localization
 
