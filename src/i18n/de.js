@@ -18,7 +18,7 @@ module.exports = {
     'centerOnLine': 'Auf diesen Linienzug zentrieren',
     'centerOnLocation': 'Auf diesen Ort zentrieren',
     'cancel': 'Abbrechen',
-    'delete': 'Löchen',
+    'delete': 'Löschen',
     'acres': 'Morgen',
     'feet': 'Fuß',
     'kilometers': 'Kilometer',
