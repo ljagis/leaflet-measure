@@ -6317,7 +6317,7 @@ module.exports = {
   'centerOnLine': 'Auf diesen Linienzug zentrieren',
   'centerOnLocation': 'Auf diesen Ort zentrieren',
   'cancel': 'Abbrechen',
-  'delete': 'Löchen',
+  'delete': 'Löschen',
   'acres': 'Morgen',
   'feet': 'Fuß',
   'kilometers': 'Kilometer',
@@ -6327,8 +6327,8 @@ module.exports = {
   'sqfeet': 'Quadratfuß',
   'sqmeters': 'Quadratmeter',
   'sqmiles': 'Quadratmeilen',
-  'decPoint': '.',
-  'thousandsSep': ','
+  'decPoint': ',',
+  'thousandsSep': '.'
 };
 
 },{}],26:[function(require,module,exports){
