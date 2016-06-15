@@ -28,6 +28,6 @@ module.exports = {
   'sqfeet': 'Quadratfuß',
   'sqmeters': 'Quadratmeter',
   'sqmiles': 'Quadratmeilen',
-  'decPoint': '.',
-  'thousandsSep': ','
+  'decPoint': ',',
+  'thousandsSep': '.'
 };
