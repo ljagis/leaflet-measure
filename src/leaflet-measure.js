@@ -19,6 +19,7 @@ var linePopupTemplate = _.template(fs.readFileSync(__dirname + '/popuptemplates/
 var areaPopupTemplate = _.template(fs.readFileSync(__dirname + '/popuptemplates/area-popuptemplate.html', 'utf8'));
 
 var i18n = new (require('i18n-2'))({
+  devMode: false,
   locales: {
     'de': require('./i18n/de'),
     'en': require('./i18n/en'),

@@ -1,439 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-/* MIT license */
-var convert = require("color-convert"),
-    string = require("color-string");
 
-var Color = function(obj) {
-  if (obj instanceof Color) return obj;
-  if (! (this instanceof Color)) return new Color(obj);
-
-   this.values = {
-      rgb: [0, 0, 0],
-      hsl: [0, 0, 0],
-      hsv: [0, 0, 0],
-      hwb: [0, 0, 0],
-      cmyk: [0, 0, 0, 0],
-      alpha: 1
-   }
-
-   // parse Color() argument
-   if (typeof obj == "string") {
-      var vals = string.getRgba(obj);
-      if (vals) {
-         this.setValues("rgb", vals);
-      }
-      else if(vals = string.getHsla(obj)) {
-         this.setValues("hsl", vals);
-      }
-      else if(vals = string.getHwb(obj)) {
-         this.setValues("hwb", vals);
-      }
-      else {
-        throw new Error("Unable to parse color from string \"" + obj + "\"");
-      }
-   }
-   else if (typeof obj == "object") {
-      var vals = obj;
-      if(vals["r"] !== undefined || vals["red"] !== undefined) {
-         this.setValues("rgb", vals)
-      }
-      else if(vals["l"] !== undefined || vals["lightness"] !== undefined) {
-         this.setValues("hsl", vals)
-      }
-      else if(vals["v"] !== undefined || vals["value"] !== undefined) {
-         this.setValues("hsv", vals)
-      }
-      else if(vals["w"] !== undefined || vals["whiteness"] !== undefined) {
-         this.setValues("hwb", vals)
-      }
-      else if(vals["c"] !== undefined || vals["cyan"] !== undefined) {
-         this.setValues("cmyk", vals)
-      }
-      else {
-        throw new Error("Unable to parse color from object " + JSON.stringify(obj));
-      }
-   }
-}
-
-Color.prototype = {
-   rgb: function (vals) {
-      return this.setSpace("rgb", arguments);
-   },
-   hsl: function(vals) {
-      return this.setSpace("hsl", arguments);
-   },
-   hsv: function(vals) {
-      return this.setSpace("hsv", arguments);
-   },
-   hwb: function(vals) {
-      return this.setSpace("hwb", arguments);
-   },
-   cmyk: function(vals) {
-      return this.setSpace("cmyk", arguments);
-   },
-
-   rgbArray: function() {
-      return this.values.rgb;
-   },
-   hslArray: function() {
-      return this.values.hsl;
-   },
-   hsvArray: function() {
-      return this.values.hsv;
-   },
-   hwbArray: function() {
-      if (this.values.alpha !== 1) {
-        return this.values.hwb.concat([this.values.alpha])
-      }
-      return this.values.hwb;
-   },
-   cmykArray: function() {
-      return this.values.cmyk;
-   },
-   rgbaArray: function() {
-      var rgb = this.values.rgb;
-      return rgb.concat([this.values.alpha]);
-   },
-   hslaArray: function() {
-      var hsl = this.values.hsl;
-      return hsl.concat([this.values.alpha]);
-   },
-   alpha: function(val) {
-      if (val === undefined) {
-         return this.values.alpha;
-      }
-      this.setValues("alpha", val);
-      return this;
-   },
-
-   red: function(val) {
-      return this.setChannel("rgb", 0, val);
-   },
-   green: function(val) {
-      return this.setChannel("rgb", 1, val);
-   },
-   blue: function(val) {
-      return this.setChannel("rgb", 2, val);
-   },
-   hue: function(val) {
-      return this.setChannel("hsl", 0, val);
-   },
-   saturation: function(val) {
-      return this.setChannel("hsl", 1, val);
-   },
-   lightness: function(val) {
-      return this.setChannel("hsl", 2, val);
-   },
-   saturationv: function(val) {
-      return this.setChannel("hsv", 1, val);
-   },
-   whiteness: function(val) {
-      return this.setChannel("hwb", 1, val);
-   },
-   blackness: function(val) {
-      return this.setChannel("hwb", 2, val);
-   },
-   value: function(val) {
-      return this.setChannel("hsv", 2, val);
-   },
-   cyan: function(val) {
-      return this.setChannel("cmyk", 0, val);
-   },
-   magenta: function(val) {
-      return this.setChannel("cmyk", 1, val);
-   },
-   yellow: function(val) {
-      return this.setChannel("cmyk", 2, val);
-   },
-   black: function(val) {
-      return this.setChannel("cmyk", 3, val);
-   },
-
-   hexString: function() {
-      return string.hexString(this.values.rgb);
-   },
-   rgbString: function() {
-      return string.rgbString(this.values.rgb, this.values.alpha);
-   },
-   rgbaString: function() {
-      return string.rgbaString(this.values.rgb, this.values.alpha);
-   },
-   percentString: function() {
-      return string.percentString(this.values.rgb, this.values.alpha);
-   },
-   hslString: function() {
-      return string.hslString(this.values.hsl, this.values.alpha);
-   },
-   hslaString: function() {
-      return string.hslaString(this.values.hsl, this.values.alpha);
-   },
-   hwbString: function() {
-      return string.hwbString(this.values.hwb, this.values.alpha);
-   },
-   keyword: function() {
-      return string.keyword(this.values.rgb, this.values.alpha);
-   },
-
-   rgbNumber: function() {
-      return (this.values.rgb[0] << 16) | (this.values.rgb[1] << 8) | this.values.rgb[2];
-   },
-
-   luminosity: function() {
-      // http://www.w3.org/TR/WCAG20/#relativeluminancedef
-      var rgb = this.values.rgb;
-      var lum = [];
-      for (var i = 0; i < rgb.length; i++) {
-         var chan = rgb[i] / 255;
-         lum[i] = (chan <= 0.03928) ? chan / 12.92
-                  : Math.pow(((chan + 0.055) / 1.055), 2.4)
-      }
-      return 0.2126 * lum[0] + 0.7152 * lum[1] + 0.0722 * lum[2];
-   },
-
-   contrast: function(color2) {
-      // http://www.w3.org/TR/WCAG20/#contrast-ratiodef
-      var lum1 = this.luminosity();
-      var lum2 = color2.luminosity();
-      if (lum1 > lum2) {
-         return (lum1 + 0.05) / (lum2 + 0.05)
-      };
-      return (lum2 + 0.05) / (lum1 + 0.05);
-   },
-
-   level: function(color2) {
-     var contrastRatio = this.contrast(color2);
-     return (contrastRatio >= 7.1)
-       ? 'AAA'
-       : (contrastRatio >= 4.5)
-        ? 'AA'
-        : '';
-   },
-
-   dark: function() {
-      // YIQ equation from http://24ways.org/2010/calculating-color-contrast
-      var rgb = this.values.rgb,
-          yiq = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000;
-      return yiq < 128;
-   },
-
-   light: function() {
-      return !this.dark();
-   },
-
-   negate: function() {
-      var rgb = []
-      for (var i = 0; i < 3; i++) {
-         rgb[i] = 255 - this.values.rgb[i];
-      }
-      this.setValues("rgb", rgb);
-      return this;
-   },
-
-   lighten: function(ratio) {
-      this.values.hsl[2] += this.values.hsl[2] * ratio;
-      this.setValues("hsl", this.values.hsl);
-      return this;
-   },
-
-   darken: function(ratio) {
-      this.values.hsl[2] -= this.values.hsl[2] * ratio;
-      this.setValues("hsl", this.values.hsl);
-      return this;
-   },
-
-   saturate: function(ratio) {
-      this.values.hsl[1] += this.values.hsl[1] * ratio;
-      this.setValues("hsl", this.values.hsl);
-      return this;
-   },
-
-   desaturate: function(ratio) {
-      this.values.hsl[1] -= this.values.hsl[1] * ratio;
-      this.setValues("hsl", this.values.hsl);
-      return this;
-   },
-
-   whiten: function(ratio) {
-      this.values.hwb[1] += this.values.hwb[1] * ratio;
-      this.setValues("hwb", this.values.hwb);
-      return this;
-   },
-
-   blacken: function(ratio) {
-      this.values.hwb[2] += this.values.hwb[2] * ratio;
-      this.setValues("hwb", this.values.hwb);
-      return this;
-   },
-
-   greyscale: function() {
-      var rgb = this.values.rgb;
-      // http://en.wikipedia.org/wiki/Grayscale#Converting_color_to_grayscale
-      var val = rgb[0] * 0.3 + rgb[1] * 0.59 + rgb[2] * 0.11;
-      this.setValues("rgb", [val, val, val]);
-      return this;
-   },
-
-   clearer: function(ratio) {
-      this.setValues("alpha", this.values.alpha - (this.values.alpha * ratio));
-      return this;
-   },
-
-   opaquer: function(ratio) {
-      this.setValues("alpha", this.values.alpha + (this.values.alpha * ratio));
-      return this;
-   },
-
-   rotate: function(degrees) {
-      var hue = this.values.hsl[0];
-      hue = (hue + degrees) % 360;
-      hue = hue < 0 ? 360 + hue : hue;
-      this.values.hsl[0] = hue;
-      this.setValues("hsl", this.values.hsl);
-      return this;
-   },
-
-   mix: function(color2, weight) {
-      weight = 1 - (weight == null ? 0.5 : weight);
-
-      // algorithm from Sass's mix(). Ratio of first color in mix is
-      // determined by the alphas of both colors and the weight
-      var t1 = weight * 2 - 1,
-          d = this.alpha() - color2.alpha();
-
-      var weight1 = (((t1 * d == -1) ? t1 : (t1 + d) / (1 + t1 * d)) + 1) / 2;
-      var weight2 = 1 - weight1;
-
-      var rgb = this.rgbArray();
-      var rgb2 = color2.rgbArray();
-
-      for (var i = 0; i < rgb.length; i++) {
-         rgb[i] = rgb[i] * weight1 + rgb2[i] * weight2;
-      }
-      this.setValues("rgb", rgb);
-
-      var alpha = this.alpha() * weight + color2.alpha() * (1 - weight);
-      this.setValues("alpha", alpha);
-
-      return this;
-   },
-
-   toJSON: function() {
-     return this.rgb();
-   },
-
-   clone: function() {
-     return new Color(this.rgb());
-   }
-}
-
-
-Color.prototype.getValues = function(space) {
-   var vals = {};
-   for (var i = 0; i < space.length; i++) {
-      vals[space.charAt(i)] = this.values[space][i];
-   }
-   if (this.values.alpha != 1) {
-      vals["a"] = this.values.alpha;
-   }
-   // {r: 255, g: 255, b: 255, a: 0.4}
-   return vals;
-}
-
-Color.prototype.setValues = function(space, vals) {
-   var spaces = {
-      "rgb": ["red", "green", "blue"],
-      "hsl": ["hue", "saturation", "lightness"],
-      "hsv": ["hue", "saturation", "value"],
-      "hwb": ["hue", "whiteness", "blackness"],
-      "cmyk": ["cyan", "magenta", "yellow", "black"]
-   };
-
-   var maxes = {
-      "rgb": [255, 255, 255],
-      "hsl": [360, 100, 100],
-      "hsv": [360, 100, 100],
-      "hwb": [360, 100, 100],
-      "cmyk": [100, 100, 100, 100]
-   };
-
-   var alpha = 1;
-   if (space == "alpha") {
-      alpha = vals;
-   }
-   else if (vals.length) {
-      // [10, 10, 10]
-      this.values[space] = vals.slice(0, space.length);
-      alpha = vals[space.length];
-   }
-   else if (vals[space.charAt(0)] !== undefined) {
-      // {r: 10, g: 10, b: 10}
-      for (var i = 0; i < space.length; i++) {
-        this.values[space][i] = vals[space.charAt(i)];
-      }
-      alpha = vals.a;
-   }
-   else if (vals[spaces[space][0]] !== undefined) {
-      // {red: 10, green: 10, blue: 10}
-      var chans = spaces[space];
-      for (var i = 0; i < space.length; i++) {
-        this.values[space][i] = vals[chans[i]];
-      }
-      alpha = vals.alpha;
-   }
-   this.values.alpha = Math.max(0, Math.min(1, (alpha !== undefined ? alpha : this.values.alpha) ));
-   if (space == "alpha") {
-      return;
-   }
-
-   // cap values of the space prior converting all values
-   for (var i = 0; i < space.length; i++) {
-      var capped = Math.max(0, Math.min(maxes[space][i], this.values[space][i]));
-      this.values[space][i] = Math.round(capped);
-   }
-
-   // convert to all the other color spaces
-   for (var sname in spaces) {
-      if (sname != space) {
-         this.values[sname] = convert[space][sname](this.values[space])
-      }
-
-      // cap values
-      for (var i = 0; i < sname.length; i++) {
-         var capped = Math.max(0, Math.min(maxes[sname][i], this.values[sname][i]));
-         this.values[sname][i] = Math.round(capped);
-      }
-   }
-   return true;
-}
-
-Color.prototype.setSpace = function(space, args) {
-   var vals = args[0];
-   if (vals === undefined) {
-      // color.rgb()
-      return this.getValues(space);
-   }
-   // color.rgb(10, 10, 10)
-   if (typeof vals == "number") {
-      vals = Array.prototype.slice.call(args);
-   }
-   this.setValues(space, vals);
-   return this;
-}
-
-Color.prototype.setChannel = function(space, index, val) {
-   if (val === undefined) {
-      // color.red()
-      return this.values[space][index];
-   }
-   // color.red(100)
-   this.values[space][index] = val;
-   this.setValues(space, this.values[space]);
-   return this;
-}
-
-module.exports = Color;
-
-},{"color-convert":3,"color-string":4}],2:[function(require,module,exports){
+},{}],2:[function(require,module,exports){
 /* MIT license */
 
 module.exports = {
@@ -674,6 +241,13 @@ function hsl2hsv(hsl) {
       s = hsl[1] / 100,
       l = hsl[2] / 100,
       sv, v;
+
+  if(l === 0) {
+      // no need to do calc on black
+      // also avoids divide by 0 error
+      return [0, 0, 0];
+  }
+
   l *= 2;
   s *= (l <= 1) ? l : 2 - l;
   v = (l + s) / 2;
@@ -1220,6 +794,157 @@ Converter.prototype.getValues = function(space) {
 
 module.exports = convert;
 },{"./conversions":2}],4:[function(require,module,exports){
+module.exports = {
+	"aliceblue": [240, 248, 255],
+	"antiquewhite": [250, 235, 215],
+	"aqua": [0, 255, 255],
+	"aquamarine": [127, 255, 212],
+	"azure": [240, 255, 255],
+	"beige": [245, 245, 220],
+	"bisque": [255, 228, 196],
+	"black": [0, 0, 0],
+	"blanchedalmond": [255, 235, 205],
+	"blue": [0, 0, 255],
+	"blueviolet": [138, 43, 226],
+	"brown": [165, 42, 42],
+	"burlywood": [222, 184, 135],
+	"cadetblue": [95, 158, 160],
+	"chartreuse": [127, 255, 0],
+	"chocolate": [210, 105, 30],
+	"coral": [255, 127, 80],
+	"cornflowerblue": [100, 149, 237],
+	"cornsilk": [255, 248, 220],
+	"crimson": [220, 20, 60],
+	"cyan": [0, 255, 255],
+	"darkblue": [0, 0, 139],
+	"darkcyan": [0, 139, 139],
+	"darkgoldenrod": [184, 134, 11],
+	"darkgray": [169, 169, 169],
+	"darkgreen": [0, 100, 0],
+	"darkgrey": [169, 169, 169],
+	"darkkhaki": [189, 183, 107],
+	"darkmagenta": [139, 0, 139],
+	"darkolivegreen": [85, 107, 47],
+	"darkorange": [255, 140, 0],
+	"darkorchid": [153, 50, 204],
+	"darkred": [139, 0, 0],
+	"darksalmon": [233, 150, 122],
+	"darkseagreen": [143, 188, 143],
+	"darkslateblue": [72, 61, 139],
+	"darkslategray": [47, 79, 79],
+	"darkslategrey": [47, 79, 79],
+	"darkturquoise": [0, 206, 209],
+	"darkviolet": [148, 0, 211],
+	"deeppink": [255, 20, 147],
+	"deepskyblue": [0, 191, 255],
+	"dimgray": [105, 105, 105],
+	"dimgrey": [105, 105, 105],
+	"dodgerblue": [30, 144, 255],
+	"firebrick": [178, 34, 34],
+	"floralwhite": [255, 250, 240],
+	"forestgreen": [34, 139, 34],
+	"fuchsia": [255, 0, 255],
+	"gainsboro": [220, 220, 220],
+	"ghostwhite": [248, 248, 255],
+	"gold": [255, 215, 0],
+	"goldenrod": [218, 165, 32],
+	"gray": [128, 128, 128],
+	"green": [0, 128, 0],
+	"greenyellow": [173, 255, 47],
+	"grey": [128, 128, 128],
+	"honeydew": [240, 255, 240],
+	"hotpink": [255, 105, 180],
+	"indianred": [205, 92, 92],
+	"indigo": [75, 0, 130],
+	"ivory": [255, 255, 240],
+	"khaki": [240, 230, 140],
+	"lavender": [230, 230, 250],
+	"lavenderblush": [255, 240, 245],
+	"lawngreen": [124, 252, 0],
+	"lemonchiffon": [255, 250, 205],
+	"lightblue": [173, 216, 230],
+	"lightcoral": [240, 128, 128],
+	"lightcyan": [224, 255, 255],
+	"lightgoldenrodyellow": [250, 250, 210],
+	"lightgray": [211, 211, 211],
+	"lightgreen": [144, 238, 144],
+	"lightgrey": [211, 211, 211],
+	"lightpink": [255, 182, 193],
+	"lightsalmon": [255, 160, 122],
+	"lightseagreen": [32, 178, 170],
+	"lightskyblue": [135, 206, 250],
+	"lightslategray": [119, 136, 153],
+	"lightslategrey": [119, 136, 153],
+	"lightsteelblue": [176, 196, 222],
+	"lightyellow": [255, 255, 224],
+	"lime": [0, 255, 0],
+	"limegreen": [50, 205, 50],
+	"linen": [250, 240, 230],
+	"magenta": [255, 0, 255],
+	"maroon": [128, 0, 0],
+	"mediumaquamarine": [102, 205, 170],
+	"mediumblue": [0, 0, 205],
+	"mediumorchid": [186, 85, 211],
+	"mediumpurple": [147, 112, 219],
+	"mediumseagreen": [60, 179, 113],
+	"mediumslateblue": [123, 104, 238],
+	"mediumspringgreen": [0, 250, 154],
+	"mediumturquoise": [72, 209, 204],
+	"mediumvioletred": [199, 21, 133],
+	"midnightblue": [25, 25, 112],
+	"mintcream": [245, 255, 250],
+	"mistyrose": [255, 228, 225],
+	"moccasin": [255, 228, 181],
+	"navajowhite": [255, 222, 173],
+	"navy": [0, 0, 128],
+	"oldlace": [253, 245, 230],
+	"olive": [128, 128, 0],
+	"olivedrab": [107, 142, 35],
+	"orange": [255, 165, 0],
+	"orangered": [255, 69, 0],
+	"orchid": [218, 112, 214],
+	"palegoldenrod": [238, 232, 170],
+	"palegreen": [152, 251, 152],
+	"paleturquoise": [175, 238, 238],
+	"palevioletred": [219, 112, 147],
+	"papayawhip": [255, 239, 213],
+	"peachpuff": [255, 218, 185],
+	"peru": [205, 133, 63],
+	"pink": [255, 192, 203],
+	"plum": [221, 160, 221],
+	"powderblue": [176, 224, 230],
+	"purple": [128, 0, 128],
+	"rebeccapurple": [102, 51, 153],
+	"red": [255, 0, 0],
+	"rosybrown": [188, 143, 143],
+	"royalblue": [65, 105, 225],
+	"saddlebrown": [139, 69, 19],
+	"salmon": [250, 128, 114],
+	"sandybrown": [244, 164, 96],
+	"seagreen": [46, 139, 87],
+	"seashell": [255, 245, 238],
+	"sienna": [160, 82, 45],
+	"silver": [192, 192, 192],
+	"skyblue": [135, 206, 235],
+	"slateblue": [106, 90, 205],
+	"slategray": [112, 128, 144],
+	"slategrey": [112, 128, 144],
+	"snow": [255, 250, 250],
+	"springgreen": [0, 255, 127],
+	"steelblue": [70, 130, 180],
+	"tan": [210, 180, 140],
+	"teal": [0, 128, 128],
+	"thistle": [216, 191, 216],
+	"tomato": [255, 99, 71],
+	"turquoise": [64, 224, 208],
+	"violet": [238, 130, 238],
+	"wheat": [245, 222, 179],
+	"white": [255, 255, 255],
+	"whitesmoke": [245, 245, 245],
+	"yellow": [255, 255, 0],
+	"yellowgreen": [154, 205, 50]
+};
+},{}],5:[function(require,module,exports){
 /* MIT license */
 var colorNames = require('color-name');
 
@@ -1442,160 +1167,444 @@ for (var name in colorNames) {
    reverseNames[colorNames[name]] = name;
 }
 
-},{"color-name":5}],5:[function(require,module,exports){
-module.exports={
-	"aliceblue": [240, 248, 255],
-	"antiquewhite": [250, 235, 215],
-	"aqua": [0, 255, 255],
-	"aquamarine": [127, 255, 212],
-	"azure": [240, 255, 255],
-	"beige": [245, 245, 220],
-	"bisque": [255, 228, 196],
-	"black": [0, 0, 0],
-	"blanchedalmond": [255, 235, 205],
-	"blue": [0, 0, 255],
-	"blueviolet": [138, 43, 226],
-	"brown": [165, 42, 42],
-	"burlywood": [222, 184, 135],
-	"cadetblue": [95, 158, 160],
-	"chartreuse": [127, 255, 0],
-	"chocolate": [210, 105, 30],
-	"coral": [255, 127, 80],
-	"cornflowerblue": [100, 149, 237],
-	"cornsilk": [255, 248, 220],
-	"crimson": [220, 20, 60],
-	"cyan": [0, 255, 255],
-	"darkblue": [0, 0, 139],
-	"darkcyan": [0, 139, 139],
-	"darkgoldenrod": [184, 134, 11],
-	"darkgray": [169, 169, 169],
-	"darkgreen": [0, 100, 0],
-	"darkgrey": [169, 169, 169],
-	"darkkhaki": [189, 183, 107],
-	"darkmagenta": [139, 0, 139],
-	"darkolivegreen": [85, 107, 47],
-	"darkorange": [255, 140, 0],
-	"darkorchid": [153, 50, 204],
-	"darkred": [139, 0, 0],
-	"darksalmon": [233, 150, 122],
-	"darkseagreen": [143, 188, 143],
-	"darkslateblue": [72, 61, 139],
-	"darkslategray": [47, 79, 79],
-	"darkslategrey": [47, 79, 79],
-	"darkturquoise": [0, 206, 209],
-	"darkviolet": [148, 0, 211],
-	"deeppink": [255, 20, 147],
-	"deepskyblue": [0, 191, 255],
-	"dimgray": [105, 105, 105],
-	"dimgrey": [105, 105, 105],
-	"dodgerblue": [30, 144, 255],
-	"firebrick": [178, 34, 34],
-	"floralwhite": [255, 250, 240],
-	"forestgreen": [34, 139, 34],
-	"fuchsia": [255, 0, 255],
-	"gainsboro": [220, 220, 220],
-	"ghostwhite": [248, 248, 255],
-	"gold": [255, 215, 0],
-	"goldenrod": [218, 165, 32],
-	"gray": [128, 128, 128],
-	"green": [0, 128, 0],
-	"greenyellow": [173, 255, 47],
-	"grey": [128, 128, 128],
-	"honeydew": [240, 255, 240],
-	"hotpink": [255, 105, 180],
-	"indianred": [205, 92, 92],
-	"indigo": [75, 0, 130],
-	"ivory": [255, 255, 240],
-	"khaki": [240, 230, 140],
-	"lavender": [230, 230, 250],
-	"lavenderblush": [255, 240, 245],
-	"lawngreen": [124, 252, 0],
-	"lemonchiffon": [255, 250, 205],
-	"lightblue": [173, 216, 230],
-	"lightcoral": [240, 128, 128],
-	"lightcyan": [224, 255, 255],
-	"lightgoldenrodyellow": [250, 250, 210],
-	"lightgray": [211, 211, 211],
-	"lightgreen": [144, 238, 144],
-	"lightgrey": [211, 211, 211],
-	"lightpink": [255, 182, 193],
-	"lightsalmon": [255, 160, 122],
-	"lightseagreen": [32, 178, 170],
-	"lightskyblue": [135, 206, 250],
-	"lightslategray": [119, 136, 153],
-	"lightslategrey": [119, 136, 153],
-	"lightsteelblue": [176, 196, 222],
-	"lightyellow": [255, 255, 224],
-	"lime": [0, 255, 0],
-	"limegreen": [50, 205, 50],
-	"linen": [250, 240, 230],
-	"magenta": [255, 0, 255],
-	"maroon": [128, 0, 0],
-	"mediumaquamarine": [102, 205, 170],
-	"mediumblue": [0, 0, 205],
-	"mediumorchid": [186, 85, 211],
-	"mediumpurple": [147, 112, 219],
-	"mediumseagreen": [60, 179, 113],
-	"mediumslateblue": [123, 104, 238],
-	"mediumspringgreen": [0, 250, 154],
-	"mediumturquoise": [72, 209, 204],
-	"mediumvioletred": [199, 21, 133],
-	"midnightblue": [25, 25, 112],
-	"mintcream": [245, 255, 250],
-	"mistyrose": [255, 228, 225],
-	"moccasin": [255, 228, 181],
-	"navajowhite": [255, 222, 173],
-	"navy": [0, 0, 128],
-	"oldlace": [253, 245, 230],
-	"olive": [128, 128, 0],
-	"olivedrab": [107, 142, 35],
-	"orange": [255, 165, 0],
-	"orangered": [255, 69, 0],
-	"orchid": [218, 112, 214],
-	"palegoldenrod": [238, 232, 170],
-	"palegreen": [152, 251, 152],
-	"paleturquoise": [175, 238, 238],
-	"palevioletred": [219, 112, 147],
-	"papayawhip": [255, 239, 213],
-	"peachpuff": [255, 218, 185],
-	"peru": [205, 133, 63],
-	"pink": [255, 192, 203],
-	"plum": [221, 160, 221],
-	"powderblue": [176, 224, 230],
-	"purple": [128, 0, 128],
-	"rebeccapurple": [102, 51, 153],
-	"red": [255, 0, 0],
-	"rosybrown": [188, 143, 143],
-	"royalblue": [65, 105, 225],
-	"saddlebrown": [139, 69, 19],
-	"salmon": [250, 128, 114],
-	"sandybrown": [244, 164, 96],
-	"seagreen": [46, 139, 87],
-	"seashell": [255, 245, 238],
-	"sienna": [160, 82, 45],
-	"silver": [192, 192, 192],
-	"skyblue": [135, 206, 235],
-	"slateblue": [106, 90, 205],
-	"slategray": [112, 128, 144],
-	"slategrey": [112, 128, 144],
-	"snow": [255, 250, 250],
-	"springgreen": [0, 255, 127],
-	"steelblue": [70, 130, 180],
-	"tan": [210, 180, 140],
-	"teal": [0, 128, 128],
-	"thistle": [216, 191, 216],
-	"tomato": [255, 99, 71],
-	"turquoise": [64, 224, 208],
-	"violet": [238, 130, 238],
-	"wheat": [245, 222, 179],
-	"white": [255, 255, 255],
-	"whitesmoke": [245, 245, 245],
-	"yellow": [255, 255, 0],
-	"yellowgreen": [154, 205, 50]
+},{"color-name":4}],6:[function(require,module,exports){
+/* MIT license */
+var convert = require("color-convert"),
+    string = require("color-string");
+
+var Color = function(obj) {
+  if (obj instanceof Color) return obj;
+  if (! (this instanceof Color)) return new Color(obj);
+
+   this.values = {
+      rgb: [0, 0, 0],
+      hsl: [0, 0, 0],
+      hsv: [0, 0, 0],
+      hwb: [0, 0, 0],
+      cmyk: [0, 0, 0, 0],
+      alpha: 1
+   }
+
+   // parse Color() argument
+   if (typeof obj == "string") {
+      var vals = string.getRgba(obj);
+      if (vals) {
+         this.setValues("rgb", vals);
+      }
+      else if(vals = string.getHsla(obj)) {
+         this.setValues("hsl", vals);
+      }
+      else if(vals = string.getHwb(obj)) {
+         this.setValues("hwb", vals);
+      }
+      else {
+        throw new Error("Unable to parse color from string \"" + obj + "\"");
+      }
+   }
+   else if (typeof obj == "object") {
+      var vals = obj;
+      if(vals["r"] !== undefined || vals["red"] !== undefined) {
+         this.setValues("rgb", vals)
+      }
+      else if(vals["l"] !== undefined || vals["lightness"] !== undefined) {
+         this.setValues("hsl", vals)
+      }
+      else if(vals["v"] !== undefined || vals["value"] !== undefined) {
+         this.setValues("hsv", vals)
+      }
+      else if(vals["w"] !== undefined || vals["whiteness"] !== undefined) {
+         this.setValues("hwb", vals)
+      }
+      else if(vals["c"] !== undefined || vals["cyan"] !== undefined) {
+         this.setValues("cmyk", vals)
+      }
+      else {
+        throw new Error("Unable to parse color from object " + JSON.stringify(obj));
+      }
+   }
 }
-},{}],6:[function(require,module,exports){
+
+Color.prototype = {
+   rgb: function (vals) {
+      return this.setSpace("rgb", arguments);
+   },
+   hsl: function(vals) {
+      return this.setSpace("hsl", arguments);
+   },
+   hsv: function(vals) {
+      return this.setSpace("hsv", arguments);
+   },
+   hwb: function(vals) {
+      return this.setSpace("hwb", arguments);
+   },
+   cmyk: function(vals) {
+      return this.setSpace("cmyk", arguments);
+   },
+
+   rgbArray: function() {
+      return this.values.rgb;
+   },
+   hslArray: function() {
+      return this.values.hsl;
+   },
+   hsvArray: function() {
+      return this.values.hsv;
+   },
+   hwbArray: function() {
+      if (this.values.alpha !== 1) {
+        return this.values.hwb.concat([this.values.alpha])
+      }
+      return this.values.hwb;
+   },
+   cmykArray: function() {
+      return this.values.cmyk;
+   },
+   rgbaArray: function() {
+      var rgb = this.values.rgb;
+      return rgb.concat([this.values.alpha]);
+   },
+   hslaArray: function() {
+      var hsl = this.values.hsl;
+      return hsl.concat([this.values.alpha]);
+   },
+   alpha: function(val) {
+      if (val === undefined) {
+         return this.values.alpha;
+      }
+      this.setValues("alpha", val);
+      return this;
+   },
+
+   red: function(val) {
+      return this.setChannel("rgb", 0, val);
+   },
+   green: function(val) {
+      return this.setChannel("rgb", 1, val);
+   },
+   blue: function(val) {
+      return this.setChannel("rgb", 2, val);
+   },
+   hue: function(val) {
+      return this.setChannel("hsl", 0, val);
+   },
+   saturation: function(val) {
+      return this.setChannel("hsl", 1, val);
+   },
+   lightness: function(val) {
+      return this.setChannel("hsl", 2, val);
+   },
+   saturationv: function(val) {
+      return this.setChannel("hsv", 1, val);
+   },
+   whiteness: function(val) {
+      return this.setChannel("hwb", 1, val);
+   },
+   blackness: function(val) {
+      return this.setChannel("hwb", 2, val);
+   },
+   value: function(val) {
+      return this.setChannel("hsv", 2, val);
+   },
+   cyan: function(val) {
+      return this.setChannel("cmyk", 0, val);
+   },
+   magenta: function(val) {
+      return this.setChannel("cmyk", 1, val);
+   },
+   yellow: function(val) {
+      return this.setChannel("cmyk", 2, val);
+   },
+   black: function(val) {
+      return this.setChannel("cmyk", 3, val);
+   },
+
+   hexString: function() {
+      return string.hexString(this.values.rgb);
+   },
+   rgbString: function() {
+      return string.rgbString(this.values.rgb, this.values.alpha);
+   },
+   rgbaString: function() {
+      return string.rgbaString(this.values.rgb, this.values.alpha);
+   },
+   percentString: function() {
+      return string.percentString(this.values.rgb, this.values.alpha);
+   },
+   hslString: function() {
+      return string.hslString(this.values.hsl, this.values.alpha);
+   },
+   hslaString: function() {
+      return string.hslaString(this.values.hsl, this.values.alpha);
+   },
+   hwbString: function() {
+      return string.hwbString(this.values.hwb, this.values.alpha);
+   },
+   keyword: function() {
+      return string.keyword(this.values.rgb, this.values.alpha);
+   },
+
+   rgbNumber: function() {
+      return (this.values.rgb[0] << 16) | (this.values.rgb[1] << 8) | this.values.rgb[2];
+   },
+
+   luminosity: function() {
+      // http://www.w3.org/TR/WCAG20/#relativeluminancedef
+      var rgb = this.values.rgb;
+      var lum = [];
+      for (var i = 0; i < rgb.length; i++) {
+         var chan = rgb[i] / 255;
+         lum[i] = (chan <= 0.03928) ? chan / 12.92
+                  : Math.pow(((chan + 0.055) / 1.055), 2.4)
+      }
+      return 0.2126 * lum[0] + 0.7152 * lum[1] + 0.0722 * lum[2];
+   },
+
+   contrast: function(color2) {
+      // http://www.w3.org/TR/WCAG20/#contrast-ratiodef
+      var lum1 = this.luminosity();
+      var lum2 = color2.luminosity();
+      if (lum1 > lum2) {
+         return (lum1 + 0.05) / (lum2 + 0.05)
+      };
+      return (lum2 + 0.05) / (lum1 + 0.05);
+   },
+
+   level: function(color2) {
+     var contrastRatio = this.contrast(color2);
+     return (contrastRatio >= 7.1)
+       ? 'AAA'
+       : (contrastRatio >= 4.5)
+        ? 'AA'
+        : '';
+   },
+
+   dark: function() {
+      // YIQ equation from http://24ways.org/2010/calculating-color-contrast
+      var rgb = this.values.rgb,
+          yiq = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000;
+      return yiq < 128;
+   },
+
+   light: function() {
+      return !this.dark();
+   },
+
+   negate: function() {
+      var rgb = []
+      for (var i = 0; i < 3; i++) {
+         rgb[i] = 255 - this.values.rgb[i];
+      }
+      this.setValues("rgb", rgb);
+      return this;
+   },
+
+   lighten: function(ratio) {
+      this.values.hsl[2] += this.values.hsl[2] * ratio;
+      this.setValues("hsl", this.values.hsl);
+      return this;
+   },
+
+   darken: function(ratio) {
+      this.values.hsl[2] -= this.values.hsl[2] * ratio;
+      this.setValues("hsl", this.values.hsl);
+      return this;
+   },
+
+   saturate: function(ratio) {
+      this.values.hsl[1] += this.values.hsl[1] * ratio;
+      this.setValues("hsl", this.values.hsl);
+      return this;
+   },
+
+   desaturate: function(ratio) {
+      this.values.hsl[1] -= this.values.hsl[1] * ratio;
+      this.setValues("hsl", this.values.hsl);
+      return this;
+   },
+
+   whiten: function(ratio) {
+      this.values.hwb[1] += this.values.hwb[1] * ratio;
+      this.setValues("hwb", this.values.hwb);
+      return this;
+   },
+
+   blacken: function(ratio) {
+      this.values.hwb[2] += this.values.hwb[2] * ratio;
+      this.setValues("hwb", this.values.hwb);
+      return this;
+   },
+
+   greyscale: function() {
+      var rgb = this.values.rgb;
+      // http://en.wikipedia.org/wiki/Grayscale#Converting_color_to_grayscale
+      var val = rgb[0] * 0.3 + rgb[1] * 0.59 + rgb[2] * 0.11;
+      this.setValues("rgb", [val, val, val]);
+      return this;
+   },
+
+   clearer: function(ratio) {
+      this.setValues("alpha", this.values.alpha - (this.values.alpha * ratio));
+      return this;
+   },
+
+   opaquer: function(ratio) {
+      this.setValues("alpha", this.values.alpha + (this.values.alpha * ratio));
+      return this;
+   },
+
+   rotate: function(degrees) {
+      var hue = this.values.hsl[0];
+      hue = (hue + degrees) % 360;
+      hue = hue < 0 ? 360 + hue : hue;
+      this.values.hsl[0] = hue;
+      this.setValues("hsl", this.values.hsl);
+      return this;
+   },
+
+   mix: function(color2, weight) {
+      weight = 1 - (weight == null ? 0.5 : weight);
+
+      // algorithm from Sass's mix(). Ratio of first color in mix is
+      // determined by the alphas of both colors and the weight
+      var t1 = weight * 2 - 1,
+          d = this.alpha() - color2.alpha();
+
+      var weight1 = (((t1 * d == -1) ? t1 : (t1 + d) / (1 + t1 * d)) + 1) / 2;
+      var weight2 = 1 - weight1;
+
+      var rgb = this.rgbArray();
+      var rgb2 = color2.rgbArray();
+
+      for (var i = 0; i < rgb.length; i++) {
+         rgb[i] = rgb[i] * weight1 + rgb2[i] * weight2;
+      }
+      this.setValues("rgb", rgb);
+
+      var alpha = this.alpha() * weight + color2.alpha() * (1 - weight);
+      this.setValues("alpha", alpha);
+
+      return this;
+   },
+
+   toJSON: function() {
+     return this.rgb();
+   },
+
+   clone: function() {
+     return new Color(this.rgb());
+   }
+}
+
+
+Color.prototype.getValues = function(space) {
+   var vals = {};
+   for (var i = 0; i < space.length; i++) {
+      vals[space.charAt(i)] = this.values[space][i];
+   }
+   if (this.values.alpha != 1) {
+      vals["a"] = this.values.alpha;
+   }
+   // {r: 255, g: 255, b: 255, a: 0.4}
+   return vals;
+}
+
+Color.prototype.setValues = function(space, vals) {
+   var spaces = {
+      "rgb": ["red", "green", "blue"],
+      "hsl": ["hue", "saturation", "lightness"],
+      "hsv": ["hue", "saturation", "value"],
+      "hwb": ["hue", "whiteness", "blackness"],
+      "cmyk": ["cyan", "magenta", "yellow", "black"]
+   };
+
+   var maxes = {
+      "rgb": [255, 255, 255],
+      "hsl": [360, 100, 100],
+      "hsv": [360, 100, 100],
+      "hwb": [360, 100, 100],
+      "cmyk": [100, 100, 100, 100]
+   };
+
+   var alpha = 1;
+   if (space == "alpha") {
+      alpha = vals;
+   }
+   else if (vals.length) {
+      // [10, 10, 10]
+      this.values[space] = vals.slice(0, space.length);
+      alpha = vals[space.length];
+   }
+   else if (vals[space.charAt(0)] !== undefined) {
+      // {r: 10, g: 10, b: 10}
+      for (var i = 0; i < space.length; i++) {
+        this.values[space][i] = vals[space.charAt(i)];
+      }
+      alpha = vals.a;
+   }
+   else if (vals[spaces[space][0]] !== undefined) {
+      // {red: 10, green: 10, blue: 10}
+      var chans = spaces[space];
+      for (var i = 0; i < space.length; i++) {
+        this.values[space][i] = vals[chans[i]];
+      }
+      alpha = vals.alpha;
+   }
+   this.values.alpha = Math.max(0, Math.min(1, (alpha !== undefined ? alpha : this.values.alpha) ));
+   if (space == "alpha") {
+      return;
+   }
+
+   // cap values of the space prior converting all values
+   for (var i = 0; i < space.length; i++) {
+      var capped = Math.max(0, Math.min(maxes[space][i], this.values[space][i]));
+      this.values[space][i] = Math.round(capped);
+   }
+
+   // convert to all the other color spaces
+   for (var sname in spaces) {
+      if (sname != space) {
+         this.values[sname] = convert[space][sname](this.values[space])
+      }
+
+      // cap values
+      for (var i = 0; i < sname.length; i++) {
+         var capped = Math.max(0, Math.min(maxes[sname][i], this.values[sname][i]));
+         this.values[sname][i] = Math.round(capped);
+      }
+   }
+   return true;
+}
+
+Color.prototype.setSpace = function(space, args) {
+   var vals = args[0];
+   if (vals === undefined) {
+      // color.rgb()
+      return this.getValues(space);
+   }
+   // color.rgb(10, 10, 10)
+   if (typeof vals == "number") {
+      vals = Array.prototype.slice.call(args);
+   }
+   this.setValues(space, vals);
+   return this;
+}
+
+Color.prototype.setChannel = function(space, index, val) {
+   if (val === undefined) {
+      // color.red()
+      return this.values[space][index];
+   }
+   // color.red(100)
+   this.values[space][index] = val;
+   this.setValues(space, this.values[space]);
+   return this;
+}
+
+module.exports = Color;
+
+},{"color-convert":3,"color-string":5}],7:[function(require,module,exports){
 module.exports = require('./lib/geocrunch');
-},{"./lib/geocrunch":11}],7:[function(require,module,exports){
+},{"./lib/geocrunch":12}],8:[function(require,module,exports){
 // distance.js - Distance mixins for Paths
 
 var _ = require('underscore');
@@ -1678,13 +1687,13 @@ module.exports = {
     return this._options.imBackwards === true ? flipCoords(this._calcedCenter) : this._calcedCenter;
   }
 };
-},{"./constants":8,"./flipcoords":10,"./units":13,"underscore":14}],8:[function(require,module,exports){
+},{"./constants":9,"./flipcoords":11,"./units":14,"underscore":15}],9:[function(require,module,exports){
 // utils/constants.js
 
 module.exports = {
   EARTHRADIUS: 6371000 // R in meters
 };
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 // distance.js - Distance mixins for Paths
 
 var _ = require('underscore');
@@ -1749,7 +1758,7 @@ module.exports = {
     // TODO. Handle non-matching units
   }
 };
-},{"./constants":8,"./units":13,"underscore":14}],10:[function(require,module,exports){
+},{"./constants":9,"./units":14,"underscore":15}],11:[function(require,module,exports){
 // utils/flipcoords.js - Util functions for working with backwards coordinates [lat, lng]
 
 var _ = require('underscore');
@@ -1759,7 +1768,7 @@ module.exports = function (backwardsCoordArray) {
     return [backwardsCoord[1], backwardsCoord[0]];
   });
 };
-},{"underscore":14}],11:[function(require,module,exports){
+},{"underscore":15}],12:[function(require,module,exports){
 // geocrunch.js
 
 var _ = require('underscore');
@@ -1773,7 +1782,7 @@ _.extend(Path.prototype, distanceMixins, areaMixins);
 exports.path = function (coords, options) {
   return new Path(coords, options);
 };
-},{"./area":7,"./distance":9,"./path":12,"underscore":14}],12:[function(require,module,exports){
+},{"./area":8,"./distance":10,"./path":13,"underscore":15}],13:[function(require,module,exports){
 // path.js - Object for working with a linear path of coordinates
 
 var flipCoords = require('./flipcoords');
@@ -1788,7 +1797,7 @@ var Path = function (coords, options) {
 
 module.exports = Path;
 
-},{"./flipcoords":10}],13:[function(require,module,exports){
+},{"./flipcoords":11}],14:[function(require,module,exports){
 // units.js - Standard unit conversions
 
 exports.meters = {
@@ -1817,7 +1826,7 @@ exports.degrees = {
     return d * Math.PI / 180;
   }
 };
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 //     Underscore.js 1.5.2
 //     http://underscorejs.org
 //     (c) 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -3095,296 +3104,7 @@ exports.degrees = {
 
 }).call(this);
 
-},{}],15:[function(require,module,exports){
-
 },{}],16:[function(require,module,exports){
-(function (process){
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-// resolves . and .. elements in a path array with directory names there
-// must be no slashes, empty elements, or device names (c:\) in the array
-// (so also no leading and trailing slashes - it does not distinguish
-// relative and absolute paths)
-function normalizeArray(parts, allowAboveRoot) {
-  // if the path tries to go above the root, `up` ends up > 0
-  var up = 0;
-  for (var i = parts.length - 1; i >= 0; i--) {
-    var last = parts[i];
-    if (last === '.') {
-      parts.splice(i, 1);
-    } else if (last === '..') {
-      parts.splice(i, 1);
-      up++;
-    } else if (up) {
-      parts.splice(i, 1);
-      up--;
-    }
-  }
-
-  // if the path is allowed to go above the root, restore leading ..s
-  if (allowAboveRoot) {
-    for (; up--; up) {
-      parts.unshift('..');
-    }
-  }
-
-  return parts;
-}
-
-// Split a filename into [root, dir, basename, ext], unix version
-// 'root' is just a slash, or nothing.
-var splitPathRe =
-    /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
-var splitPath = function(filename) {
-  return splitPathRe.exec(filename).slice(1);
-};
-
-// path.resolve([from ...], to)
-// posix version
-exports.resolve = function() {
-  var resolvedPath = '',
-      resolvedAbsolute = false;
-
-  for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
-    var path = (i >= 0) ? arguments[i] : process.cwd();
-
-    // Skip empty and invalid entries
-    if (typeof path !== 'string') {
-      throw new TypeError('Arguments to path.resolve must be strings');
-    } else if (!path) {
-      continue;
-    }
-
-    resolvedPath = path + '/' + resolvedPath;
-    resolvedAbsolute = path.charAt(0) === '/';
-  }
-
-  // At this point the path should be resolved to a full absolute path, but
-  // handle relative paths to be safe (might happen when process.cwd() fails)
-
-  // Normalize the path
-  resolvedPath = normalizeArray(filter(resolvedPath.split('/'), function(p) {
-    return !!p;
-  }), !resolvedAbsolute).join('/');
-
-  return ((resolvedAbsolute ? '/' : '') + resolvedPath) || '.';
-};
-
-// path.normalize(path)
-// posix version
-exports.normalize = function(path) {
-  var isAbsolute = exports.isAbsolute(path),
-      trailingSlash = substr(path, -1) === '/';
-
-  // Normalize the path
-  path = normalizeArray(filter(path.split('/'), function(p) {
-    return !!p;
-  }), !isAbsolute).join('/');
-
-  if (!path && !isAbsolute) {
-    path = '.';
-  }
-  if (path && trailingSlash) {
-    path += '/';
-  }
-
-  return (isAbsolute ? '/' : '') + path;
-};
-
-// posix version
-exports.isAbsolute = function(path) {
-  return path.charAt(0) === '/';
-};
-
-// posix version
-exports.join = function() {
-  var paths = Array.prototype.slice.call(arguments, 0);
-  return exports.normalize(filter(paths, function(p, index) {
-    if (typeof p !== 'string') {
-      throw new TypeError('Arguments to path.join must be strings');
-    }
-    return p;
-  }).join('/'));
-};
-
-
-// path.relative(from, to)
-// posix version
-exports.relative = function(from, to) {
-  from = exports.resolve(from).substr(1);
-  to = exports.resolve(to).substr(1);
-
-  function trim(arr) {
-    var start = 0;
-    for (; start < arr.length; start++) {
-      if (arr[start] !== '') break;
-    }
-
-    var end = arr.length - 1;
-    for (; end >= 0; end--) {
-      if (arr[end] !== '') break;
-    }
-
-    if (start > end) return [];
-    return arr.slice(start, end - start + 1);
-  }
-
-  var fromParts = trim(from.split('/'));
-  var toParts = trim(to.split('/'));
-
-  var length = Math.min(fromParts.length, toParts.length);
-  var samePartsLength = length;
-  for (var i = 0; i < length; i++) {
-    if (fromParts[i] !== toParts[i]) {
-      samePartsLength = i;
-      break;
-    }
-  }
-
-  var outputParts = [];
-  for (var i = samePartsLength; i < fromParts.length; i++) {
-    outputParts.push('..');
-  }
-
-  outputParts = outputParts.concat(toParts.slice(samePartsLength));
-
-  return outputParts.join('/');
-};
-
-exports.sep = '/';
-exports.delimiter = ':';
-
-exports.dirname = function(path) {
-  var result = splitPath(path),
-      root = result[0],
-      dir = result[1];
-
-  if (!root && !dir) {
-    // No dirname whatsoever
-    return '.';
-  }
-
-  if (dir) {
-    // It has a dirname, strip trailing slash
-    dir = dir.substr(0, dir.length - 1);
-  }
-
-  return root + dir;
-};
-
-
-exports.basename = function(path, ext) {
-  var f = splitPath(path)[2];
-  // TODO: make this comparison case-insensitive on windows?
-  if (ext && f.substr(-1 * ext.length) === ext) {
-    f = f.substr(0, f.length - ext.length);
-  }
-  return f;
-};
-
-
-exports.extname = function(path) {
-  return splitPath(path)[3];
-};
-
-function filter (xs, f) {
-    if (xs.filter) return xs.filter(f);
-    var res = [];
-    for (var i = 0; i < xs.length; i++) {
-        if (f(xs[i], i, xs)) res.push(xs[i]);
-    }
-    return res;
-}
-
-// String.prototype.substr - negative index don't work in IE8
-var substr = 'ab'.substr(-1) === 'b'
-    ? function (str, start, len) { return str.substr(start, len) }
-    : function (str, start, len) {
-        if (start < 0) start = str.length + start;
-        return str.substr(start, len);
-    }
-;
-
-}).call(this,require('_process'))
-},{"_process":17}],17:[function(require,module,exports){
-// shim for using process in browser
-
-var process = module.exports = {};
-var queue = [];
-var draining = false;
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    draining = true;
-    var currentQueue;
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        var i = -1;
-        while (++i < len) {
-            currentQueue[i]();
-        }
-        len = queue.length;
-    }
-    draining = false;
-}
-process.nextTick = function (fun) {
-    queue.push(fun);
-    if (!draining) {
-        setTimeout(drainQueue, 0);
-    }
-};
-
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-// TODO(shtylman)
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-},{}],18:[function(require,module,exports){
 
 (function() {
 
@@ -3860,7 +3580,7 @@ process.umask = function() { return 0; };
 
 }).call(this);
 
-},{}],19:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 (function (process){
 /**
  * @author  John Resig <jeresig@gmail.com>
@@ -4333,10 +4053,359 @@ i18n.prototype = {
 };
 
 }).call(this,require('_process'))
-},{"_process":17,"fs":15,"path":16,"sprintf":21}],20:[function(require,module,exports){
+},{"_process":20,"fs":1,"path":19,"sprintf":21}],18:[function(require,module,exports){
 module.exports = require('./i18n');
 
-},{"./i18n":19}],21:[function(require,module,exports){
+},{"./i18n":17}],19:[function(require,module,exports){
+(function (process){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+// resolves . and .. elements in a path array with directory names there
+// must be no slashes, empty elements, or device names (c:\) in the array
+// (so also no leading and trailing slashes - it does not distinguish
+// relative and absolute paths)
+function normalizeArray(parts, allowAboveRoot) {
+  // if the path tries to go above the root, `up` ends up > 0
+  var up = 0;
+  for (var i = parts.length - 1; i >= 0; i--) {
+    var last = parts[i];
+    if (last === '.') {
+      parts.splice(i, 1);
+    } else if (last === '..') {
+      parts.splice(i, 1);
+      up++;
+    } else if (up) {
+      parts.splice(i, 1);
+      up--;
+    }
+  }
+
+  // if the path is allowed to go above the root, restore leading ..s
+  if (allowAboveRoot) {
+    for (; up--; up) {
+      parts.unshift('..');
+    }
+  }
+
+  return parts;
+}
+
+// Split a filename into [root, dir, basename, ext], unix version
+// 'root' is just a slash, or nothing.
+var splitPathRe =
+    /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
+var splitPath = function(filename) {
+  return splitPathRe.exec(filename).slice(1);
+};
+
+// path.resolve([from ...], to)
+// posix version
+exports.resolve = function() {
+  var resolvedPath = '',
+      resolvedAbsolute = false;
+
+  for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
+    var path = (i >= 0) ? arguments[i] : process.cwd();
+
+    // Skip empty and invalid entries
+    if (typeof path !== 'string') {
+      throw new TypeError('Arguments to path.resolve must be strings');
+    } else if (!path) {
+      continue;
+    }
+
+    resolvedPath = path + '/' + resolvedPath;
+    resolvedAbsolute = path.charAt(0) === '/';
+  }
+
+  // At this point the path should be resolved to a full absolute path, but
+  // handle relative paths to be safe (might happen when process.cwd() fails)
+
+  // Normalize the path
+  resolvedPath = normalizeArray(filter(resolvedPath.split('/'), function(p) {
+    return !!p;
+  }), !resolvedAbsolute).join('/');
+
+  return ((resolvedAbsolute ? '/' : '') + resolvedPath) || '.';
+};
+
+// path.normalize(path)
+// posix version
+exports.normalize = function(path) {
+  var isAbsolute = exports.isAbsolute(path),
+      trailingSlash = substr(path, -1) === '/';
+
+  // Normalize the path
+  path = normalizeArray(filter(path.split('/'), function(p) {
+    return !!p;
+  }), !isAbsolute).join('/');
+
+  if (!path && !isAbsolute) {
+    path = '.';
+  }
+  if (path && trailingSlash) {
+    path += '/';
+  }
+
+  return (isAbsolute ? '/' : '') + path;
+};
+
+// posix version
+exports.isAbsolute = function(path) {
+  return path.charAt(0) === '/';
+};
+
+// posix version
+exports.join = function() {
+  var paths = Array.prototype.slice.call(arguments, 0);
+  return exports.normalize(filter(paths, function(p, index) {
+    if (typeof p !== 'string') {
+      throw new TypeError('Arguments to path.join must be strings');
+    }
+    return p;
+  }).join('/'));
+};
+
+
+// path.relative(from, to)
+// posix version
+exports.relative = function(from, to) {
+  from = exports.resolve(from).substr(1);
+  to = exports.resolve(to).substr(1);
+
+  function trim(arr) {
+    var start = 0;
+    for (; start < arr.length; start++) {
+      if (arr[start] !== '') break;
+    }
+
+    var end = arr.length - 1;
+    for (; end >= 0; end--) {
+      if (arr[end] !== '') break;
+    }
+
+    if (start > end) return [];
+    return arr.slice(start, end - start + 1);
+  }
+
+  var fromParts = trim(from.split('/'));
+  var toParts = trim(to.split('/'));
+
+  var length = Math.min(fromParts.length, toParts.length);
+  var samePartsLength = length;
+  for (var i = 0; i < length; i++) {
+    if (fromParts[i] !== toParts[i]) {
+      samePartsLength = i;
+      break;
+    }
+  }
+
+  var outputParts = [];
+  for (var i = samePartsLength; i < fromParts.length; i++) {
+    outputParts.push('..');
+  }
+
+  outputParts = outputParts.concat(toParts.slice(samePartsLength));
+
+  return outputParts.join('/');
+};
+
+exports.sep = '/';
+exports.delimiter = ':';
+
+exports.dirname = function(path) {
+  var result = splitPath(path),
+      root = result[0],
+      dir = result[1];
+
+  if (!root && !dir) {
+    // No dirname whatsoever
+    return '.';
+  }
+
+  if (dir) {
+    // It has a dirname, strip trailing slash
+    dir = dir.substr(0, dir.length - 1);
+  }
+
+  return root + dir;
+};
+
+
+exports.basename = function(path, ext) {
+  var f = splitPath(path)[2];
+  // TODO: make this comparison case-insensitive on windows?
+  if (ext && f.substr(-1 * ext.length) === ext) {
+    f = f.substr(0, f.length - ext.length);
+  }
+  return f;
+};
+
+
+exports.extname = function(path) {
+  return splitPath(path)[3];
+};
+
+function filter (xs, f) {
+    if (xs.filter) return xs.filter(f);
+    var res = [];
+    for (var i = 0; i < xs.length; i++) {
+        if (f(xs[i], i, xs)) res.push(xs[i]);
+    }
+    return res;
+}
+
+// String.prototype.substr - negative index don't work in IE8
+var substr = 'ab'.substr(-1) === 'b'
+    ? function (str, start, len) { return str.substr(start, len) }
+    : function (str, start, len) {
+        if (start < 0) start = str.length + start;
+        return str.substr(start, len);
+    }
+;
+
+}).call(this,require('_process'))
+},{"_process":20}],20:[function(require,module,exports){
+// shim for using process in browser
+
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+(function () {
+  try {
+    cachedSetTimeout = setTimeout;
+  } catch (e) {
+    cachedSetTimeout = function () {
+      throw new Error('setTimeout is not defined');
+    }
+  }
+  try {
+    cachedClearTimeout = clearTimeout;
+  } catch (e) {
+    cachedClearTimeout = function () {
+      throw new Error('clearTimeout is not defined');
+    }
+  }
+} ())
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = cachedSetTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    cachedClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        cachedSetTimeout(drainQueue, 0);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+},{}],21:[function(require,module,exports){
 /**
 sprintf() for JavaScript 0.7-beta1
 http://www.diveintojavascript.com/projects/javascript-sprintf
@@ -4588,9 +4657,9 @@ sprintf.sprintf = sprintf;
 sprintf.vsprintf = vsprintf;
 
 },{}],22:[function(require,module,exports){
-//     Underscore.js 1.7.0
+//     Underscore.js 1.8.3
 //     http://underscorejs.org
-//     (c) 2009-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+//     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 //     Underscore may be freely distributed under the MIT license.
 
 (function() {
@@ -4611,7 +4680,6 @@ sprintf.vsprintf = vsprintf;
   var
     push             = ArrayProto.push,
     slice            = ArrayProto.slice,
-    concat           = ArrayProto.concat,
     toString         = ObjProto.toString,
     hasOwnProperty   = ObjProto.hasOwnProperty;
 
@@ -4620,7 +4688,11 @@ sprintf.vsprintf = vsprintf;
   var
     nativeIsArray      = Array.isArray,
     nativeKeys         = Object.keys,
-    nativeBind         = FuncProto.bind;
+    nativeBind         = FuncProto.bind,
+    nativeCreate       = Object.create;
+
+  // Naked function reference for surrogate-prototype-swapping.
+  var Ctor = function(){};
 
   // Create a safe reference to the Underscore object for use below.
   var _ = function(obj) {
@@ -4642,12 +4714,12 @@ sprintf.vsprintf = vsprintf;
   }
 
   // Current version.
-  _.VERSION = '1.7.0';
+  _.VERSION = '1.8.3';
 
   // Internal function that returns an efficient (for current engines) version
   // of the passed-in callback, to be repeatedly applied in other Underscore
   // functions.
-  var createCallback = function(func, context, argCount) {
+  var optimizeCb = function(func, context, argCount) {
     if (context === void 0) return func;
     switch (argCount == null ? 3 : argCount) {
       case 1: return function(value) {
@@ -4671,11 +4743,59 @@ sprintf.vsprintf = vsprintf;
   // A mostly-internal function to generate callbacks that can be applied
   // to each element in a collection, returning the desired result — either
   // identity, an arbitrary callback, a property matcher, or a property accessor.
-  _.iteratee = function(value, context, argCount) {
+  var cb = function(value, context, argCount) {
     if (value == null) return _.identity;
-    if (_.isFunction(value)) return createCallback(value, context, argCount);
-    if (_.isObject(value)) return _.matches(value);
+    if (_.isFunction(value)) return optimizeCb(value, context, argCount);
+    if (_.isObject(value)) return _.matcher(value);
     return _.property(value);
+  };
+  _.iteratee = function(value, context) {
+    return cb(value, context, Infinity);
+  };
+
+  // An internal function for creating assigner functions.
+  var createAssigner = function(keysFunc, undefinedOnly) {
+    return function(obj) {
+      var length = arguments.length;
+      if (length < 2 || obj == null) return obj;
+      for (var index = 1; index < length; index++) {
+        var source = arguments[index],
+            keys = keysFunc(source),
+            l = keys.length;
+        for (var i = 0; i < l; i++) {
+          var key = keys[i];
+          if (!undefinedOnly || obj[key] === void 0) obj[key] = source[key];
+        }
+      }
+      return obj;
+    };
+  };
+
+  // An internal function for creating a new object that inherits from another.
+  var baseCreate = function(prototype) {
+    if (!_.isObject(prototype)) return {};
+    if (nativeCreate) return nativeCreate(prototype);
+    Ctor.prototype = prototype;
+    var result = new Ctor;
+    Ctor.prototype = null;
+    return result;
+  };
+
+  var property = function(key) {
+    return function(obj) {
+      return obj == null ? void 0 : obj[key];
+    };
+  };
+
+  // Helper for collection methods to determine whether a collection
+  // should be iterated as an array or as an object
+  // Related: http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength
+  // Avoids a very nasty iOS 8 JIT bug on ARM-64. #2094
+  var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
+  var getLength = property('length');
+  var isArrayLike = function(collection) {
+    var length = getLength(collection);
+    return typeof length == 'number' && length >= 0 && length <= MAX_ARRAY_INDEX;
   };
 
   // Collection Functions
@@ -4685,11 +4805,10 @@ sprintf.vsprintf = vsprintf;
   // Handles raw objects in addition to array-likes. Treats all
   // sparse array-likes as if they were dense.
   _.each = _.forEach = function(obj, iteratee, context) {
-    if (obj == null) return obj;
-    iteratee = createCallback(iteratee, context);
-    var i, length = obj.length;
-    if (length === +length) {
-      for (i = 0; i < length; i++) {
+    iteratee = optimizeCb(iteratee, context);
+    var i, length;
+    if (isArrayLike(obj)) {
+      for (i = 0, length = obj.length; i < length; i++) {
         iteratee(obj[i], i, obj);
       }
     } else {
@@ -4703,77 +4822,66 @@ sprintf.vsprintf = vsprintf;
 
   // Return the results of applying the iteratee to each element.
   _.map = _.collect = function(obj, iteratee, context) {
-    if (obj == null) return [];
-    iteratee = _.iteratee(iteratee, context);
-    var keys = obj.length !== +obj.length && _.keys(obj),
+    iteratee = cb(iteratee, context);
+    var keys = !isArrayLike(obj) && _.keys(obj),
         length = (keys || obj).length,
-        results = Array(length),
-        currentKey;
+        results = Array(length);
     for (var index = 0; index < length; index++) {
-      currentKey = keys ? keys[index] : index;
+      var currentKey = keys ? keys[index] : index;
       results[index] = iteratee(obj[currentKey], currentKey, obj);
     }
     return results;
   };
 
-  var reduceError = 'Reduce of empty array with no initial value';
+  // Create a reducing function iterating left or right.
+  function createReduce(dir) {
+    // Optimized iterator function as using arguments.length
+    // in the main function will deoptimize the, see #1991.
+    function iterator(obj, iteratee, memo, keys, index, length) {
+      for (; index >= 0 && index < length; index += dir) {
+        var currentKey = keys ? keys[index] : index;
+        memo = iteratee(memo, obj[currentKey], currentKey, obj);
+      }
+      return memo;
+    }
+
+    return function(obj, iteratee, memo, context) {
+      iteratee = optimizeCb(iteratee, context, 4);
+      var keys = !isArrayLike(obj) && _.keys(obj),
+          length = (keys || obj).length,
+          index = dir > 0 ? 0 : length - 1;
+      // Determine the initial value if none is provided.
+      if (arguments.length < 3) {
+        memo = obj[keys ? keys[index] : index];
+        index += dir;
+      }
+      return iterator(obj, iteratee, memo, keys, index, length);
+    };
+  }
 
   // **Reduce** builds up a single result from a list of values, aka `inject`,
   // or `foldl`.
-  _.reduce = _.foldl = _.inject = function(obj, iteratee, memo, context) {
-    if (obj == null) obj = [];
-    iteratee = createCallback(iteratee, context, 4);
-    var keys = obj.length !== +obj.length && _.keys(obj),
-        length = (keys || obj).length,
-        index = 0, currentKey;
-    if (arguments.length < 3) {
-      if (!length) throw new TypeError(reduceError);
-      memo = obj[keys ? keys[index++] : index++];
-    }
-    for (; index < length; index++) {
-      currentKey = keys ? keys[index] : index;
-      memo = iteratee(memo, obj[currentKey], currentKey, obj);
-    }
-    return memo;
-  };
+  _.reduce = _.foldl = _.inject = createReduce(1);
 
   // The right-associative version of reduce, also known as `foldr`.
-  _.reduceRight = _.foldr = function(obj, iteratee, memo, context) {
-    if (obj == null) obj = [];
-    iteratee = createCallback(iteratee, context, 4);
-    var keys = obj.length !== + obj.length && _.keys(obj),
-        index = (keys || obj).length,
-        currentKey;
-    if (arguments.length < 3) {
-      if (!index) throw new TypeError(reduceError);
-      memo = obj[keys ? keys[--index] : --index];
-    }
-    while (index--) {
-      currentKey = keys ? keys[index] : index;
-      memo = iteratee(memo, obj[currentKey], currentKey, obj);
-    }
-    return memo;
-  };
+  _.reduceRight = _.foldr = createReduce(-1);
 
   // Return the first value which passes a truth test. Aliased as `detect`.
   _.find = _.detect = function(obj, predicate, context) {
-    var result;
-    predicate = _.iteratee(predicate, context);
-    _.some(obj, function(value, index, list) {
-      if (predicate(value, index, list)) {
-        result = value;
-        return true;
-      }
-    });
-    return result;
+    var key;
+    if (isArrayLike(obj)) {
+      key = _.findIndex(obj, predicate, context);
+    } else {
+      key = _.findKey(obj, predicate, context);
+    }
+    if (key !== void 0 && key !== -1) return obj[key];
   };
 
   // Return all the elements that pass a truth test.
   // Aliased as `select`.
   _.filter = _.select = function(obj, predicate, context) {
     var results = [];
-    if (obj == null) return results;
-    predicate = _.iteratee(predicate, context);
+    predicate = cb(predicate, context);
     _.each(obj, function(value, index, list) {
       if (predicate(value, index, list)) results.push(value);
     });
@@ -4782,19 +4890,17 @@ sprintf.vsprintf = vsprintf;
 
   // Return all the elements for which a truth test fails.
   _.reject = function(obj, predicate, context) {
-    return _.filter(obj, _.negate(_.iteratee(predicate)), context);
+    return _.filter(obj, _.negate(cb(predicate)), context);
   };
 
   // Determine whether all of the elements match a truth test.
   // Aliased as `all`.
   _.every = _.all = function(obj, predicate, context) {
-    if (obj == null) return true;
-    predicate = _.iteratee(predicate, context);
-    var keys = obj.length !== +obj.length && _.keys(obj),
-        length = (keys || obj).length,
-        index, currentKey;
-    for (index = 0; index < length; index++) {
-      currentKey = keys ? keys[index] : index;
+    predicate = cb(predicate, context);
+    var keys = !isArrayLike(obj) && _.keys(obj),
+        length = (keys || obj).length;
+    for (var index = 0; index < length; index++) {
+      var currentKey = keys ? keys[index] : index;
       if (!predicate(obj[currentKey], currentKey, obj)) return false;
     }
     return true;
@@ -4803,24 +4909,22 @@ sprintf.vsprintf = vsprintf;
   // Determine if at least one element in the object matches a truth test.
   // Aliased as `any`.
   _.some = _.any = function(obj, predicate, context) {
-    if (obj == null) return false;
-    predicate = _.iteratee(predicate, context);
-    var keys = obj.length !== +obj.length && _.keys(obj),
-        length = (keys || obj).length,
-        index, currentKey;
-    for (index = 0; index < length; index++) {
-      currentKey = keys ? keys[index] : index;
+    predicate = cb(predicate, context);
+    var keys = !isArrayLike(obj) && _.keys(obj),
+        length = (keys || obj).length;
+    for (var index = 0; index < length; index++) {
+      var currentKey = keys ? keys[index] : index;
       if (predicate(obj[currentKey], currentKey, obj)) return true;
     }
     return false;
   };
 
-  // Determine if the array or object contains a given value (using `===`).
-  // Aliased as `include`.
-  _.contains = _.include = function(obj, target) {
-    if (obj == null) return false;
-    if (obj.length !== +obj.length) obj = _.values(obj);
-    return _.indexOf(obj, target) >= 0;
+  // Determine if the array or object contains a given item (using `===`).
+  // Aliased as `includes` and `include`.
+  _.contains = _.includes = _.include = function(obj, item, fromIndex, guard) {
+    if (!isArrayLike(obj)) obj = _.values(obj);
+    if (typeof fromIndex != 'number' || guard) fromIndex = 0;
+    return _.indexOf(obj, item, fromIndex) >= 0;
   };
 
   // Invoke a method (with arguments) on every item in a collection.
@@ -4828,7 +4932,8 @@ sprintf.vsprintf = vsprintf;
     var args = slice.call(arguments, 2);
     var isFunc = _.isFunction(method);
     return _.map(obj, function(value) {
-      return (isFunc ? method : value[method]).apply(value, args);
+      var func = isFunc ? method : value[method];
+      return func == null ? func : func.apply(value, args);
     });
   };
 
@@ -4840,13 +4945,13 @@ sprintf.vsprintf = vsprintf;
   // Convenience version of a common use case of `filter`: selecting only objects
   // containing specific `key:value` pairs.
   _.where = function(obj, attrs) {
-    return _.filter(obj, _.matches(attrs));
+    return _.filter(obj, _.matcher(attrs));
   };
 
   // Convenience version of a common use case of `find`: getting the first object
   // containing specific `key:value` pairs.
   _.findWhere = function(obj, attrs) {
-    return _.find(obj, _.matches(attrs));
+    return _.find(obj, _.matcher(attrs));
   };
 
   // Return the maximum element (or element-based computation).
@@ -4854,7 +4959,7 @@ sprintf.vsprintf = vsprintf;
     var result = -Infinity, lastComputed = -Infinity,
         value, computed;
     if (iteratee == null && obj != null) {
-      obj = obj.length === +obj.length ? obj : _.values(obj);
+      obj = isArrayLike(obj) ? obj : _.values(obj);
       for (var i = 0, length = obj.length; i < length; i++) {
         value = obj[i];
         if (value > result) {
@@ -4862,7 +4967,7 @@ sprintf.vsprintf = vsprintf;
         }
       }
     } else {
-      iteratee = _.iteratee(iteratee, context);
+      iteratee = cb(iteratee, context);
       _.each(obj, function(value, index, list) {
         computed = iteratee(value, index, list);
         if (computed > lastComputed || computed === -Infinity && result === -Infinity) {
@@ -4879,7 +4984,7 @@ sprintf.vsprintf = vsprintf;
     var result = Infinity, lastComputed = Infinity,
         value, computed;
     if (iteratee == null && obj != null) {
-      obj = obj.length === +obj.length ? obj : _.values(obj);
+      obj = isArrayLike(obj) ? obj : _.values(obj);
       for (var i = 0, length = obj.length; i < length; i++) {
         value = obj[i];
         if (value < result) {
@@ -4887,7 +4992,7 @@ sprintf.vsprintf = vsprintf;
         }
       }
     } else {
-      iteratee = _.iteratee(iteratee, context);
+      iteratee = cb(iteratee, context);
       _.each(obj, function(value, index, list) {
         computed = iteratee(value, index, list);
         if (computed < lastComputed || computed === Infinity && result === Infinity) {
@@ -4902,7 +5007,7 @@ sprintf.vsprintf = vsprintf;
   // Shuffle a collection, using the modern version of the
   // [Fisher-Yates shuffle](http://en.wikipedia.org/wiki/Fisher–Yates_shuffle).
   _.shuffle = function(obj) {
-    var set = obj && obj.length === +obj.length ? obj : _.values(obj);
+    var set = isArrayLike(obj) ? obj : _.values(obj);
     var length = set.length;
     var shuffled = Array(length);
     for (var index = 0, rand; index < length; index++) {
@@ -4918,7 +5023,7 @@ sprintf.vsprintf = vsprintf;
   // The internal `guard` argument allows it to work with `map`.
   _.sample = function(obj, n, guard) {
     if (n == null || guard) {
-      if (obj.length !== +obj.length) obj = _.values(obj);
+      if (!isArrayLike(obj)) obj = _.values(obj);
       return obj[_.random(obj.length - 1)];
     }
     return _.shuffle(obj).slice(0, Math.max(0, n));
@@ -4926,7 +5031,7 @@ sprintf.vsprintf = vsprintf;
 
   // Sort the object's values by a criterion produced by an iteratee.
   _.sortBy = function(obj, iteratee, context) {
-    iteratee = _.iteratee(iteratee, context);
+    iteratee = cb(iteratee, context);
     return _.pluck(_.map(obj, function(value, index, list) {
       return {
         value: value,
@@ -4948,7 +5053,7 @@ sprintf.vsprintf = vsprintf;
   var group = function(behavior) {
     return function(obj, iteratee, context) {
       var result = {};
-      iteratee = _.iteratee(iteratee, context);
+      iteratee = cb(iteratee, context);
       _.each(obj, function(value, index) {
         var key = iteratee(value, index, obj);
         behavior(result, value, key);
@@ -4976,37 +5081,24 @@ sprintf.vsprintf = vsprintf;
     if (_.has(result, key)) result[key]++; else result[key] = 1;
   });
 
-  // Use a comparator function to figure out the smallest index at which
-  // an object should be inserted so as to maintain order. Uses binary search.
-  _.sortedIndex = function(array, obj, iteratee, context) {
-    iteratee = _.iteratee(iteratee, context, 1);
-    var value = iteratee(obj);
-    var low = 0, high = array.length;
-    while (low < high) {
-      var mid = low + high >>> 1;
-      if (iteratee(array[mid]) < value) low = mid + 1; else high = mid;
-    }
-    return low;
-  };
-
   // Safely create a real, live array from anything iterable.
   _.toArray = function(obj) {
     if (!obj) return [];
     if (_.isArray(obj)) return slice.call(obj);
-    if (obj.length === +obj.length) return _.map(obj, _.identity);
+    if (isArrayLike(obj)) return _.map(obj, _.identity);
     return _.values(obj);
   };
 
   // Return the number of elements in an object.
   _.size = function(obj) {
     if (obj == null) return 0;
-    return obj.length === +obj.length ? obj.length : _.keys(obj).length;
+    return isArrayLike(obj) ? obj.length : _.keys(obj).length;
   };
 
   // Split a collection into two arrays: one whose elements all satisfy the given
   // predicate, and one whose elements all do not satisfy the predicate.
   _.partition = function(obj, predicate, context) {
-    predicate = _.iteratee(predicate, context);
+    predicate = cb(predicate, context);
     var pass = [], fail = [];
     _.each(obj, function(value, key, obj) {
       (predicate(value, key, obj) ? pass : fail).push(value);
@@ -5023,30 +5115,27 @@ sprintf.vsprintf = vsprintf;
   _.first = _.head = _.take = function(array, n, guard) {
     if (array == null) return void 0;
     if (n == null || guard) return array[0];
-    if (n < 0) return [];
-    return slice.call(array, 0, n);
+    return _.initial(array, array.length - n);
   };
 
   // Returns everything but the last entry of the array. Especially useful on
   // the arguments object. Passing **n** will return all the values in
-  // the array, excluding the last N. The **guard** check allows it to work with
-  // `_.map`.
+  // the array, excluding the last N.
   _.initial = function(array, n, guard) {
     return slice.call(array, 0, Math.max(0, array.length - (n == null || guard ? 1 : n)));
   };
 
   // Get the last element of an array. Passing **n** will return the last N
-  // values in the array. The **guard** check allows it to work with `_.map`.
+  // values in the array.
   _.last = function(array, n, guard) {
     if (array == null) return void 0;
     if (n == null || guard) return array[array.length - 1];
-    return slice.call(array, Math.max(array.length - n, 0));
+    return _.rest(array, Math.max(0, array.length - n));
   };
 
   // Returns everything but the first entry of the array. Aliased as `tail` and `drop`.
   // Especially useful on the arguments object. Passing an **n** will return
-  // the rest N values in the array. The **guard**
-  // check allows it to work with `_.map`.
+  // the rest N values in the array.
   _.rest = _.tail = _.drop = function(array, n, guard) {
     return slice.call(array, n == null || guard ? 1 : n);
   };
@@ -5057,18 +5146,20 @@ sprintf.vsprintf = vsprintf;
   };
 
   // Internal implementation of a recursive `flatten` function.
-  var flatten = function(input, shallow, strict, output) {
-    if (shallow && _.every(input, _.isArray)) {
-      return concat.apply(output, input);
-    }
-    for (var i = 0, length = input.length; i < length; i++) {
+  var flatten = function(input, shallow, strict, startIndex) {
+    var output = [], idx = 0;
+    for (var i = startIndex || 0, length = getLength(input); i < length; i++) {
       var value = input[i];
-      if (!_.isArray(value) && !_.isArguments(value)) {
-        if (!strict) output.push(value);
-      } else if (shallow) {
-        push.apply(output, value);
-      } else {
-        flatten(value, shallow, strict, output);
+      if (isArrayLike(value) && (_.isArray(value) || _.isArguments(value))) {
+        //flatten current level of array or arguments object
+        if (!shallow) value = flatten(value, shallow, strict);
+        var j = 0, len = value.length;
+        output.length += len;
+        while (j < len) {
+          output[idx++] = value[j++];
+        }
+      } else if (!strict) {
+        output[idx++] = value;
       }
     }
     return output;
@@ -5076,7 +5167,7 @@ sprintf.vsprintf = vsprintf;
 
   // Flatten out an array, either recursively (by default), or just one level.
   _.flatten = function(array, shallow) {
-    return flatten(array, shallow, false, []);
+    return flatten(array, shallow, false);
   };
 
   // Return a version of the array that does not contain the specified value(s).
@@ -5088,27 +5179,26 @@ sprintf.vsprintf = vsprintf;
   // been sorted, you have the option of using a faster algorithm.
   // Aliased as `unique`.
   _.uniq = _.unique = function(array, isSorted, iteratee, context) {
-    if (array == null) return [];
     if (!_.isBoolean(isSorted)) {
       context = iteratee;
       iteratee = isSorted;
       isSorted = false;
     }
-    if (iteratee != null) iteratee = _.iteratee(iteratee, context);
+    if (iteratee != null) iteratee = cb(iteratee, context);
     var result = [];
     var seen = [];
-    for (var i = 0, length = array.length; i < length; i++) {
-      var value = array[i];
+    for (var i = 0, length = getLength(array); i < length; i++) {
+      var value = array[i],
+          computed = iteratee ? iteratee(value, i, array) : value;
       if (isSorted) {
-        if (!i || seen !== value) result.push(value);
-        seen = value;
+        if (!i || seen !== computed) result.push(value);
+        seen = computed;
       } else if (iteratee) {
-        var computed = iteratee(value, i, array);
-        if (_.indexOf(seen, computed) < 0) {
+        if (!_.contains(seen, computed)) {
           seen.push(computed);
           result.push(value);
         }
-      } else if (_.indexOf(result, value) < 0) {
+      } else if (!_.contains(result, value)) {
         result.push(value);
       }
     }
@@ -5118,16 +5208,15 @@ sprintf.vsprintf = vsprintf;
   // Produce an array that contains the union: each distinct element from all of
   // the passed-in arrays.
   _.union = function() {
-    return _.uniq(flatten(arguments, true, true, []));
+    return _.uniq(flatten(arguments, true, true));
   };
 
   // Produce an array that contains every item shared between all the
   // passed-in arrays.
   _.intersection = function(array) {
-    if (array == null) return [];
     var result = [];
     var argsLength = arguments.length;
-    for (var i = 0, length = array.length; i < length; i++) {
+    for (var i = 0, length = getLength(array); i < length; i++) {
       var item = array[i];
       if (_.contains(result, item)) continue;
       for (var j = 1; j < argsLength; j++) {
@@ -5141,7 +5230,7 @@ sprintf.vsprintf = vsprintf;
   // Take the difference between one array and a number of other arrays.
   // Only the elements present in just the first array will remain.
   _.difference = function(array) {
-    var rest = flatten(slice.call(arguments, 1), true, true, []);
+    var rest = flatten(arguments, true, true, 1);
     return _.filter(array, function(value){
       return !_.contains(rest, value);
     });
@@ -5149,23 +5238,28 @@ sprintf.vsprintf = vsprintf;
 
   // Zip together multiple lists into a single array -- elements that share
   // an index go together.
-  _.zip = function(array) {
-    if (array == null) return [];
-    var length = _.max(arguments, 'length').length;
-    var results = Array(length);
-    for (var i = 0; i < length; i++) {
-      results[i] = _.pluck(arguments, i);
+  _.zip = function() {
+    return _.unzip(arguments);
+  };
+
+  // Complement of _.zip. Unzip accepts an array of arrays and groups
+  // each array's elements on shared indices
+  _.unzip = function(array) {
+    var length = array && _.max(array, getLength).length || 0;
+    var result = Array(length);
+
+    for (var index = 0; index < length; index++) {
+      result[index] = _.pluck(array, index);
     }
-    return results;
+    return result;
   };
 
   // Converts lists into objects. Pass either a single array of `[key, value]`
   // pairs, or two parallel arrays of the same length -- one of keys, and one of
   // the corresponding values.
   _.object = function(list, values) {
-    if (list == null) return {};
     var result = {};
-    for (var i = 0, length = list.length; i < length; i++) {
+    for (var i = 0, length = getLength(list); i < length; i++) {
       if (values) {
         result[list[i]] = values[i];
       } else {
@@ -5175,40 +5269,73 @@ sprintf.vsprintf = vsprintf;
     return result;
   };
 
+  // Generator function to create the findIndex and findLastIndex functions
+  function createPredicateIndexFinder(dir) {
+    return function(array, predicate, context) {
+      predicate = cb(predicate, context);
+      var length = getLength(array);
+      var index = dir > 0 ? 0 : length - 1;
+      for (; index >= 0 && index < length; index += dir) {
+        if (predicate(array[index], index, array)) return index;
+      }
+      return -1;
+    };
+  }
+
+  // Returns the first index on an array-like that passes a predicate test
+  _.findIndex = createPredicateIndexFinder(1);
+  _.findLastIndex = createPredicateIndexFinder(-1);
+
+  // Use a comparator function to figure out the smallest index at which
+  // an object should be inserted so as to maintain order. Uses binary search.
+  _.sortedIndex = function(array, obj, iteratee, context) {
+    iteratee = cb(iteratee, context, 1);
+    var value = iteratee(obj);
+    var low = 0, high = getLength(array);
+    while (low < high) {
+      var mid = Math.floor((low + high) / 2);
+      if (iteratee(array[mid]) < value) low = mid + 1; else high = mid;
+    }
+    return low;
+  };
+
+  // Generator function to create the indexOf and lastIndexOf functions
+  function createIndexFinder(dir, predicateFind, sortedIndex) {
+    return function(array, item, idx) {
+      var i = 0, length = getLength(array);
+      if (typeof idx == 'number') {
+        if (dir > 0) {
+            i = idx >= 0 ? idx : Math.max(idx + length, i);
+        } else {
+            length = idx >= 0 ? Math.min(idx + 1, length) : idx + length + 1;
+        }
+      } else if (sortedIndex && idx && length) {
+        idx = sortedIndex(array, item);
+        return array[idx] === item ? idx : -1;
+      }
+      if (item !== item) {
+        idx = predicateFind(slice.call(array, i, length), _.isNaN);
+        return idx >= 0 ? idx + i : -1;
+      }
+      for (idx = dir > 0 ? i : length - 1; idx >= 0 && idx < length; idx += dir) {
+        if (array[idx] === item) return idx;
+      }
+      return -1;
+    };
+  }
+
   // Return the position of the first occurrence of an item in an array,
   // or -1 if the item is not included in the array.
   // If the array is large and already in sort order, pass `true`
   // for **isSorted** to use binary search.
-  _.indexOf = function(array, item, isSorted) {
-    if (array == null) return -1;
-    var i = 0, length = array.length;
-    if (isSorted) {
-      if (typeof isSorted == 'number') {
-        i = isSorted < 0 ? Math.max(0, length + isSorted) : isSorted;
-      } else {
-        i = _.sortedIndex(array, item);
-        return array[i] === item ? i : -1;
-      }
-    }
-    for (; i < length; i++) if (array[i] === item) return i;
-    return -1;
-  };
-
-  _.lastIndexOf = function(array, item, from) {
-    if (array == null) return -1;
-    var idx = array.length;
-    if (typeof from == 'number') {
-      idx = from < 0 ? idx + from + 1 : Math.min(idx, from + 1);
-    }
-    while (--idx >= 0) if (array[idx] === item) return idx;
-    return -1;
-  };
+  _.indexOf = createIndexFinder(1, _.findIndex, _.sortedIndex);
+  _.lastIndexOf = createIndexFinder(-1, _.findLastIndex);
 
   // Generate an integer Array containing an arithmetic progression. A port of
   // the native Python `range()` function. See
   // [the Python documentation](http://docs.python.org/library/functions.html#range).
   _.range = function(start, stop, step) {
-    if (arguments.length <= 1) {
+    if (stop == null) {
       stop = start || 0;
       start = 0;
     }
@@ -5227,25 +5354,25 @@ sprintf.vsprintf = vsprintf;
   // Function (ahem) Functions
   // ------------------
 
-  // Reusable constructor function for prototype setting.
-  var Ctor = function(){};
+  // Determines whether to execute a function as a constructor
+  // or a normal function with the provided arguments
+  var executeBound = function(sourceFunc, boundFunc, context, callingContext, args) {
+    if (!(callingContext instanceof boundFunc)) return sourceFunc.apply(context, args);
+    var self = baseCreate(sourceFunc.prototype);
+    var result = sourceFunc.apply(self, args);
+    if (_.isObject(result)) return result;
+    return self;
+  };
 
   // Create a function bound to a given object (assigning `this`, and arguments,
   // optionally). Delegates to **ECMAScript 5**'s native `Function.bind` if
   // available.
   _.bind = function(func, context) {
-    var args, bound;
     if (nativeBind && func.bind === nativeBind) return nativeBind.apply(func, slice.call(arguments, 1));
     if (!_.isFunction(func)) throw new TypeError('Bind must be called on a function');
-    args = slice.call(arguments, 2);
-    bound = function() {
-      if (!(this instanceof bound)) return func.apply(context, args.concat(slice.call(arguments)));
-      Ctor.prototype = func.prototype;
-      var self = new Ctor;
-      Ctor.prototype = null;
-      var result = func.apply(self, args.concat(slice.call(arguments)));
-      if (_.isObject(result)) return result;
-      return self;
+    var args = slice.call(arguments, 2);
+    var bound = function() {
+      return executeBound(func, bound, context, this, args.concat(slice.call(arguments)));
     };
     return bound;
   };
@@ -5255,15 +5382,16 @@ sprintf.vsprintf = vsprintf;
   // as a placeholder, allowing any combination of arguments to be pre-filled.
   _.partial = function(func) {
     var boundArgs = slice.call(arguments, 1);
-    return function() {
-      var position = 0;
-      var args = boundArgs.slice();
-      for (var i = 0, length = args.length; i < length; i++) {
-        if (args[i] === _) args[i] = arguments[position++];
+    var bound = function() {
+      var position = 0, length = boundArgs.length;
+      var args = Array(length);
+      for (var i = 0; i < length; i++) {
+        args[i] = boundArgs[i] === _ ? arguments[position++] : boundArgs[i];
       }
       while (position < arguments.length) args.push(arguments[position++]);
-      return func.apply(this, args);
+      return executeBound(func, bound, this, this, args);
     };
+    return bound;
   };
 
   // Bind a number of an object's methods to that object. Remaining arguments
@@ -5283,7 +5411,7 @@ sprintf.vsprintf = vsprintf;
   _.memoize = function(func, hasher) {
     var memoize = function(key) {
       var cache = memoize.cache;
-      var address = hasher ? hasher.apply(this, arguments) : key;
+      var address = '' + (hasher ? hasher.apply(this, arguments) : key);
       if (!_.has(cache, address)) cache[address] = func.apply(this, arguments);
       return cache[address];
     };
@@ -5302,9 +5430,7 @@ sprintf.vsprintf = vsprintf;
 
   // Defers a function, scheduling it to run after the current call stack has
   // cleared.
-  _.defer = function(func) {
-    return _.delay.apply(_, [func, 1].concat(slice.call(arguments, 1)));
-  };
+  _.defer = _.partial(_.delay, _, 1);
 
   // Returns a function, that, when invoked, will only be triggered at most once
   // during a given window of time. Normally, the throttled function will run
@@ -5329,8 +5455,10 @@ sprintf.vsprintf = vsprintf;
       context = this;
       args = arguments;
       if (remaining <= 0 || remaining > wait) {
-        clearTimeout(timeout);
-        timeout = null;
+        if (timeout) {
+          clearTimeout(timeout);
+          timeout = null;
+        }
         previous = now;
         result = func.apply(context, args);
         if (!timeout) context = args = null;
@@ -5351,7 +5479,7 @@ sprintf.vsprintf = vsprintf;
     var later = function() {
       var last = _.now() - timestamp;
 
-      if (last < wait && last > 0) {
+      if (last < wait && last >= 0) {
         timeout = setTimeout(later, wait - last);
       } else {
         timeout = null;
@@ -5404,7 +5532,7 @@ sprintf.vsprintf = vsprintf;
     };
   };
 
-  // Returns a function that will only be executed after being called N times.
+  // Returns a function that will only be executed on and after the Nth call.
   _.after = function(times, func) {
     return function() {
       if (--times < 1) {
@@ -5413,15 +5541,14 @@ sprintf.vsprintf = vsprintf;
     };
   };
 
-  // Returns a function that will only be executed before being called N times.
+  // Returns a function that will only be executed up to (but not including) the Nth call.
   _.before = function(times, func) {
     var memo;
     return function() {
       if (--times > 0) {
         memo = func.apply(this, arguments);
-      } else {
-        func = null;
       }
+      if (times <= 1) func = null;
       return memo;
     };
   };
@@ -5433,13 +5560,47 @@ sprintf.vsprintf = vsprintf;
   // Object Functions
   // ----------------
 
-  // Retrieve the names of an object's properties.
+  // Keys in IE < 9 that won't be iterated by `for key in ...` and thus missed.
+  var hasEnumBug = !{toString: null}.propertyIsEnumerable('toString');
+  var nonEnumerableProps = ['valueOf', 'isPrototypeOf', 'toString',
+                      'propertyIsEnumerable', 'hasOwnProperty', 'toLocaleString'];
+
+  function collectNonEnumProps(obj, keys) {
+    var nonEnumIdx = nonEnumerableProps.length;
+    var constructor = obj.constructor;
+    var proto = (_.isFunction(constructor) && constructor.prototype) || ObjProto;
+
+    // Constructor is a special case.
+    var prop = 'constructor';
+    if (_.has(obj, prop) && !_.contains(keys, prop)) keys.push(prop);
+
+    while (nonEnumIdx--) {
+      prop = nonEnumerableProps[nonEnumIdx];
+      if (prop in obj && obj[prop] !== proto[prop] && !_.contains(keys, prop)) {
+        keys.push(prop);
+      }
+    }
+  }
+
+  // Retrieve the names of an object's own properties.
   // Delegates to **ECMAScript 5**'s native `Object.keys`
   _.keys = function(obj) {
     if (!_.isObject(obj)) return [];
     if (nativeKeys) return nativeKeys(obj);
     var keys = [];
     for (var key in obj) if (_.has(obj, key)) keys.push(key);
+    // Ahem, IE < 9.
+    if (hasEnumBug) collectNonEnumProps(obj, keys);
+    return keys;
+  };
+
+  // Retrieve all the property names of an object.
+  _.allKeys = function(obj) {
+    if (!_.isObject(obj)) return [];
+    var keys = [];
+    for (var key in obj) keys.push(key);
+    // Ahem, IE < 9.
+    if (hasEnumBug) collectNonEnumProps(obj, keys);
     return keys;
   };
 
@@ -5452,6 +5613,21 @@ sprintf.vsprintf = vsprintf;
       values[i] = obj[keys[i]];
     }
     return values;
+  };
+
+  // Returns the results of applying the iteratee to each element of the object
+  // In contrast to _.map it returns an object
+  _.mapObject = function(obj, iteratee, context) {
+    iteratee = cb(iteratee, context);
+    var keys =  _.keys(obj),
+          length = keys.length,
+          results = {},
+          currentKey;
+      for (var index = 0; index < length; index++) {
+        currentKey = keys[index];
+        results[currentKey] = iteratee(obj[currentKey], currentKey, obj);
+      }
+      return results;
   };
 
   // Convert an object into a list of `[key, value]` pairs.
@@ -5486,37 +5662,38 @@ sprintf.vsprintf = vsprintf;
   };
 
   // Extend a given object with all the properties in passed-in object(s).
-  _.extend = function(obj) {
-    if (!_.isObject(obj)) return obj;
-    var source, prop;
-    for (var i = 1, length = arguments.length; i < length; i++) {
-      source = arguments[i];
-      for (prop in source) {
-        if (hasOwnProperty.call(source, prop)) {
-            obj[prop] = source[prop];
-        }
-      }
+  _.extend = createAssigner(_.allKeys);
+
+  // Assigns a given object with all the own properties in the passed-in object(s)
+  // (https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object/assign)
+  _.extendOwn = _.assign = createAssigner(_.keys);
+
+  // Returns the first key on an object that passes a predicate test
+  _.findKey = function(obj, predicate, context) {
+    predicate = cb(predicate, context);
+    var keys = _.keys(obj), key;
+    for (var i = 0, length = keys.length; i < length; i++) {
+      key = keys[i];
+      if (predicate(obj[key], key, obj)) return key;
     }
-    return obj;
   };
 
   // Return a copy of the object only containing the whitelisted properties.
-  _.pick = function(obj, iteratee, context) {
-    var result = {}, key;
+  _.pick = function(object, oiteratee, context) {
+    var result = {}, obj = object, iteratee, keys;
     if (obj == null) return result;
-    if (_.isFunction(iteratee)) {
-      iteratee = createCallback(iteratee, context);
-      for (key in obj) {
-        var value = obj[key];
-        if (iteratee(value, key, obj)) result[key] = value;
-      }
+    if (_.isFunction(oiteratee)) {
+      keys = _.allKeys(obj);
+      iteratee = optimizeCb(oiteratee, context);
     } else {
-      var keys = concat.apply([], slice.call(arguments, 1));
-      obj = new Object(obj);
-      for (var i = 0, length = keys.length; i < length; i++) {
-        key = keys[i];
-        if (key in obj) result[key] = obj[key];
-      }
+      keys = flatten(arguments, false, false, 1);
+      iteratee = function(value, key, obj) { return key in obj; };
+      obj = Object(obj);
+    }
+    for (var i = 0, length = keys.length; i < length; i++) {
+      var key = keys[i];
+      var value = obj[key];
+      if (iteratee(value, key, obj)) result[key] = value;
     }
     return result;
   };
@@ -5526,7 +5703,7 @@ sprintf.vsprintf = vsprintf;
     if (_.isFunction(iteratee)) {
       iteratee = _.negate(iteratee);
     } else {
-      var keys = _.map(concat.apply([], slice.call(arguments, 1)), String);
+      var keys = _.map(flatten(arguments, false, false, 1), String);
       iteratee = function(value, key) {
         return !_.contains(keys, key);
       };
@@ -5535,15 +5712,15 @@ sprintf.vsprintf = vsprintf;
   };
 
   // Fill in a given object with default properties.
-  _.defaults = function(obj) {
-    if (!_.isObject(obj)) return obj;
-    for (var i = 1, length = arguments.length; i < length; i++) {
-      var source = arguments[i];
-      for (var prop in source) {
-        if (obj[prop] === void 0) obj[prop] = source[prop];
-      }
-    }
-    return obj;
+  _.defaults = createAssigner(_.allKeys, true);
+
+  // Creates an object that inherits from the given prototype object.
+  // If additional properties are provided then they will be added to the
+  // created object.
+  _.create = function(prototype, props) {
+    var result = baseCreate(prototype);
+    if (props) _.extendOwn(result, props);
+    return result;
   };
 
   // Create a (shallow-cloned) duplicate of an object.
@@ -5559,6 +5736,19 @@ sprintf.vsprintf = vsprintf;
     interceptor(obj);
     return obj;
   };
+
+  // Returns whether an object has a given set of `key:value` pairs.
+  _.isMatch = function(object, attrs) {
+    var keys = _.keys(attrs), length = keys.length;
+    if (object == null) return !length;
+    var obj = Object(object);
+    for (var i = 0; i < length; i++) {
+      var key = keys[i];
+      if (attrs[key] !== obj[key] || !(key in obj)) return false;
+    }
+    return true;
+  };
+
 
   // Internal recursive comparison function for `isEqual`.
   var eq = function(a, b, aStack, bStack) {
@@ -5594,74 +5784,76 @@ sprintf.vsprintf = vsprintf;
         // of `NaN` are not equivalent.
         return +a === +b;
     }
-    if (typeof a != 'object' || typeof b != 'object') return false;
+
+    var areArrays = className === '[object Array]';
+    if (!areArrays) {
+      if (typeof a != 'object' || typeof b != 'object') return false;
+
+      // Objects with different constructors are not equivalent, but `Object`s or `Array`s
+      // from different frames are.
+      var aCtor = a.constructor, bCtor = b.constructor;
+      if (aCtor !== bCtor && !(_.isFunction(aCtor) && aCtor instanceof aCtor &&
+                               _.isFunction(bCtor) && bCtor instanceof bCtor)
+                          && ('constructor' in a && 'constructor' in b)) {
+        return false;
+      }
+    }
     // Assume equality for cyclic structures. The algorithm for detecting cyclic
     // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
+
+    // Initializing stack of traversed objects.
+    // It's done here since we only need them for objects and arrays comparison.
+    aStack = aStack || [];
+    bStack = bStack || [];
     var length = aStack.length;
     while (length--) {
       // Linear search. Performance is inversely proportional to the number of
       // unique nested structures.
       if (aStack[length] === a) return bStack[length] === b;
     }
-    // Objects with different constructors are not equivalent, but `Object`s
-    // from different frames are.
-    var aCtor = a.constructor, bCtor = b.constructor;
-    if (
-      aCtor !== bCtor &&
-      // Handle Object.create(x) cases
-      'constructor' in a && 'constructor' in b &&
-      !(_.isFunction(aCtor) && aCtor instanceof aCtor &&
-        _.isFunction(bCtor) && bCtor instanceof bCtor)
-    ) {
-      return false;
-    }
+
     // Add the first object to the stack of traversed objects.
     aStack.push(a);
     bStack.push(b);
-    var size, result;
+
     // Recursively compare objects and arrays.
-    if (className === '[object Array]') {
+    if (areArrays) {
       // Compare array lengths to determine if a deep comparison is necessary.
-      size = a.length;
-      result = size === b.length;
-      if (result) {
-        // Deep compare the contents, ignoring non-numeric properties.
-        while (size--) {
-          if (!(result = eq(a[size], b[size], aStack, bStack))) break;
-        }
+      length = a.length;
+      if (length !== b.length) return false;
+      // Deep compare the contents, ignoring non-numeric properties.
+      while (length--) {
+        if (!eq(a[length], b[length], aStack, bStack)) return false;
       }
     } else {
       // Deep compare objects.
       var keys = _.keys(a), key;
-      size = keys.length;
+      length = keys.length;
       // Ensure that both objects contain the same number of properties before comparing deep equality.
-      result = _.keys(b).length === size;
-      if (result) {
-        while (size--) {
-          // Deep compare each member
-          key = keys[size];
-          if (!(result = _.has(b, key) && eq(a[key], b[key], aStack, bStack))) break;
-        }
+      if (_.keys(b).length !== length) return false;
+      while (length--) {
+        // Deep compare each member
+        key = keys[length];
+        if (!(_.has(b, key) && eq(a[key], b[key], aStack, bStack))) return false;
       }
     }
     // Remove the first object from the stack of traversed objects.
     aStack.pop();
     bStack.pop();
-    return result;
+    return true;
   };
 
   // Perform a deep comparison to check if two objects are equal.
   _.isEqual = function(a, b) {
-    return eq(a, b, [], []);
+    return eq(a, b);
   };
 
   // Is a given array, string, or object empty?
   // An "empty" object has no enumerable own-properties.
   _.isEmpty = function(obj) {
     if (obj == null) return true;
-    if (_.isArray(obj) || _.isString(obj) || _.isArguments(obj)) return obj.length === 0;
-    for (var key in obj) if (_.has(obj, key)) return false;
-    return true;
+    if (isArrayLike(obj) && (_.isArray(obj) || _.isString(obj) || _.isArguments(obj))) return obj.length === 0;
+    return _.keys(obj).length === 0;
   };
 
   // Is a given value a DOM element?
@@ -5681,14 +5873,14 @@ sprintf.vsprintf = vsprintf;
     return type === 'function' || type === 'object' && !!obj;
   };
 
-  // Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp.
-  _.each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp'], function(name) {
+  // Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp, isError.
+  _.each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp', 'Error'], function(name) {
     _['is' + name] = function(obj) {
       return toString.call(obj) === '[object ' + name + ']';
     };
   });
 
-  // Define a fallback version of the method in browsers (ahem, IE), where
+  // Define a fallback version of the method in browsers (ahem, IE < 9), where
   // there isn't any inspectable "Arguments" type.
   if (!_.isArguments(arguments)) {
     _.isArguments = function(obj) {
@@ -5696,8 +5888,9 @@ sprintf.vsprintf = vsprintf;
     };
   }
 
-  // Optimize `isFunction` if appropriate. Work around an IE 11 bug.
-  if (typeof /./ !== 'function') {
+  // Optimize `isFunction` if appropriate. Work around some typeof bugs in old v8,
+  // IE 11 (#1621), and in Safari 8 (#1929).
+  if (typeof /./ != 'function' && typeof Int8Array != 'object') {
     _.isFunction = function(obj) {
       return typeof obj == 'function' || false;
     };
@@ -5749,6 +5942,7 @@ sprintf.vsprintf = vsprintf;
     return value;
   };
 
+  // Predicate-generating functions. Often useful outside of Underscore.
   _.constant = function(value) {
     return function() {
       return value;
@@ -5757,30 +5951,28 @@ sprintf.vsprintf = vsprintf;
 
   _.noop = function(){};
 
-  _.property = function(key) {
-    return function(obj) {
+  _.property = property;
+
+  // Generates a function for a given object that returns a given property.
+  _.propertyOf = function(obj) {
+    return obj == null ? function(){} : function(key) {
       return obj[key];
     };
   };
 
-  // Returns a predicate for checking whether an object has a given set of `key:value` pairs.
-  _.matches = function(attrs) {
-    var pairs = _.pairs(attrs), length = pairs.length;
+  // Returns a predicate for checking whether an object has a given set of
+  // `key:value` pairs.
+  _.matcher = _.matches = function(attrs) {
+    attrs = _.extendOwn({}, attrs);
     return function(obj) {
-      if (obj == null) return !length;
-      obj = new Object(obj);
-      for (var i = 0; i < length; i++) {
-        var pair = pairs[i], key = pair[0];
-        if (pair[1] !== obj[key] || !(key in obj)) return false;
-      }
-      return true;
+      return _.isMatch(obj, attrs);
     };
   };
 
   // Run a function **n** times.
   _.times = function(n, iteratee, context) {
     var accum = Array(Math.max(0, n));
-    iteratee = createCallback(iteratee, context, 1);
+    iteratee = optimizeCb(iteratee, context, 1);
     for (var i = 0; i < n; i++) accum[i] = iteratee(i);
     return accum;
   };
@@ -5829,10 +6021,12 @@ sprintf.vsprintf = vsprintf;
 
   // If the value of the named `property` is a function then invoke it with the
   // `object` as context; otherwise, return it.
-  _.result = function(object, property) {
-    if (object == null) return void 0;
-    var value = object[property];
-    return _.isFunction(value) ? object[property]() : value;
+  _.result = function(object, property, fallback) {
+    var value = object == null ? void 0 : object[property];
+    if (value === void 0) {
+      value = fallback;
+    }
+    return _.isFunction(value) ? value.call(object) : value;
   };
 
   // Generate a unique integer id (unique within the entire client session).
@@ -5947,8 +6141,8 @@ sprintf.vsprintf = vsprintf;
   // underscore functions. Wrapped objects may be chained.
 
   // Helper function to continue chaining intermediate results.
-  var result = function(obj) {
-    return this._chain ? _(obj).chain() : obj;
+  var result = function(instance, obj) {
+    return instance._chain ? _(obj).chain() : obj;
   };
 
   // Add your own custom functions to the Underscore object.
@@ -5958,7 +6152,7 @@ sprintf.vsprintf = vsprintf;
       _.prototype[name] = function() {
         var args = [this._wrapped];
         push.apply(args, arguments);
-        return result.call(this, func.apply(_, args));
+        return result(this, func.apply(_, args));
       };
     });
   };
@@ -5973,7 +6167,7 @@ sprintf.vsprintf = vsprintf;
       var obj = this._wrapped;
       method.apply(obj, arguments);
       if ((name === 'shift' || name === 'splice') && obj.length === 0) delete obj[0];
-      return result.call(this, obj);
+      return result(this, obj);
     };
   });
 
@@ -5981,13 +6175,21 @@ sprintf.vsprintf = vsprintf;
   _.each(['concat', 'join', 'slice'], function(name) {
     var method = ArrayProto[name];
     _.prototype[name] = function() {
-      return result.call(this, method.apply(this._wrapped, arguments));
+      return result(this, method.apply(this._wrapped, arguments));
     };
   });
 
   // Extracts the result from a wrapped and chained object.
   _.prototype.value = function() {
     return this._wrapped;
+  };
+
+  // Provide unwrapping proxy for some methods used in engine operations
+  // such as arithmetic and JSON stringification.
+  _.prototype.valueOf = _.prototype.toJSON = _.prototype.value;
+
+  _.prototype.toString = function() {
+    return '' + this._wrapped;
   };
 
   // AMD registration happens at the end for compatibility with AMD loaders
@@ -6056,7 +6258,7 @@ var measure = function (latlngs) {
 module.exports = {
   measure: measure // `measure(latLngArray)` - returns object with calced measurements for passed points
 };
-},{"geocrunch":6,"underscore":22}],24:[function(require,module,exports){
+},{"geocrunch":7,"underscore":22}],24:[function(require,module,exports){
 // dom.js
 // utility functions for managing DOM elements
 
@@ -6099,34 +6301,34 @@ module.exports = {
 // German i18n translations
 
 module.exports = {
-    'measure': 'Messung',
-    'measureDistancesAndAreas': 'Messung von Abständen und Flächen',
-    'createNewMeasurement': 'Eine neue Messung durchführen',
-    'startCreating': 'Führen Sie die Messung durch, indem Sie der Karte Punkte hinzufügen.',
-    'finishMeasurement': 'Messung beenden',
-    'lastPoint': 'Letzter Punkt',
-    'area': 'Fläche',
-    'perimeter': 'Rand',
-    'pointLocation': 'Lage des Punkts',
-    'areaMeasurement': 'Gemessene Fläche',
-    'linearMeasurement': 'Gemessener Abstand',
-    'pathDistance': 'Abstand entlang des Pfads',
-    'centerOnArea': 'Auf diese Fläche zentrieren',
-    'centerOnLine': 'Auf diesen Linienzug zentrieren',
-    'centerOnLocation': 'Auf diesen Ort zentrieren',
-    'cancel': 'Abbrechen',
-    'delete': 'Löchen',
-    'acres': 'Morgen',
-    'feet': 'Fuß',
-    'kilometers': 'Kilometer',
-    'hectares': 'Hektar',
-    'meters': 'Meter',
-    'miles': 'Meilen',
-    'sqfeet': 'Quadratfuß',
-    'sqmeters': 'Quadratmeter',
-    'sqmiles': 'Quadratmeilen',
-    'decPoint': '.',
-    'thousandsSep': ','
+  'measure': 'Messung',
+  'measureDistancesAndAreas': 'Messung von Abständen und Flächen',
+  'createNewMeasurement': 'Eine neue Messung durchführen',
+  'startCreating': 'Führen Sie die Messung durch, indem Sie der Karte Punkte hinzufügen.',
+  'finishMeasurement': 'Messung beenden',
+  'lastPoint': 'Letzter Punkt',
+  'area': 'Fläche',
+  'perimeter': 'Rand',
+  'pointLocation': 'Lage des Punkts',
+  'areaMeasurement': 'Gemessene Fläche',
+  'linearMeasurement': 'Gemessener Abstand',
+  'pathDistance': 'Abstand entlang des Pfads',
+  'centerOnArea': 'Auf diese Fläche zentrieren',
+  'centerOnLine': 'Auf diesen Linienzug zentrieren',
+  'centerOnLocation': 'Auf diesen Ort zentrieren',
+  'cancel': 'Abbrechen',
+  'delete': 'Löchen',
+  'acres': 'Morgen',
+  'feet': 'Fuß',
+  'kilometers': 'Kilometer',
+  'hectares': 'Hektar',
+  'meters': 'Meter',
+  'miles': 'Meilen',
+  'sqfeet': 'Quadratfuß',
+  'sqmeters': 'Quadratmeter',
+  'sqmiles': 'Quadratmeilen',
+  'decPoint': '.',
+  'thousandsSep': ','
 };
 
 },{}],26:[function(require,module,exports){
@@ -6379,34 +6581,34 @@ module.exports = {
 // Turkish i18n translations
 
 module.exports = {
-    'measure': 'Hesapla',
-    'measureDistancesAndAreas': 'Uzaklık ve alan hesapla',
-    'createNewMeasurement': 'Yeni hesaplama',
-    'startCreating': 'Yeni nokta ekleyerek hesaplamaya başla',
-    'finishMeasurement': 'Hesaplamayı bitir',
-    'lastPoint': 'Son nokta',
-    'area': 'Alan',
-    'perimeter': 'Çevre uzunluğu',
-    'pointLocation': 'Nokta yeri',
-    'areaMeasurement': 'Alan hesaplaması',
-    'linearMeasurement': 'Doğrusal hesaplama',
-    'pathDistance': 'Yol uzunluğu',
-    'centerOnArea': 'Bu alana odaklan',
-    'centerOnLine': 'Bu doğtuya odaklan',
-    'centerOnLocation': 'Bu yere odaklan',
-    'cancel': 'Çıkış',
-    'delete': 'Sil',
-    'acres': 'Dönüm',
-    'feet': 'Feet',
-    'kilometers': 'Kilometre',
-    'hectares': 'Hektar',
-    'meters': 'Metre',
-    'miles': 'Mil',
-    'sqfeet': 'Feet kare',
-    'sqmeters': 'Metre kare',
-    'sqmiles': 'Mil kare',
-    'decPoint': '.',
-    'thousandsSep': ','
+  'measure': 'Hesapla',
+  'measureDistancesAndAreas': 'Uzaklık ve alan hesapla',
+  'createNewMeasurement': 'Yeni hesaplama',
+  'startCreating': 'Yeni nokta ekleyerek hesaplamaya başla',
+  'finishMeasurement': 'Hesaplamayı bitir',
+  'lastPoint': 'Son nokta',
+  'area': 'Alan',
+  'perimeter': 'Çevre uzunluğu',
+  'pointLocation': 'Nokta yeri',
+  'areaMeasurement': 'Alan hesaplaması',
+  'linearMeasurement': 'Doğrusal hesaplama',
+  'pathDistance': 'Yol uzunluğu',
+  'centerOnArea': 'Bu alana odaklan',
+  'centerOnLine': 'Bu doğtuya odaklan',
+  'centerOnLocation': 'Bu yere odaklan',
+  'cancel': 'Çıkış',
+  'delete': 'Sil',
+  'acres': 'Dönüm',
+  'feet': 'Feet',
+  'kilometers': 'Kilometre',
+  'hectares': 'Hektar',
+  'meters': 'Metre',
+  'miles': 'Mil',
+  'sqfeet': 'Feet kare',
+  'sqmeters': 'Metre kare',
+  'sqmiles': 'Mil kare',
+  'decPoint': '.',
+  'thousandsSep': ','
 };
 
 },{}],34:[function(require,module,exports){
@@ -6414,7 +6616,7 @@ module.exports = {
 // leaflet-measure.js
 
 var _ = require('underscore');
-var L = (typeof window !== "undefined" ? window.L : typeof global !== "undefined" ? global.L : null);
+var L = (typeof window !== "undefined" ? window['L'] : typeof global !== "undefined" ? global['L'] : null);
 var humanize = require('humanize');
 
 var units = require('./units');
@@ -6432,6 +6634,7 @@ var linePopupTemplate = _.template("<h3><%= i18n.__('linearMeasurement') %></h3>
 var areaPopupTemplate = _.template("<h3><%= i18n.__('areaMeasurement') %></h3>\n<p><%= model.areaDisplay %></p>\n<p><%= model.lengthDisplay %> <%= i18n.__('perimeter') %></p>\n<ul class=\"tasks\">\n  <li><a href=\"#\" class=\"js-zoomto zoomto\"><%= i18n.__('centerOnArea') %></a></li>\n  <li><a href=\"#\" class=\"js-deletemarkup deletemarkup\"><%= i18n.__('delete') %></a></li>\n</ul>");
 
 var i18n = new (require('i18n-2'))({
+  devMode: false,
   locales: {
     'de': require('./i18n/de'),
     'en': require('./i18n/en'),
@@ -6859,7 +7062,7 @@ L.control.measure = function (options) {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./calc":23,"./dom":24,"./i18n/de":25,"./i18n/en":26,"./i18n/es":27,"./i18n/fr":28,"./i18n/it":29,"./i18n/nl":30,"./i18n/pt_BR":31,"./i18n/ru":32,"./i18n/tr":33,"./mapsymbology":35,"./units":36,"humanize":18,"i18n-2":20,"underscore":22}],35:[function(require,module,exports){
+},{"./calc":23,"./dom":24,"./i18n/de":25,"./i18n/en":26,"./i18n/es":27,"./i18n/fr":28,"./i18n/it":29,"./i18n/nl":30,"./i18n/pt_BR":31,"./i18n/ru":32,"./i18n/tr":33,"./mapsymbology":35,"./units":36,"humanize":16,"i18n-2":18,"underscore":22}],35:[function(require,module,exports){
 // mapsymbology.js
 
 var _ = require('underscore');
@@ -6960,7 +7163,7 @@ _.extend(Symbology.prototype, {
 });
 
 module.exports = Symbology;
-},{"color":1,"underscore":22}],36:[function(require,module,exports){
+},{"color":6,"underscore":22}],36:[function(require,module,exports){
 // units.js
 // Unit configurations
 // Factor is with respect to meters/sqmeters
