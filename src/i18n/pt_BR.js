@@ -1,13 +1,13 @@
-// en.js
-// English i18n translations
+// pt_BR.js
+// portuguese brazillian i18n translations
 
 module.exports = {
   'measure': 'Medidas',
   'measureDistancesAndAreas': 'Mede distâncias e áreas',
   'createNewMeasurement': 'Criar nova medida',
-  'startCreating': 'Comece criando um medida adicionando pontos no mapa',
+  'startCreating': 'Comece criando uma medida, adicionando pontos no mapa',
   'finishMeasurement': 'Finalizar medida',
-  'lastPoint': 'Último pointo',
+  'lastPoint': 'Último ponto',
   'area': 'Área',
   'perimeter': 'Perímetro',
   'pointLocation': 'Localização do ponto',
@@ -21,7 +21,7 @@ module.exports = {
   'delete': 'Excluir',
   'acres': 'Acres',
   'feet': 'Pés',
-  'kilometers': 'Kilômetros',
+  'kilometers': 'Quilômetros',
   'hectares': 'Hectares',
   'meters': 'Metros',
   'miles': 'Milhas',
