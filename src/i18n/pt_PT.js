@@ -1,5 +1,5 @@
 // en.js
-// English i18n translations
+// portuguese i18n translations
 
 module.exports = {
     'measure': 'Medições',
