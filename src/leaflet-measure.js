@@ -27,6 +27,7 @@ var i18n = new (require('i18n-2'))({
     'fr': require('./i18n/fr'),
     'it': require('./i18n/it'),
     'nl': require('./i18n/nl'),
+    'pt_PT': require('./i18n/pt_PT'),
     'pt_BR': require('./i18n/pt_BR'),
     'ru': require('./i18n/ru'),
     'tr': require('./i18n/tr')
