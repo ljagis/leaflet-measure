@@ -6297,6 +6297,41 @@ module.exports = {
   show: show     // `show(someElement)` - show passed dom element
 };
 },{}],25:[function(require,module,exports){
+// cn.js
+// Chinese i18n translations
+
+module.exports = {
+  'measure': '测量',
+  'measureDistancesAndAreas': '同时测量距离和面积',
+  'createNewMeasurement': '开始一次新的测量',
+  'startCreating': '点击地图加点以开始创建测量',
+  'finishMeasurement': '完成测量',
+  'lastPoint': '最后点的坐标',
+  'area': '面积',
+  'perimeter': '周长',
+  'pointLocation': '点的坐标',
+  'areaMeasurement': '面积测量',
+  'linearMeasurement': '距离测量',
+  'pathDistance': '路径长度',
+  'centerOnArea': '该面积居中',
+  'centerOnLine': '该线段居中',
+  'centerOnLocation': '该位置居中',
+  'cancel': '取消',
+  'delete': '删除',
+  'acres': '公亩',
+  'feet': '英尺',
+  'kilometers': '公里',
+  'hectares': '公顷',
+  'meters': '米',
+  'miles': '英里',
+  'sqfeet': '平方英尺',
+  'sqmeters': '平方米',
+  'sqmiles': '平方英里',
+  'decPoint': '.',
+  'thousandsSep': ','
+};
+
+},{}],26:[function(require,module,exports){
 // de.js
 // German i18n translations
 
@@ -6331,7 +6366,7 @@ module.exports = {
   'thousandsSep': '.'
 };
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 // en.js
 // English i18n translations
 
@@ -6366,7 +6401,7 @@ module.exports = {
   'thousandsSep': ','
 };
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 // es.js
 // Spanish i18n translations
 
@@ -6401,7 +6436,7 @@ module.exports = {
   'thousandsSep': ' '
 };
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 // fr.js
 // French i18n translations
 
@@ -6436,7 +6471,7 @@ module.exports = {
   'thousandsSep': ' '
 };
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 // it.js
 // Italian i18n translations
 
@@ -6471,7 +6506,7 @@ module.exports = {
   'thousandsSep': ','
 };
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 // nl.js
 // Dutch i18n translations
 
@@ -6506,17 +6541,17 @@ module.exports = {
   'thousandsSep': '.'
 };
 
-},{}],31:[function(require,module,exports){
-// en.js
-// English i18n translations
+},{}],32:[function(require,module,exports){
+// pt_BR.js
+// portuguese brazillian i18n translations
 
 module.exports = {
   'measure': 'Medidas',
   'measureDistancesAndAreas': 'Mede distâncias e áreas',
   'createNewMeasurement': 'Criar nova medida',
-  'startCreating': 'Comece criando um medida adicionando pontos no mapa',
+  'startCreating': 'Comece criando uma medida, adicionando pontos no mapa',
   'finishMeasurement': 'Finalizar medida',
-  'lastPoint': 'Último pointo',
+  'lastPoint': 'Último ponto',
   'area': 'Área',
   'perimeter': 'Perímetro',
   'pointLocation': 'Localização do ponto',
@@ -6530,6 +6565,41 @@ module.exports = {
   'delete': 'Excluir',
   'acres': 'Acres',
   'feet': 'Pés',
+  'kilometers': 'Quilômetros',
+  'hectares': 'Hectares',
+  'meters': 'Metros',
+  'miles': 'Milhas',
+  'sqfeet': 'Pés²',
+  'sqmeters': 'Metros²',
+  'sqmiles': 'Milhas²',
+  'decPoint': ',',
+  'thousandsSep': '.'
+};
+
+},{}],33:[function(require,module,exports){
+// en.js
+// portuguese i18n translations
+
+module.exports = {
+  'measure': 'Medições',
+  'measureDistancesAndAreas': 'Medir distâncias e áreas',
+  'createNewMeasurement': 'Criar uma nova medição',
+  'startCreating': 'Adicione pontos no mapa, para criar uma nova medição',
+  'finishMeasurement': 'Finalizar medição',
+  'lastPoint': 'Último ponto',
+  'area': 'Área',
+  'perimeter': 'Perímetro',
+  'pointLocation': 'Localização do ponto',
+  'areaMeasurement': 'Medição da área',
+  'linearMeasurement': 'Medição linear',
+  'pathDistance': 'Distância',
+  'centerOnArea': 'Centrar nesta área',
+  'centerOnLine': 'Centrar nesta linha',
+  'centerOnLocation': 'Centrar nesta localização',
+  'cancel': 'Cancelar',
+  'delete': 'Eliminar',
+  'acres': 'Acres',
+  'feet': 'Pés',
   'kilometers': 'Kilômetros',
   'hectares': 'Hectares',
   'meters': 'Metros',
@@ -6541,7 +6611,8 @@ module.exports = {
   'thousandsSep': '.'
 };
 
-},{}],32:[function(require,module,exports){
+
+},{}],34:[function(require,module,exports){
 // ru.js
 // Russian i18n translations
 
@@ -6576,7 +6647,7 @@ module.exports = {
   'thousandsSep': ','
 };
 
-},{}],33:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 // tr.js
 // Turkish i18n translations
 
@@ -6611,7 +6682,7 @@ module.exports = {
   'thousandsSep': ','
 };
 
-},{}],34:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 (function (global){
 // leaflet-measure.js
 
@@ -6636,6 +6707,7 @@ var areaPopupTemplate = _.template("<h3><%= i18n.__('areaMeasurement') %></h3>\n
 var i18n = new (require('i18n-2'))({
   devMode: false,
   locales: {
+    'cn': require('./i18n/cn'),
     'de': require('./i18n/de'),
     'en': require('./i18n/en'),
     'es': require('./i18n/es'),
@@ -6643,6 +6715,7 @@ var i18n = new (require('i18n-2'))({
     'it': require('./i18n/it'),
     'nl': require('./i18n/nl'),
     'pt_BR': require('./i18n/pt_BR'),
+    'pt_PT': require('./i18n/pt_PT'),
     'ru': require('./i18n/ru'),
     'tr': require('./i18n/tr')
   }
@@ -7062,7 +7135,7 @@ L.control.measure = function (options) {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./calc":23,"./dom":24,"./i18n/de":25,"./i18n/en":26,"./i18n/es":27,"./i18n/fr":28,"./i18n/it":29,"./i18n/nl":30,"./i18n/pt_BR":31,"./i18n/ru":32,"./i18n/tr":33,"./mapsymbology":35,"./units":36,"humanize":16,"i18n-2":18,"underscore":22}],35:[function(require,module,exports){
+},{"./calc":23,"./dom":24,"./i18n/cn":25,"./i18n/de":26,"./i18n/en":27,"./i18n/es":28,"./i18n/fr":29,"./i18n/it":30,"./i18n/nl":31,"./i18n/pt_BR":32,"./i18n/pt_PT":33,"./i18n/ru":34,"./i18n/tr":35,"./mapsymbology":37,"./units":38,"humanize":16,"i18n-2":18,"underscore":22}],37:[function(require,module,exports){
 // mapsymbology.js
 
 var _ = require('underscore');
@@ -7163,7 +7236,7 @@ _.extend(Symbology.prototype, {
 });
 
 module.exports = Symbology;
-},{"color":6,"underscore":22}],36:[function(require,module,exports){
+},{"color":6,"underscore":22}],38:[function(require,module,exports){
 // units.js
 // Unit configurations
 // Factor is with respect to meters/sqmeters
@@ -7215,4 +7288,4 @@ module.exports = {
     decimals: 2
   }
 };
-},{}]},{},[34]);
+},{}]},{},[36]);
