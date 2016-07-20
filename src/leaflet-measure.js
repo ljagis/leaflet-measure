@@ -21,17 +21,17 @@ var areaPopupTemplate = _.template(fs.readFileSync(__dirname + '/popuptemplates/
 var i18n = new (require('i18n-2'))({
   devMode: false,
   locales: {
+    'cn': require('./i18n/cn'),
     'de': require('./i18n/de'),
     'en': require('./i18n/en'),
     'es': require('./i18n/es'),
     'fr': require('./i18n/fr'),
     'it': require('./i18n/it'),
     'nl': require('./i18n/nl'),
-    'pt_PT': require('./i18n/pt_PT'),
     'pt_BR': require('./i18n/pt_BR'),
+    'pt_PT': require('./i18n/pt_PT'),
     'ru': require('./i18n/ru'),
-    'tr': require('./i18n/tr'),
-    'cn': require('./i18n/cn')
+    'tr': require('./i18n/tr')
   }
 });
 
