@@ -16,11 +16,11 @@
         <table class="hand-input-table">
             <tr>
                 <td><label class="heading"><%= i18n.__('latitude') %></label></td>
-                <td><input id="latitude" type="text" class="input_coordinate"></td>
+                <td><input id="latitude" type="number" min="-90" max="90" value="0" step="any" class="input_coordinate"></td>
             </tr>
             <tr>
                 <td><label class="heading"><%= i18n.__('longitude') %></label></td>
-                <td><input id="longitude" type="text" class="input_coordinate"></td>
+                <td><input id="longitude" type="number"  min="-180" max="180" value="0" step="any" class="input_coordinate"></td>
             </tr>
             <tr>
                 <td class="add_container" colspan="2">
