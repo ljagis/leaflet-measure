@@ -49,7 +49,8 @@ L.Control.Measure = L.Control.extend({
     popupOptions: {             // standard leaflet popup options http://leafletjs.com/reference.html#popup-options
       className: 'leaflet-measure-resultpopup',
       autoPanPadding: [10, 10]
-    }
+    },
+    useHandInput: false
   },
   initialize: function (options) {
     L.setOptions(this, options);
@@ -75,7 +76,8 @@ L.Control.Measure = L.Control.extend({
 
     container.innerHTML = controlTemplate({
       model: {
-        className: className
+        className: className,
+        useHandInput: this.options.useHandInput
       },
       i18n: i18n
     });
@@ -95,7 +97,9 @@ L.Control.Measure = L.Control.extend({
     $start = $('.js-start', container);                          // start button
     $cancel = $('.js-cancel', container);                        // cancel button
     $finish = $('.js-finish', container);                        // finish button
-    $add = $('.js-add', container);                              // add new vertex button
+    if (this.options.useHandInput) {
+      $add = $('.js-add', container);                              // add new vertex button
+    }
     this.$startPrompt = $('.js-startprompt', container);         // full area with button to start measurment
     this.$measuringPrompt = $('.js-measuringprompt', container); // full area with all stuff for active measurement
     this.$startHelp = $('.js-starthelp', container);             // "Start creating a measurement by adding points"
@@ -121,7 +125,9 @@ L.Control.Measure = L.Control.extend({
     L.DomEvent.on($cancel, 'click', this._finishMeasure, this);
     L.DomEvent.on($finish, 'click', L.DomEvent.stop);
     L.DomEvent.on($finish, 'click', this._handleMeasureDoubleClick, this);
-    L.DomEvent.on($add, 'click', this._handleAddNewVertex, this);
+    if (this.options.useHandInput) {
+      L.DomEvent.on($add, 'click', this._handleAddNewVertex, this);
+    }
   },
   _expand: function () {
     dom.hide(this.$toggle);

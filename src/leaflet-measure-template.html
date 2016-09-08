@@ -10,6 +10,7 @@
     <h3><%= i18n.__('measureDistancesAndAreas') %></h3>
     <p class="js-starthelp"><%= i18n.__('startCreating') %></p>
     <div class="js-results results"></div>
+    <% if (model.useHandInput) { %>
     <div class="hand-input">
       <div class="group">
         <table class="hand-input-table">
@@ -29,6 +30,7 @@
         </table> 
       </div>
     </div>
+    <% } %>
     <ul class="js-measuretasks tasks">
       <li><a href="#" class="js-cancel cancel"><%= i18n.__('cancel') %></a></li>
       <li><a href="#" class="js-finish finish"><%= i18n.__('finishMeasurement') %></a></li>
