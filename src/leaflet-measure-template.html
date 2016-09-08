@@ -10,6 +10,25 @@
     <h3><%= i18n.__('measureDistancesAndAreas') %></h3>
     <p class="js-starthelp"><%= i18n.__('startCreating') %></p>
     <div class="js-results results"></div>
+    <div class="hand-input">
+      <div class="group">
+        <table class="hand-input-table">
+            <tr>
+                <td><label class="heading"><%= i18n.__('latitude') %></label></td>
+                <td><input id="latitude" type="text" class="input_coordinate"></td>
+            </tr>
+            <tr>
+                <td><label class="heading"><%= i18n.__('longitude') %></label></td>
+                <td><input id="longitude" type="text" class="input_coordinate"></td>
+            </tr>
+            <tr>
+                <td class="add_container" colspan="2">
+                    <a href="#" class="js-add add"><%= i18n.__('add') %></a>
+                </td>
+            </tr>
+        </table> 
+      </div>
+    </div>
     <ul class="js-measuretasks tasks">
       <li><a href="#" class="js-cancel cancel"><%= i18n.__('cancel') %></a></li>
       <li><a href="#" class="js-finish finish"><%= i18n.__('finishMeasurement') %></a></li>

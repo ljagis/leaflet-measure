@@ -71,7 +71,7 @@ L.Control.Measure = L.Control.extend({
   },
   _initLayout: function () {
     var className = this._className, container = this._container = L.DomUtil.create('div', className);
-    var $toggle, $start, $cancel, $finish;
+    var $toggle, $start, $cancel, $finish, $add;
 
     container.innerHTML = controlTemplate({
       model: {
@@ -95,6 +95,7 @@ L.Control.Measure = L.Control.extend({
     $start = $('.js-start', container);                          // start button
     $cancel = $('.js-cancel', container);                        // cancel button
     $finish = $('.js-finish', container);                        // finish button
+    $add = $('.js-add', container);                              // add new vertex button
     this.$startPrompt = $('.js-startprompt', container);         // full area with button to start measurment
     this.$measuringPrompt = $('.js-measuringprompt', container); // full area with all stuff for active measurement
     this.$startHelp = $('.js-starthelp', container);             // "Start creating a measurement by adding points"
@@ -120,6 +121,7 @@ L.Control.Measure = L.Control.extend({
     L.DomEvent.on($cancel, 'click', this._finishMeasure, this);
     L.DomEvent.on($finish, 'click', L.DomEvent.stop);
     L.DomEvent.on($finish, 'click', this._handleMeasureDoubleClick, this);
+    L.DomEvent.on($add, 'click', this._handleAddNewVertex, this);
   },
   _expand: function () {
     dom.hide(this.$toggle);
@@ -253,12 +255,12 @@ L.Control.Measure = L.Control.extend({
       areaDisplay: buildDisplay(measurement.area, this.options.primaryAreaUnit, this.options.secondaryAreaUnit, this.options.decPoint, this.options.thousandsSep)
     };
 
-    function buildDisplay (val, primaryUnit, secondaryUnit, decPoint, thousandsSep) {
+    function buildDisplay(val, primaryUnit, secondaryUnit, decPoint, thousandsSep) {
       var display;
       if (primaryUnit && unitDefinitions[primaryUnit]) {
         display = formatMeasure(val, unitDefinitions[primaryUnit], decPoint, thousandsSep);
         if (secondaryUnit && unitDefinitions[secondaryUnit]) {
-          display = display + ' (' +  formatMeasure(val, unitDefinitions[secondaryUnit], decPoint, thousandsSep) + ')';
+          display = display + ' (' + formatMeasure(val, unitDefinitions[secondaryUnit], decPoint, thousandsSep) + ')';
         }
       } else {
         display = formatMeasure(val, null, decPoint, thousandsSep);
@@ -266,7 +268,7 @@ L.Control.Measure = L.Control.extend({
       return display;
     }
 
-    function formatMeasure (val, unit, decPoint, thousandsSep) {
+    function formatMeasure(val, unit, decPoint, thousandsSep) {
       return unit && unit.factor && unit.display ?
         humanize.numberFormat(val * unit.factor, unit.decimals || 0, decPoint || i18n.__('decPoint'), thousandsSep || i18n.__('thousandsSep')) + ' ' + i18n.__([unit.display]) || unit.display :
         humanize.numberFormat(val, 0, decPoint || i18n.__('decPoint'), thousandsSep || i18n.__('thousandsSep'));
@@ -294,6 +296,7 @@ L.Control.Measure = L.Control.extend({
     }
     this._measureDrag.bringToFront();
   },
+
   // handler for both double click and clicking finish button
   // do final calc and finish out current measure, clear dom and internal state, add permanent map features
   _handleMeasureDoubleClick: function () {
@@ -361,13 +364,30 @@ L.Control.Measure = L.Control.extend({
     resultFeature.bindPopup(popupContainer, this.options.popupOptions);
     resultFeature.openPopup(resultFeature.getBounds().getCenter());
   },
+  _handleAddNewVertex: function () {
+    var latlng = {
+      'lat': $('#latitude').value,
+      'lng': $('#longitude').value,
+      'equals': function (coordinate) {
+        return latlng.lat === coordinate.lat && latlng.lng === coordinate.lng;
+      }
+    };
+
+    this._addNewVertexBase(latlng);
+  },
   // handle map click during ongoing measurement
   // add new clicked point, update measure layers and results ui
   _handleMeasureClick: function (evt) {
-    var latlng = this._map.mouseEventToLatLng(evt.originalEvent), // get actual latlng instead of the marker's latlng from originalEvent
-      lastClick = _.last(this._latlngs),
-      vertexSymbol = this._symbols.getSymbol('measureVertex');
+    var latlng = this._map.mouseEventToLatLng(evt.originalEvent); // get actual latlng instead of the marker's latlng from originalEvent
+    this._addNewVertexBase(latlng);
+  },
 
+  //base method for adding vertex by click on map and by coordinates from inputs 
+  // add new point by coordinate from inputs, update measure layers and results ui
+  _addNewVertexBase: function (latlng) {
+    var lastClick = _.last(this._latlngs),
+      vertexSymbol = this._symbols.getSymbol('measureVertex');
+    console.log(latlng);
     if (!lastClick || !latlng.equals(lastClick)) { // skip if same point as last click, happens on `dblclick`
       this._latlngs.push(latlng);
       this._addMeasureArea(this._latlngs);
