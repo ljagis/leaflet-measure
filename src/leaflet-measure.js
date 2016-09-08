@@ -50,7 +50,7 @@ L.Control.Measure = L.Control.extend({
       className: 'leaflet-measure-resultpopup',
       autoPanPadding: [10, 10]
     },
-    useHandInput: false
+    useHandInput: true
   },
   initialize: function (options) {
     L.setOptions(this, options);
