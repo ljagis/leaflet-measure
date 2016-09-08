@@ -161,6 +161,12 @@ Available locales include `en` (default), `es`, `fr`, `it`, `nl`, and `ru`.
 
 Decimal point and thousands separator used when displaying measurements. If not specified, values are defined by the localization.
 
+### useHandInput
+
+`{ useHandInput: false }`
+
+Determines whether the hand input will be displayed.
+
 <hr>
 
 ## Events
