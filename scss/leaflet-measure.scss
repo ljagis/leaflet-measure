@@ -125,6 +125,7 @@ $color-lightertext: #999;
       .input_coordinate{
         border-radius: 3px;
         margin-top: 2px;
+        transition: background-color 0.8s;
       }
 
       .add_container{

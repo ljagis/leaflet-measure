@@ -364,16 +364,63 @@ L.Control.Measure = L.Control.extend({
     resultFeature.bindPopup(popupContainer, this.options.popupOptions);
     resultFeature.openPopup(resultFeature.getBounds().getCenter());
   },
+
+  /**
+   * Add new Vertex by hand input. If latitude or longitude are incorrect then corresponding field are blink.
+  */
   _handleAddNewVertex: function () {
+    var lat = $('#latitude').value,
+      lng = $('#longitude').value;
+
+    if (!this._isValidLatitude(lat)) {
+      this._showError('#latitude');
+      return;
+    }
+
+    if (!this._isValidLongitude(lng)) {
+      this._showError('#longitude');
+      return;
+    }
+
     var latlng = {
-      'lat': $('#latitude').value,
-      'lng': $('#longitude').value,
+      'lat': lat,
+      'lng': lng,
       'equals': function (coordinate) {
         return latlng.lat === coordinate.lat && latlng.lng === coordinate.lng;
       }
     };
 
     this._addNewVertexBase(latlng);
+  },
+
+  /**
+   * Indicates that an error in the input field
+   * @param selector of element backgroundColor of which will be change
+  */
+  _showError: function (selector) {
+    $(selector).style.backgroundColor = 'red';
+
+    setTimeout(function () {
+      $(selector).style.backgroundColor = 'white';
+    }, 800);
+  },
+
+  /**
+   * Check correct of latitude. ( -90 <= latitude <= 90)
+  */
+  _isValidLatitude: function (latitude) {
+    var parsedLat = parseFloat(latitude);
+
+    return !Number.isNaN(parsedLat) && (parsedLat >= -90 && parsedLat <= 90);
+  },
+
+  /**
+   * Check correct of longitude. ( -180 <= longitude <= 180)
+  */
+  _isValidLongitude: function (longitude) {
+    var parsedLng = parseFloat(longitude);
+
+    return !Number.isNaN(parsedLng) && (parsedLng >= -180 && parsedLng <= 180);
   },
   // handle map click during ongoing measurement
   // add new clicked point, update measure layers and results ui
