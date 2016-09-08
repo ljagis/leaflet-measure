@@ -29,5 +29,8 @@ module.exports = {
   'sqmeters': 'm2',
   'sqmiles': 'Vierkante Mijl',
   'decPoint': ',',
-  'thousandsSep': '.'
+  'thousandsSep': '.',
+  'latitude': 'Breedtegraad',
+  'longitude': 'Lengtegraad',
+  'add': 'Toevoegen'
 };

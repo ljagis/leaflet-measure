@@ -29,5 +29,8 @@ module.exports = {
   'sqmeters': 'Mètres carrés',
   'sqmiles': 'Miles carrés',
   'decPoint': ',',
-  'thousandsSep': ' '
+  'thousandsSep': ' ',
+  'latitude': 'Latitude',
+  'longitude': 'Longitude',
+  'add': 'Ajouter'
 };

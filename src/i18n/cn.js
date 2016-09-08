@@ -29,5 +29,8 @@ module.exports = {
   'sqmeters': '平方米',
   'sqmiles': '平方英里',
   'decPoint': '.',
-  'thousandsSep': ','
+  'thousandsSep': ',',
+  'latitude': '經度',
+  'longitude': '寬',
+  'add': '加'
 };

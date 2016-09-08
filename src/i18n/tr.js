@@ -29,5 +29,8 @@ module.exports = {
   'sqmeters': 'Metre kare',
   'sqmiles': 'Mil kare',
   'decPoint': '.',
-  'thousandsSep': ','
+  'thousandsSep': ',',
+  'latitude': 'Enlem',
+  'longitude': 'Boylam',
+  'add': 'Eklemek'
 };

@@ -29,5 +29,8 @@ module.exports = {
   'sqmeters': 'Metri quadri',
   'sqmiles': 'Miglia quadre',
   'decPoint': '.',
-  'thousandsSep': ','
+  'thousandsSep': ',',
+  'latitude': 'Latityude',
+  'longitude': 'Longitudine',
+  'add': 'Aggiungere'
 };
