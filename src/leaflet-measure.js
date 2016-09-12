@@ -98,6 +98,8 @@ L.Control.Measure = L.Control.extend({
     $cancel = $('.js-cancel', container);                        // cancel button
     $finish = $('.js-finish', container);                        // finish button
     $deleteLast = $('.js-deleteLast', container);
+    $deleteLast.title = i18n.__('deleteLastHint');
+
     if (this.options.useHandInput) {
       $add = $('.js-add', container);                              // add new vertex button
     }

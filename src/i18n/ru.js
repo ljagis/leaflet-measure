@@ -33,5 +33,6 @@ module.exports = {
   'latitude': 'Широта',
   'longitude': 'Долгота',
   'add': 'Добавить',
-  'deleteLast': 'Удалить последнюю'
+  'deleteLast': 'Удалить последнюю',
+  'deleteLastHint': 'Удалить последнюю добавленную вершину'
 };
