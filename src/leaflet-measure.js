@@ -72,7 +72,7 @@ L.Control.Measure = L.Control.extend({
   },
   _initLayout: function () {
     var className = this._className, container = this._container = L.DomUtil.create('div', className);
-    var $toggle, $start, $cancel, $finish, $add;
+    var $toggle, $start, $cancel, $finish, $add, $deleteLast;
 
     container.innerHTML = controlTemplate({
       model: {
@@ -97,6 +97,7 @@ L.Control.Measure = L.Control.extend({
     $start = $('.js-start', container);                          // start button
     $cancel = $('.js-cancel', container);                        // cancel button
     $finish = $('.js-finish', container);                        // finish button
+    $deleteLast = $('.js-deleteLast', container);
     if (this.options.useHandInput) {
       $add = $('.js-add', container);                              // add new vertex button
     }
@@ -125,7 +126,11 @@ L.Control.Measure = L.Control.extend({
     L.DomEvent.on($cancel, 'click', this._finishMeasure, this);
     L.DomEvent.on($finish, 'click', L.DomEvent.stop);
     L.DomEvent.on($finish, 'click', this._handleMeasureDoubleClick, this);
+    L.DomEvent.on($deleteLast, 'click', L.DomEvent.stop);
+    L.DomEvent.on($deleteLast, 'click', this._deleteLastVertex, this);
+
     if (this.options.useHandInput) {
+      L.DomEvent.on($add, 'click', L.DomEvent.stop);
       L.DomEvent.on($add, 'click', this._handleAddNewVertex, this);
     }
   },
@@ -261,7 +266,7 @@ L.Control.Measure = L.Control.extend({
       areaDisplay: buildDisplay(measurement.area, this.options.primaryAreaUnit, this.options.secondaryAreaUnit, this.options.decPoint, this.options.thousandsSep)
     };
 
-    function buildDisplay(val, primaryUnit, secondaryUnit, decPoint, thousandsSep) {
+    function buildDisplay (val, primaryUnit, secondaryUnit, decPoint, thousandsSep) {
       var display;
       if (primaryUnit && unitDefinitions[primaryUnit]) {
         display = formatMeasure(val, unitDefinitions[primaryUnit], decPoint, thousandsSep);
@@ -274,7 +279,7 @@ L.Control.Measure = L.Control.extend({
       return display;
     }
 
-    function formatMeasure(val, unit, decPoint, thousandsSep) {
+    function formatMeasure (val, unit, decPoint, thousandsSep) {
       return unit && unit.factor && unit.display ?
         humanize.numberFormat(val * unit.factor, unit.decimals || 0, decPoint || i18n.__('decPoint'), thousandsSep || i18n.__('thousandsSep')) + ' ' + i18n.__([unit.display]) || unit.display :
         humanize.numberFormat(val, 0, decPoint || i18n.__('decPoint'), thousandsSep || i18n.__('thousandsSep'));
@@ -399,6 +404,31 @@ L.Control.Measure = L.Control.extend({
     this._addNewVertexBase(latlng);
   },
 
+  _deleteLastVertex: function () {
+    if (this._latlngs.length >= 1) {
+      this._latlngs.pop();
+      this._measureVertexes.removeLayer(this._lastVertex);
+      this._lastVertex = _.last(this._measureVertexes.getLayers());
+
+      this._addMeasureArea(this._latlngs);
+      this._addMeasureBoundary(this._latlngs);
+
+      var symbol = this._symbols.getSymbol('measureVertexActive');
+      this._setStyleForLayer(this._lastVertex, symbol);
+      this._bringToFrongAndUpdateResult();
+    }
+  },
+
+  _bringToFrongAndUpdateResult: function () {
+    if (this._measureBoundary) {
+      this._measureBoundary.bringToFront();
+    }
+    this._measureVertexes.bringToFront();
+
+    this._updateResults();
+    this._updateMeasureStartedWithPoints();
+  },
+
   /**
    * Indicates that an error in the input field
    * @param selector of element backgroundColor of which will be change
@@ -435,7 +465,7 @@ L.Control.Measure = L.Control.extend({
     this._addNewVertexBase(latlng);
   },
 
-  //base method for adding vertex by click on map and by coordinates from inputs 
+  //base method for adding vertex by click on map and by coordinates from inputs
   // add new point by coordinate from inputs, update measure layers and results ui
   _addNewVertexBase: function (latlng) {
     var lastClick = _.last(this._latlngs),
@@ -446,12 +476,9 @@ L.Control.Measure = L.Control.extend({
       this._addMeasureArea(this._latlngs);
       this._addMeasureBoundary(this._latlngs);
 
+      var self = this;
       this._measureVertexes.eachLayer(function (layer) {
-        layer.setStyle(vertexSymbol);
-        // reset all vertexes to non-active class - only last vertex is active
-        // `layer.setStyle({ className: 'layer-measurevertex'})` doesn't work. https://github.com/leaflet/leaflet/issues/2662
-        // set attribute on path directly
-        layer._path.setAttribute('class', vertexSymbol.className);
+        self._setStyleForLayer(layer, vertexSymbol);
       });
 
       this._addNewVertex(latlng);
@@ -465,6 +492,15 @@ L.Control.Measure = L.Control.extend({
     this._updateResults();
     this._updateMeasureStartedWithPoints();
   },
+
+  _setStyleForLayer: function (layer, symbol) {
+    layer.setStyle(symbol);
+    // reset all vertexes to non-active class - only last vertex is active
+    // `layer.setStyle({ className: 'layer-measurevertex'})` doesn't work. https://github.com/leaflet/leaflet/issues/2662
+    // set attribute on path directly
+    layer._path.setAttribute('class', symbol.className);
+  },
+
   // handle map mouse out during ongoing measure
   // remove floating cursor vertex from map
   _handleMapMouseOut: function () {
@@ -475,8 +511,10 @@ L.Control.Measure = L.Control.extend({
   },
   // add various measure graphics to map - vertex, area, boundary
   _addNewVertex: function (latlng) {
-    L.circleMarker(latlng, this._symbols.getSymbol('measureVertexActive')).addTo(this._measureVertexes);
+    this._lastVertex = L.circleMarker(latlng, this._symbols.getSymbol('measureVertexActive'));
+    this._lastVertex.addTo(this._measureVertexes);
   },
+
   _addMeasureArea: function (latlngs) {
     if (latlngs.length < 3) {
       if (this._measureArea) {

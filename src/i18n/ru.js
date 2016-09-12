@@ -32,5 +32,6 @@ module.exports = {
   'thousandsSep': ',',
   'latitude': 'Широта',
   'longitude': 'Долгота',
-  'add': 'Добавить'
+  'add': 'Добавить',
+  'deleteLast': 'Удалить последнюю'
 };
