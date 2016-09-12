@@ -10,9 +10,31 @@
     <h3><%= i18n.__('measureDistancesAndAreas') %></h3>
     <p class="js-starthelp"><%= i18n.__('startCreating') %></p>
     <div class="js-results results"></div>
+    <% if (model.useHandInput) { %>
+    <div class="hand-input">
+      <div class="group">
+        <table class="hand-input-table">
+            <tr>
+                <td><label class="heading"><%= i18n.__('latitude') %></label></td>
+                <td><input id="latitude" type="number" min="-90" max="90" value="0" step="any" class="input_coordinate"></td>
+            </tr>
+            <tr>
+                <td><label class="heading"><%= i18n.__('longitude') %></label></td>
+                <td><input id="longitude" type="number"  min="-180" max="180" value="0" step="any" class="input_coordinate"></td>
+            </tr>
+            <tr>
+                <td class="add_container" colspan="2">
+                    <a href="#" class="js-add add finish"><%= i18n.__('add') %></a>
+                </td>
+            </tr>
+        </table> 
+      </div>
+    </div>
+    <% } %>
     <ul class="js-measuretasks tasks">
       <li><a href="#" class="js-cancel cancel"><%= i18n.__('cancel') %></a></li>
       <li><a href="#" class="js-finish finish"><%= i18n.__('finishMeasurement') %></a></li>
+      <li><a href="#" class="js-deleteLast deleteLast cancel"><%= i18n.__('deleteLast') %></a></li>                    
     </ul>
   </div>
 </div>

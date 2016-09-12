@@ -49,7 +49,8 @@ L.Control.Measure = L.Control.extend({
     popupOptions: {             // standard leaflet popup options http://leafletjs.com/reference.html#popup-options
       className: 'leaflet-measure-resultpopup',
       autoPanPadding: [10, 10]
-    }
+    },
+    useHandInput: true
   },
   initialize: function (options) {
     L.setOptions(this, options);
@@ -71,11 +72,12 @@ L.Control.Measure = L.Control.extend({
   },
   _initLayout: function () {
     var className = this._className, container = this._container = L.DomUtil.create('div', className);
-    var $toggle, $start, $cancel, $finish;
+    var $toggle, $start, $cancel, $finish, $add, $deleteLast;
 
     container.innerHTML = controlTemplate({
       model: {
-        className: className
+        className: className,
+        useHandInput: this.options.useHandInput
       },
       i18n: i18n
     });
@@ -95,6 +97,12 @@ L.Control.Measure = L.Control.extend({
     $start = $('.js-start', container);                          // start button
     $cancel = $('.js-cancel', container);                        // cancel button
     $finish = $('.js-finish', container);                        // finish button
+    $deleteLast = $('.js-deleteLast', container);
+    $deleteLast.title = i18n.__('deleteLastHint');
+
+    if (this.options.useHandInput) {
+      $add = $('.js-add', container);                              // add new vertex button
+    }
     this.$startPrompt = $('.js-startprompt', container);         // full area with button to start measurment
     this.$measuringPrompt = $('.js-measuringprompt', container); // full area with all stuff for active measurement
     this.$startHelp = $('.js-starthelp', container);             // "Start creating a measurement by adding points"
@@ -120,6 +128,13 @@ L.Control.Measure = L.Control.extend({
     L.DomEvent.on($cancel, 'click', this._finishMeasure, this);
     L.DomEvent.on($finish, 'click', L.DomEvent.stop);
     L.DomEvent.on($finish, 'click', this._handleMeasureDoubleClick, this);
+    L.DomEvent.on($deleteLast, 'click', L.DomEvent.stop);
+    L.DomEvent.on($deleteLast, 'click', this._deleteLastVertex, this);
+
+    if (this.options.useHandInput) {
+      L.DomEvent.on($add, 'click', L.DomEvent.stop);
+      L.DomEvent.on($add, 'click', this._handleAddNewVertex, this);
+    }
   },
   _expand: function () {
     dom.hide(this.$toggle);
@@ -258,7 +273,7 @@ L.Control.Measure = L.Control.extend({
       if (primaryUnit && unitDefinitions[primaryUnit]) {
         display = formatMeasure(val, unitDefinitions[primaryUnit], decPoint, thousandsSep);
         if (secondaryUnit && unitDefinitions[secondaryUnit]) {
-          display = display + ' (' +  formatMeasure(val, unitDefinitions[secondaryUnit], decPoint, thousandsSep) + ')';
+          display = display + ' (' + formatMeasure(val, unitDefinitions[secondaryUnit], decPoint, thousandsSep) + ')';
         }
       } else {
         display = formatMeasure(val, null, decPoint, thousandsSep);
@@ -294,6 +309,7 @@ L.Control.Measure = L.Control.extend({
     }
     this._measureDrag.bringToFront();
   },
+
   // handler for both double click and clicking finish button
   // do final calc and finish out current measure, clear dom and internal state, add permanent map features
   _handleMeasureDoubleClick: function () {
@@ -361,24 +377,112 @@ L.Control.Measure = L.Control.extend({
     resultFeature.bindPopup(popupContainer, this.options.popupOptions);
     resultFeature.openPopup(resultFeature.getBounds().getCenter());
   },
+
+  /**
+   * Add new Vertex by hand input. If latitude or longitude are incorrect then corresponding field are blink.
+  */
+  _handleAddNewVertex: function () {
+    var lat = $('#latitude').value,
+      lng = $('#longitude').value;
+
+    if (!this._isValidLatitude(lat)) {
+      this._showError('#latitude');
+      return;
+    }
+
+    if (!this._isValidLongitude(lng)) {
+      this._showError('#longitude');
+      return;
+    }
+
+    var latlng = {
+      'lat': lat,
+      'lng': lng,
+      'equals': function (coordinate) {
+        return latlng.lat === coordinate.lat && latlng.lng === coordinate.lng;
+      }
+    };
+
+    this._addNewVertexBase(latlng);
+  },
+
+  _deleteLastVertex: function () {
+    if (this._latlngs.length >= 1) {
+      this._latlngs.pop();
+      this._measureVertexes.removeLayer(this._lastVertex);
+      if (this._latlngs.length > 0) {
+        this._lastVertex = _.last(this._measureVertexes.getLayers());
+
+        this._addMeasureArea(this._latlngs);
+        this._addMeasureBoundary(this._latlngs);
+
+        var symbol = this._symbols.getSymbol('measureVertexActive');
+        this._setStyleForLayer(this._lastVertex, symbol);
+        this._bringToFrongAndUpdateResult();
+      }
+    }
+  },
+
+  _bringToFrongAndUpdateResult: function () {
+    if (this._measureBoundary) {
+      this._measureBoundary.bringToFront();
+    }
+    this._measureVertexes.bringToFront();
+
+    this._updateResults();
+    this._updateMeasureStartedWithPoints();
+  },
+
+  /**
+   * Indicates that an error in the input field
+   * @param selector of element backgroundColor of which will be change
+  */
+  _showError: function (selector) {
+    $(selector).style.backgroundColor = 'red';
+
+    setTimeout(function () {
+      $(selector).style.backgroundColor = 'white';
+    }, 800);
+  },
+
+  /**
+   * Check correct of latitude. ( -90 <= latitude <= 90)
+  */
+  _isValidLatitude: function (latitude) {
+    var parsedLat = parseFloat(latitude);
+
+    return !Number.isNaN(parsedLat) && (parsedLat >= -90 && parsedLat <= 90);
+  },
+
+  /**
+   * Check correct of longitude. ( -180 <= longitude <= 180)
+  */
+  _isValidLongitude: function (longitude) {
+    var parsedLng = parseFloat(longitude);
+
+    return !Number.isNaN(parsedLng) && (parsedLng >= -180 && parsedLng <= 180);
+  },
   // handle map click during ongoing measurement
   // add new clicked point, update measure layers and results ui
   _handleMeasureClick: function (evt) {
-    var latlng = this._map.mouseEventToLatLng(evt.originalEvent), // get actual latlng instead of the marker's latlng from originalEvent
-      lastClick = _.last(this._latlngs),
-      vertexSymbol = this._symbols.getSymbol('measureVertex');
+    var latlng = this._map.mouseEventToLatLng(evt.originalEvent); // get actual latlng instead of the marker's latlng from originalEvent
+    this._addNewVertexBase(latlng);
+  },
 
+  //base method for adding vertex by click on map and by coordinates from inputs
+  // add new point by coordinate from inputs, update measure layers and results ui
+  _addNewVertexBase: function (latlng) {
+    var lastClick = _.last(this._latlngs),
+      vertexSymbol = this._symbols.getSymbol('measureVertex');
+    console.log(latlng);
     if (!lastClick || !latlng.equals(lastClick)) { // skip if same point as last click, happens on `dblclick`
       this._latlngs.push(latlng);
       this._addMeasureArea(this._latlngs);
       this._addMeasureBoundary(this._latlngs);
 
+      var self = this;
       this._measureVertexes.eachLayer(function (layer) {
-        layer.setStyle(vertexSymbol);
-        // reset all vertexes to non-active class - only last vertex is active
-        // `layer.setStyle({ className: 'layer-measurevertex'})` doesn't work. https://github.com/leaflet/leaflet/issues/2662
-        // set attribute on path directly
-        layer._path.setAttribute('class', vertexSymbol.className);
+        self._setStyleForLayer(layer, vertexSymbol);
       });
 
       this._addNewVertex(latlng);
@@ -392,6 +496,15 @@ L.Control.Measure = L.Control.extend({
     this._updateResults();
     this._updateMeasureStartedWithPoints();
   },
+
+  _setStyleForLayer: function (layer, symbol) {
+    layer.setStyle(symbol);
+    // reset all vertexes to non-active class - only last vertex is active
+    // `layer.setStyle({ className: 'layer-measurevertex'})` doesn't work. https://github.com/leaflet/leaflet/issues/2662
+    // set attribute on path directly
+    layer._path.setAttribute('class', symbol.className);
+  },
+
   // handle map mouse out during ongoing measure
   // remove floating cursor vertex from map
   _handleMapMouseOut: function () {
@@ -402,8 +515,10 @@ L.Control.Measure = L.Control.extend({
   },
   // add various measure graphics to map - vertex, area, boundary
   _addNewVertex: function (latlng) {
-    L.circleMarker(latlng, this._symbols.getSymbol('measureVertexActive')).addTo(this._measureVertexes);
+    this._lastVertex = L.circleMarker(latlng, this._symbols.getSymbol('measureVertexActive'));
+    this._lastVertex.addTo(this._measureVertexes);
   },
+
   _addMeasureArea: function (latlngs) {
     if (latlngs.length < 3) {
       if (this._measureArea) {

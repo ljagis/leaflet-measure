@@ -29,5 +29,10 @@ module.exports = {
   'sqmeters': 'м²',
   'sqmiles': 'миль²',
   'decPoint': '.',
-  'thousandsSep': ','
+  'thousandsSep': ',',
+  'latitude': 'Широта',
+  'longitude': 'Долгота',
+  'add': 'Добавить',
+  'deleteLast': 'Удалить последнюю',
+  'deleteLastHint': 'Удалить последнюю добавленную вершину'
 };

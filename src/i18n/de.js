@@ -29,5 +29,8 @@ module.exports = {
   'sqmeters': 'Quadratmeter',
   'sqmiles': 'Quadratmeilen',
   'decPoint': ',',
-  'thousandsSep': '.'
+  'thousandsSep': '.',
+  'latitude': 'Länge',
+  'longitude': 'breite',
+  'add': 'hinzufügen'
 };

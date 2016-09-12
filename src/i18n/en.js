@@ -29,5 +29,10 @@ module.exports = {
   'sqmeters': 'Sq Meters',
   'sqmiles': 'Sq Miles',
   'decPoint': '.',
-  'thousandsSep': ','
+  'thousandsSep': ',',
+  'latitude': 'Latitude',
+  'longitude': 'Longitude',
+  'add': 'Add',
+  'deleteLast': 'Delete last',
+  'deleteLastHint': 'Delete last vertex'
 };
