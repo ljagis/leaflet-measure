@@ -408,14 +408,16 @@ L.Control.Measure = L.Control.extend({
     if (this._latlngs.length >= 1) {
       this._latlngs.pop();
       this._measureVertexes.removeLayer(this._lastVertex);
-      this._lastVertex = _.last(this._measureVertexes.getLayers());
+      if (this._latlngs.length > 0) {
+        this._lastVertex = _.last(this._measureVertexes.getLayers());
 
-      this._addMeasureArea(this._latlngs);
-      this._addMeasureBoundary(this._latlngs);
+        this._addMeasureArea(this._latlngs);
+        this._addMeasureBoundary(this._latlngs);
 
-      var symbol = this._symbols.getSymbol('measureVertexActive');
-      this._setStyleForLayer(this._lastVertex, symbol);
-      this._bringToFrongAndUpdateResult();
+        var symbol = this._symbols.getSymbol('measureVertexActive');
+        this._setStyleForLayer(this._lastVertex, symbol);
+        this._bringToFrongAndUpdateResult();
+      }
     }
   },
 
