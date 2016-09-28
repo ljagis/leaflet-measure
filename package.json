@@ -1,6 +1,6 @@
 {
   "name": "leaflet-measure",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "Coordinate, linear, and area measure tool for Leaflet maps",
   "main": "src/leaflet-measure.js",
   "scripts": {
