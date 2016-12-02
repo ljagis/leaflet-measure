@@ -6533,6 +6533,41 @@ module.exports = {
 };
 
 },{}],30:[function(require,module,exports){
+// en_UK.js
+// British English i18n translations
+
+module.exports = {
+  'measure': 'Measure',
+  'measureDistancesAndAreas': 'Measure distances and areas',
+  'createNewMeasurement': 'Create a new measurement',
+  'startCreating': 'Start creating a measurement by adding points to the map',
+  'finishMeasurement': 'Finish measurement',
+  'lastPoint': 'Last point',
+  'area': 'Area',
+  'perimeter': 'Perimeter',
+  'pointLocation': 'Point location',
+  'areaMeasurement': 'Area measurement',
+  'linearMeasurement': 'Linear measurement',
+  'pathDistance': 'Path distance',
+  'centerOnArea': 'Centre on this area',
+  'centerOnLine': 'Centre on this line',
+  'centerOnLocation': 'Centre on this location',
+  'cancel': 'Cancel',
+  'delete': 'Delete',
+  'acres': 'Acres',
+  'feet': 'Feet',
+  'kilometers': 'Kilometres',
+  'hectares': 'Hectares',
+  'meters': 'Meters',
+  'miles': 'Miles',
+  'sqfeet': 'Sq Feet',
+  'sqmeters': 'Sq Meters',
+  'sqmiles': 'Sq Miles',
+  'decPoint': '.',
+  'thousandsSep': ','
+};
+
+},{}],31:[function(require,module,exports){
 // es.js
 // Spanish i18n translations
 
@@ -6567,7 +6602,7 @@ module.exports = {
   'thousandsSep': ' '
 };
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 // fa.js
 // Persian (Farsi) i18n translations
 
@@ -6602,7 +6637,7 @@ module.exports = {
   'thousandsSep': ','
 };
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 // fr.js
 // French i18n translations
 
@@ -6637,7 +6672,7 @@ module.exports = {
   'thousandsSep': ' '
 };
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 // it.js
 // Italian i18n translations
 
@@ -6672,7 +6707,7 @@ module.exports = {
   'thousandsSep': ','
 };
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 // nl.js
 // Dutch i18n translations
 
@@ -6707,7 +6742,7 @@ module.exports = {
   'thousandsSep': '.'
 };
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 // pt_BR.js
 // portuguese brazillian i18n translations
 
@@ -6742,7 +6777,7 @@ module.exports = {
   'thousandsSep': '.'
 };
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 // en.js
 // portuguese i18n translations
 
@@ -6778,7 +6813,7 @@ module.exports = {
 };
 
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 // ru.js
 // Russian i18n translations
 
@@ -6813,7 +6848,7 @@ module.exports = {
   'thousandsSep': ','
 };
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 // tr.js
 // Turkish i18n translations
 
@@ -6848,7 +6883,7 @@ module.exports = {
   'thousandsSep': ','
 };
 
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 (function (global){
 // leaflet-measure.js
 
@@ -6878,6 +6913,7 @@ var i18n = new (require('i18n-2'))({
     'da': require('./i18n/da'),
     'de': require('./i18n/de'),
     'en': require('./i18n/en'),
+    'en_UK': require('./i18n/en_UK'),
     'es': require('./i18n/es'),
     'fa': require('./i18n/fa'),
     'fr': require('./i18n/fr'),
@@ -7304,7 +7340,7 @@ L.control.measure = function (options) {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./calc":23,"./dom":24,"./i18n/ca":25,"./i18n/cn":26,"./i18n/da":27,"./i18n/de":28,"./i18n/en":29,"./i18n/es":30,"./i18n/fa":31,"./i18n/fr":32,"./i18n/it":33,"./i18n/nl":34,"./i18n/pt_BR":35,"./i18n/pt_PT":36,"./i18n/ru":37,"./i18n/tr":38,"./mapsymbology":40,"./units":41,"humanize":18,"i18n-2":20,"underscore":22}],40:[function(require,module,exports){
+},{"./calc":23,"./dom":24,"./i18n/ca":25,"./i18n/cn":26,"./i18n/da":27,"./i18n/de":28,"./i18n/en":29,"./i18n/en_UK":30,"./i18n/es":31,"./i18n/fa":32,"./i18n/fr":33,"./i18n/it":34,"./i18n/nl":35,"./i18n/pt_BR":36,"./i18n/pt_PT":37,"./i18n/ru":38,"./i18n/tr":39,"./mapsymbology":41,"./units":42,"humanize":18,"i18n-2":20,"underscore":22}],41:[function(require,module,exports){
 // mapsymbology.js
 
 var _ = require('underscore');
@@ -7405,7 +7441,7 @@ _.extend(Symbology.prototype, {
 });
 
 module.exports = Symbology;
-},{"color":4,"underscore":22}],41:[function(require,module,exports){
+},{"color":4,"underscore":22}],42:[function(require,module,exports){
 // units.js
 // Unit configurations
 // Factor is with respect to meters/sqmeters
@@ -7457,4 +7493,4 @@ module.exports = {
     decimals: 2
   }
 };
-},{}]},{},[39]);
+},{}]},{},[40]);
