@@ -31,7 +31,6 @@
     "geocrunch": "^0.1.1",
     "humanize": "0.0.9",
     "i18n-2": "^0.6.3",
-    "leaflet": "^0.7.3",
     "underscore": "^1.7.0"
   },
   "devDependencies": {
@@ -45,6 +44,7 @@
     "grunt-contrib-uglify": "^0.7.0",
     "grunt-jscs": "^1.2.0",
     "grunt-release": "^0.11.0",
+    "leaflet": "^0.7.3",
     "svg2png": "^1.1.0"
   },
   "browserify": {
