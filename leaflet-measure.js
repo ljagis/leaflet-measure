@@ -6778,6 +6778,41 @@ module.exports = {
 };
 
 },{}],37:[function(require,module,exports){
+// pl.js
+// Polish i18n translations
+
+module.exports = {
+  'measure': 'Pomiar',
+  'measureDistancesAndAreas': 'Pomiar odległości i powierzchni',
+  'createNewMeasurement': 'Utwórz nowy pomiar',
+  'startCreating': 'Rozpocznij tworzenie nowego pomiaru poprzez dodanie punktów na mapie',
+  'finishMeasurement': 'Zakończ pomiar',
+  'lastPoint': 'Ostatni punkt',
+  'area': 'Powierzchnia',
+  'perimeter': 'Obwód',
+  'pointLocation': 'Punkt lokalizacji',
+  'areaMeasurement': 'Pomiar powierzchni',
+  'linearMeasurement': 'Pomiar liniowy',
+  'pathDistance': 'Długość ścieżki',
+  'centerOnArea': 'Środek tego obszaru',
+  'centerOnLine': 'Środek tej linii',
+  'centerOnLocation': 'Środek w tej lokalizacji',
+  'cancel': 'Anuluj',
+  'delete': 'Skasuj',
+  'acres': 'akrów',
+  'feet': 'stóp',
+  'kilometers': 'kilometrów',
+  'hectares': 'hektarów',
+  'meters': 'metrów',
+  'miles': 'mil',
+  'sqfeet': 'stóp kwadratowych',
+  'sqmeters': 'metrów kwadratowych',
+  'sqmiles': 'mil kwadratowych',
+  'decPoint': ',',
+  'thousandsSep': '.'
+};
+
+},{}],38:[function(require,module,exports){
 // pt_BR.js
 // portuguese brazillian i18n translations
 
@@ -6812,7 +6847,7 @@ module.exports = {
   'thousandsSep': '.'
 };
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 // en.js
 // portuguese i18n translations
 
@@ -6848,7 +6883,7 @@ module.exports = {
 };
 
 
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 // ru.js
 // Russian i18n translations
 
@@ -6883,7 +6918,7 @@ module.exports = {
   'thousandsSep': ','
 };
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 // tr.js
 // Turkish i18n translations
 
@@ -6918,7 +6953,7 @@ module.exports = {
   'thousandsSep': ','
 };
 
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 (function (global){
 // leaflet-measure.js
 
@@ -6955,6 +6990,7 @@ var i18n = new (require('i18n-2'))({
     'fr': require('./i18n/fr'),
     'it': require('./i18n/it'),
     'nl': require('./i18n/nl'),
+    'pl': require('./i18n/pl'),
     'pt_BR': require('./i18n/pt_BR'),
     'pt_PT': require('./i18n/pt_PT'),
     'ru': require('./i18n/ru'),
@@ -7376,7 +7412,7 @@ L.control.measure = function (options) {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./calc":23,"./dom":24,"./i18n/ca":25,"./i18n/cn":26,"./i18n/da":27,"./i18n/de":28,"./i18n/en":29,"./i18n/en_UK":30,"./i18n/es":31,"./i18n/fa":32,"./i18n/fil_PH":33,"./i18n/fr":34,"./i18n/it":35,"./i18n/nl":36,"./i18n/pt_BR":37,"./i18n/pt_PT":38,"./i18n/ru":39,"./i18n/tr":40,"./mapsymbology":42,"./units":43,"humanize":16,"i18n-2":18,"underscore":22}],42:[function(require,module,exports){
+},{"./calc":23,"./dom":24,"./i18n/ca":25,"./i18n/cn":26,"./i18n/da":27,"./i18n/de":28,"./i18n/en":29,"./i18n/en_UK":30,"./i18n/es":31,"./i18n/fa":32,"./i18n/fil_PH":33,"./i18n/fr":34,"./i18n/it":35,"./i18n/nl":36,"./i18n/pl":37,"./i18n/pt_BR":38,"./i18n/pt_PT":39,"./i18n/ru":40,"./i18n/tr":41,"./mapsymbology":43,"./units":44,"humanize":16,"i18n-2":18,"underscore":22}],43:[function(require,module,exports){
 // mapsymbology.js
 
 var _ = require('underscore');
@@ -7477,7 +7513,7 @@ _.extend(Symbology.prototype, {
 });
 
 module.exports = Symbology;
-},{"color":6,"underscore":22}],43:[function(require,module,exports){
+},{"color":6,"underscore":22}],44:[function(require,module,exports){
 // units.js
 // Unit configurations
 // Factor is with respect to meters/sqmeters
@@ -7529,4 +7565,4 @@ module.exports = {
     decimals: 2
   }
 };
-},{}]},{},[41]);
+},{}]},{},[42]);
