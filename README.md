@@ -153,7 +153,7 @@ Z-index of the marker used to capture measure clicks. Set this value higher than
 
 Locale to translate displayed text.
 
-Available locales include `en` (default), `ca`, `cn`, `da`, `de`, `en_UK`, `es`, `fa`, `fil_PH`, `fr`, `it`, `nl`, `pl`, `pt_BR`, `ru` and `tr`.
+Available locales include `en` (default), `ca`, `cn`, `da`, `de`, `de_CH`, `en_UK`, `es`, `fa`, `fil_PH`, `fr`, `it`, `nl`, `pl`, `pt_BR`, `pt_PT`, `ru` and `tr`.
 
 ### decPoint | thousandsSep
 
