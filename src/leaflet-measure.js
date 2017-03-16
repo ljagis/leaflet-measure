@@ -349,10 +349,14 @@ L.Control.Measure = L.Control.extend({
     if (zoomLink) {
       L.DomEvent.on(zoomLink, 'click', L.DomEvent.stop);
       L.DomEvent.on(zoomLink, 'click', function () {
-        this._map.fitBounds(resultFeature.getBounds(), {
-          padding: [20, 20],
-          maxZoom: 17
-        });
+        if (resultFeature.getBounds) {
+          this._map.fitBounds(resultFeature.getBounds(), {
+            padding: [20, 20],
+            maxZoom: 17
+          });
+        } else if (resultFeature.getLatLng) {
+          this._map.panTo(resultFeature.getLatLng());
+        }
       }, this);
     }
 
@@ -367,7 +371,11 @@ L.Control.Measure = L.Control.extend({
 
     resultFeature.addTo(this._layer);
     resultFeature.bindPopup(popupContainer, this.options.popupOptions);
-    resultFeature.openPopup(resultFeature.getBounds().getCenter());
+    if (resultFeature.getBounds) {
+      resultFeature.openPopup(resultFeature.getBounds().getCenter());
+    } else if (resultFeature.getLatLng) {
+      resultFeature.openPopup(resultFeature.getLatLng());
+    }
   },
   // handle map click during ongoing measurement
   // add new clicked point, update measure layers and results ui
