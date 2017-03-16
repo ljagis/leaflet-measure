@@ -23,7 +23,7 @@
     "polygon",
     "path"
   ],
-  "author": "Brandon Copeland <br@ndoncopeland.com>",
+  "author": "LJA Engineering, Inc - GIS <gisdev@ljaengineering.com>",
   "license": "MIT",
   "dependencies": {
     "brfs": "^1.4.3",
