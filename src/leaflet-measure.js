@@ -301,6 +301,7 @@ L.Control.Measure = L.Control.extend({
       this._measureDrag.setLatLng(evt.latlng);
     }
     this._measureDrag.bringToFront();
+    this._measureCollector.bringToFront();
   },
   // handler for both double click and clicking finish button
   // do final calc and finish out current measure, clear dom and internal state, add permanent map features
