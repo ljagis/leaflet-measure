@@ -115,10 +115,40 @@ Base color to use for map features rendered while actively performing a measurem
 Base color to use for features generated from a completed measurement. Value should be a color represented as a hexadecimal string.
 
 ### popupOptions
-
-`popupOptions: { className: 'leaflet-measure-resultpopup', autoPanPadding: [10, 10] }`
-
+```javascript
+popupOptions: {
+  autoPanPadding: [10, 10] ,
+  className: 'leaflet-measure-resultpopup',
+  pointPopupTemplate : "<h3>Custom Point Popup</h3><%= model.lastCoord.dms.x %><p><%= model.lastCoord.dms.y %>"
+}
+```
 Options applied to the popup of the resulting measure feature. Properties may be any standard Leaflet [popup options](http://leafletjs.com/reference.html#popup-options).
+
+`className: 'leaflet-measure-resultpopup'` applies default leaflet-measure styling for pop-ups.  Indicate own class for custom styling.  (styling does not apply to resultsTemplate).
+
+Popup templates :  
+`pointPopupTemplate` - popup for single points  
+`linePopupTemplate` - popup for lines (2 points)  
+`areaPopupTemplate` - popup for areas  (>2 points)  
+`resultsTemplate` - result section of control popup while measuring
+
+Can customize popup templates using Underscore templating markup.  `<%= model.lastCoord.dms.x %>`  
+Default templates viewable in [src/popuptemplates](/src/popuptemplates).
+
+Model data available for template:  
+- `area`: Area of a polygon measurement in sq meters. 0 for measurements with less than 3 points.
+
+- `areaDisplay`: Area formatted as displayed in the popup.
+
+- `lastCoord`: Last point clicked in both decimal degrees `lastCoord.dd` and degress/min/seconds `lastCoord.dms`
+
+- `length`: Length of the measurement in meters. 0 for measurements with less than 2 points.
+
+- `lengthDisplay`: Length formatted as displayed in the popup.
+
+- `pointCount`: Number of points directly added by the user.
+
+- `points`: Array of points as [`LatLng`](http://leafletjs.com/reference.html#latlng) used to calculate the measurement. Number of items in the array may differ from `pointCount` because an additional point is added to close polygons during polygon measurements.
 
 ### units
 
@@ -154,6 +184,17 @@ Z-index of the marker used to capture measure clicks. Set this value higher than
 Locale to translate displayed text.
 
 Available locales include `en` (default), `ca`, `cn`, `da`, `de`, `de_CH`, `en_UK`, `es`, `fa`, `fil_PH`, `fr`, `it`, `nl`, `pl`, `pt_BR`, `pt_PT`, `ru`, `sv`, and `tr`.
+
+### extendLocales
+
+```javascript
+extendLocales : { en : {'track' : 'Track', 'totalLength' : 'Total Length'},
+                  sv : {'track' : 'Spår', 'totalLength' : 'Total Längd'}}
+```
+
+Adds new words or phrases to locale translations.  If locale file doesn't exist already, will be created.   
+Entries available then for custom popup templates, for example:  `<%= i18n.__('totalLength') %>`     
+i18n is the translation library.
 
 ### decPoint | thousandsSep
 

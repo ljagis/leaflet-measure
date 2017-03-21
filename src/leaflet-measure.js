@@ -64,6 +64,15 @@ L.Control.Measure = L.Control.extend({
     this.options.units = L.extend({}, units, this.options.units);
     this._symbols = new Symbology(_.pick(this.options, 'activeColor', 'completedColor'));
     i18n.setLocale(this.options.localization);
+    if (this.options.extendLocales) {
+      _.each(this.options.extendLocales, function (value, key) {
+        if (key in i18n.locales) {
+          _.extend(i18n.locales[key], value);
+        } else {
+          i18n.locales[key] = value;
+        }
+      });
+    }
   },
   onAdd: function (map) {
     this._map = map;
@@ -286,6 +295,9 @@ L.Control.Measure = L.Control.extend({
     var resultsModel = this._resultsModel = _.extend({}, calced, this._getMeasurementDisplayStrings(calced), {
       pointCount: this._latlngs.length
     });
+    if (this.options.popupOptions.resultsTemplate) {
+      resultsTemplate = _.template(this.options.popupOptions.resultsTemplate);
+    }
     this.$results.innerHTML = resultsTemplate({
       model: resultsModel,
       humanize: humanize,
@@ -318,6 +330,16 @@ L.Control.Measure = L.Control.extend({
     }
 
     calced = calc.measure(latlngs);
+
+    if (this.options.popupOptions.pointPopupTemplate) {
+      pointPopupTemplate = _.template(this.options.popupOptions.pointPopupTemplate);
+    }
+    if (this.options.popupOptions.linePopupTemplate) {
+      linePopupTemplate = _.template(this.options.popupOptions.linePopupTemplate);
+    }
+    if (this.options.popupOptions.areaPopupTemplate) {
+      areaPopupTemplate = _.template(this.options.popupOptions.areaPopupTemplate);
+    }
 
     if (latlngs.length === 1) {
       resultFeature = L.circleMarker(latlngs[0], this._symbols.getSymbol('resultPoint'));
