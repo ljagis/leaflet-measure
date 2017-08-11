@@ -30,7 +30,7 @@
     "color": "^0.8.0",
     "geocrunch": "^0.1.1",
     "humanize": "0.0.9",
-    "i18n-2": "^0.6.3",
+    "i18n-2": "0.7.1",
     "underscore": "^1.7.0"
   },
   "devDependencies": {
