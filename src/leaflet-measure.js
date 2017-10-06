@@ -394,7 +394,9 @@ L.Control.Measure = L.Control.extend({
         // reset all vertexes to non-active class - only last vertex is active
         // `layer.setStyle({ className: 'layer-measurevertex'})` doesn't work. https://github.com/leaflet/leaflet/issues/2662
         // set attribute on path directly
-        layer._path.setAttribute('class', vertexSymbol.className);
+        if (layer._path) {
+          layer._path.setAttribute('class', vertexSymbol.className);
+        }
       });
 
       this._addNewVertex(latlng);
