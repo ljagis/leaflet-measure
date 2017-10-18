@@ -794,6 +794,8 @@ Converter.prototype.getValues = function(space) {
 
 module.exports = convert;
 },{"./conversions":2}],4:[function(require,module,exports){
+'use strict'
+
 module.exports = {
 	"aliceblue": [240, 248, 255],
 	"antiquewhite": [250, 235, 215],
@@ -944,6 +946,7 @@ module.exports = {
 	"yellow": [255, 255, 0],
 	"yellowgreen": [154, 205, 50]
 };
+
 },{}],5:[function(require,module,exports){
 /* MIT license */
 var colorNames = require('color-name');
@@ -4455,6 +4458,10 @@ process.off = noop;
 process.removeListener = noop;
 process.removeAllListeners = noop;
 process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
 
 process.binding = function (name) {
     throw new Error('process.binding is not supported');
@@ -7026,6 +7033,7 @@ module.exports = {
 },{}],44:[function(require,module,exports){
 (function (global){
 // leaflet-measure.js
+console.log('testing grunt');
 
 var _ = require('underscore');
 var L = (typeof window !== "undefined" ? window['L'] : typeof global !== "undefined" ? global['L'] : null);
@@ -7039,11 +7047,11 @@ var $ = dom.$;
 var Symbology = require('./mapsymbology');
 
 
-var controlTemplate = _.template("<a class=\"<%= model.className %>-toggle js-toggle\" href=\"#\" title=\"<%= i18n.__('measureDistancesAndAreas') %>\"><%= i18n.__('measure') %></a>\n<div class=\"<%= model.className %>-interaction js-interaction\">\n  <div class=\"js-startprompt startprompt\">\n    <h3><%= i18n.__('measureDistancesAndAreas') %></h3>\n    <ul class=\"tasks\">\n      <a href=\"#\" class=\"js-start start\"><%= i18n.__('createNewMeasurement') %></a>\n    </ul>\n  </div>\n  <div class=\"js-measuringprompt\">\n    <h3><%= i18n.__('measureDistancesAndAreas') %></h3>\n    <p class=\"js-starthelp\"><%= i18n.__('startCreating') %></p>\n    <div class=\"js-results results\"></div>\n    <ul class=\"js-measuretasks tasks\">\n      <li><a href=\"#\" class=\"js-cancel cancel\"><%= i18n.__('cancel') %></a></li>\n      <li><a href=\"#\" class=\"js-finish finish\"><%= i18n.__('finishMeasurement') %></a></li>\n    </ul>\n  </div>\n</div>");
-var resultsTemplate = _.template("<div class=\"group\">\n<p class=\"lastpoint heading\"><%= i18n.__('lastPoint') %></p>\n<p><%= model.lastCoord.dms.y %> <span class=\"coorddivider\">/</span> <%= model.lastCoord.dms.x %></p>\n<p><%= humanize.numberFormat(model.lastCoord.dd.y, 6) %> <span class=\"coorddivider\">/</span> <%= humanize.numberFormat(model.lastCoord.dd.x, 6) %></p>\n</div>\n<% if (model.pointCount > 1) { %>\n<div class=\"group\">\n<p><span class=\"heading\"><%= i18n.__('pathDistance') %></span> <%= model.lengthDisplay %></p>\n</div>\n<% } %>\n<% if (model.pointCount > 2) { %>\n<div class=\"group\">\n<p><span class=\"heading\"><%= i18n.__('area') %></span> <%= model.areaDisplay %></p>\n</div>\n<% } %>");
-var pointPopupTemplate = _.template("<h3><%= i18n.__('pointLocation') %></h3>\n<p><%= model.lastCoord.dms.y %> <span class=\"coorddivider\">/</span> <%= model.lastCoord.dms.x %></p>\n<p><%= humanize.numberFormat(model.lastCoord.dd.y, 6) %> <span class=\"coorddivider\">/</span> <%= humanize.numberFormat(model.lastCoord.dd.x, 6) %></p>\n<ul class=\"tasks\">\n  <li><a href=\"#\" class=\"js-zoomto zoomto\"><%= i18n.__('centerOnLocation') %></a></li>\n  <li><a href=\"#\" class=\"js-deletemarkup deletemarkup\"><%= i18n.__('delete') %></a></li>\n</ul>");
-var linePopupTemplate = _.template("<h3><%= i18n.__('linearMeasurement') %></h3>\n<p><%= model.lengthDisplay %></p>\n<ul class=\"tasks\">\n  <li><a href=\"#\" class=\"js-zoomto zoomto\"><%= i18n.__('centerOnLine') %></a></li>\n  <li><a href=\"#\" class=\"js-deletemarkup deletemarkup\"><%= i18n.__('delete') %></a></li>\n</ul>");
-var areaPopupTemplate = _.template("<h3><%= i18n.__('areaMeasurement') %></h3>\n<p><%= model.areaDisplay %></p>\n<p><%= model.lengthDisplay %> <%= i18n.__('perimeter') %></p>\n<ul class=\"tasks\">\n  <li><a href=\"#\" class=\"js-zoomto zoomto\"><%= i18n.__('centerOnArea') %></a></li>\n  <li><a href=\"#\" class=\"js-deletemarkup deletemarkup\"><%= i18n.__('delete') %></a></li>\n</ul>");
+var controlTemplate = _.template("<a class=\"<%= model.className %>-toggle js-toggle\" href=\"#\" title=\"<%= i18n.__('measureDistancesAndAreas') %>\"><%= i18n.__('measure') %></a>\r\n<div class=\"<%= model.className %>-interaction js-interaction\">\r\n  <div class=\"js-startprompt startprompt\">\r\n    <h3><%= i18n.__('measureDistancesAndAreas') %></h3>\r\n    <ul class=\"tasks\">\r\n      <a href=\"#\" class=\"js-start start\"><%= i18n.__('createNewMeasurement') %></a>\r\n    </ul>\r\n  </div>\r\n  <div class=\"js-measuringprompt\">\r\n    <h3><%= i18n.__('measureDistancesAndAreas') %></h3>\r\n    <p class=\"js-starthelp\"><%= i18n.__('startCreating') %></p>\r\n    <div class=\"js-results results\"></div>\r\n    <ul class=\"js-measuretasks tasks\">\r\n      <li><a href=\"#\" class=\"js-cancel cancel\"><%= i18n.__('cancel') %></a></li>\r\n      <li><a href=\"#\" class=\"js-finish finish\"><%= i18n.__('finishMeasurement') %></a></li>\r\n    </ul>\r\n  </div>\r\n</div>");
+var resultsTemplate = _.template("<div class=\"group\">\r\n<p class=\"lastpoint heading\"><%= i18n.__('lastPoint') %></p>\r\n<p><%= model.lastCoord.dms.y %> <span class=\"coorddivider\">/</span> <%= model.lastCoord.dms.x %></p>\r\n<p><%= humanize.numberFormat(model.lastCoord.dd.y, 6) %> <span class=\"coorddivider\">/</span> <%= humanize.numberFormat(model.lastCoord.dd.x, 6) %></p>\r\n</div>\r\n<% if (model.pointCount > 1) { %>\r\n<div class=\"group\">\r\n<p><span class=\"heading\"><%= i18n.__('pathDistance') %></span> <%= model.lengthDisplay %></p>\r\n</div>\r\n<% } %>\r\n<% if (model.pointCount > 2) { %>\r\n<div class=\"group\">\r\n<p><span class=\"heading\"><%= i18n.__('area') %></span> <%= model.areaDisplay %></p>\r\n</div>\r\n<% } %>");
+var pointPopupTemplate = _.template("<h3><%= i18n.__('pointLocation') %></h3>\r\n<p><%= model.lastCoord.dms.y %> <span class=\"coorddivider\">/</span> <%= model.lastCoord.dms.x %></p>\r\n<p><%= humanize.numberFormat(model.lastCoord.dd.y, 6) %> <span class=\"coorddivider\">/</span> <%= humanize.numberFormat(model.lastCoord.dd.x, 6) %></p>\r\n<ul class=\"tasks\">\r\n  <li><a href=\"#\" class=\"js-zoomto zoomto\"><%= i18n.__('centerOnLocation') %></a></li>\r\n  <li><a href=\"#\" class=\"js-deletemarkup deletemarkup\"><%= i18n.__('delete') %></a></li>\r\n</ul>");
+var linePopupTemplate = _.template("<h3><%= i18n.__('linearMeasurement') %></h3>\r\n<p><%= model.lengthDisplay %></p>\r\n<ul class=\"tasks\">\r\n  <li><a href=\"#\" class=\"js-zoomto zoomto\"><%= i18n.__('centerOnLine') %></a></li>\r\n  <li><a href=\"#\" class=\"js-deletemarkup deletemarkup\"><%= i18n.__('delete') %></a></li>\r\n</ul>");
+var areaPopupTemplate = _.template("<h3><%= i18n.__('areaMeasurement') %></h3>\r\n<p><%= model.areaDisplay %></p>\r\n<p><%= model.lengthDisplay %> <%= i18n.__('perimeter') %></p>\r\n<ul class=\"tasks\">\r\n  <li><a href=\"#\" class=\"js-zoomto zoomto\"><%= i18n.__('centerOnArea') %></a></li>\r\n  <li><a href=\"#\" class=\"js-deletemarkup deletemarkup\"><%= i18n.__('delete') %></a></li>\r\n</ul>");
 
 var i18n = new (require('i18n-2'))({
   devMode: false,
@@ -7070,16 +7078,36 @@ var i18n = new (require('i18n-2'))({
   }
 });
 
+// Object.prototype.clone = Array.prototype.clone = function () {
+//   if (Object.prototype.toString.call(this) === '[object Array]') {
+//     var clone = [];
+//     for (var i=0; i<this.length; i++) {
+//       clone[i] = this[i].clone();
+//     }
+//     return clone;
+//   } else if (typeof (this) === 'object') {
+//     var clone2 = {};
+//     for (var prop in this) {
+//       if (this.hasOwnProperty(prop)) {
+//         clone2[prop] = this[prop].clone();
+//       }
+//     }
+//     return clone2;
+//   } else {
+//     return this;
+//   }
+// };
+
 L.Control.Measure = L.Control.extend({
   _className: 'leaflet-control-measure',
   options: {
     units: {},
     position: 'topright',
     primaryLengthUnit: 'feet',
-    secondaryLengthUnit: 'miles',
+    // secondaryLengthUnit: 'miles',
     primaryAreaUnit: 'acres',
     activeColor: '#ABE67E',     // base color for map features while actively measuring
-    completedColor: '#C8F2BE',  // base color for permenant features generated from completed measure
+    completedColor: '#74acbd',//'#C8F2BE',  // base color for permenant features generated from completed measure
     captureZIndex: 10000,       // z-index of the marker used to capture measure events
     popupOptions: {             // standard leaflet popup options http://leafletjs.com/reference.html#popup-options
       className: 'leaflet-measure-resultpopup',
@@ -7097,7 +7125,9 @@ L.Control.Measure = L.Control.extend({
     this._latlngs = [];
     this._initLayout();
     map.on('click', this._collapse, this);
+    console.log('onAdd running');
     this._layer = L.layerGroup().addTo(map);
+    console.log('onAdd still running');
     return this._container;
   },
   onRemove: function (map) {
@@ -7192,6 +7222,11 @@ L.Control.Measure = L.Control.extend({
   // get state vars and interface ready for measure
   _startMeasure: function () {
     this._locked = true;
+    // this._lengthsLayerGroup = new L.layerGroup().addTo(this._layer);
+    // this._measureLengths = L.featureGroup().addTo(this._lengthsLayerGroup);
+    this._measureLengths = L.featureGroup().addTo(this._layer);
+    this._measureLengths2 = L.featureGroup(); //.addTo(this._lengthsLayerGroup);
+
     this._measureVertexes = L.featureGroup().addTo(this._layer);
     this._captureMarker = L.marker(this._map.getCenter(), {
       clickable: true,
@@ -7307,6 +7342,48 @@ L.Control.Measure = L.Control.extend({
         humanize.numberFormat(val, 0, decPoint || i18n.__('decPoint'), thousandsSep || i18n.__('thousandsSep'));
     }
   },
+  // format measurements to nice display string based on units in options
+  // `{ lengthDisplay: '100 Feet (0.02 Miles)', areaDisplay: ... }`
+  _getShorterMeasurementDisplayStrings: function (measurement) {
+    var unitDefinitions = this.options.units;
+
+    return {
+      lengthDisplay: buildDisplay(measurement.length, this.options.primaryLengthUnit, this.options.secondaryLengthUnit, '.', this.options.thousandsSep)
+      // areaDisplay: buildDisplay(measurement.area, this.options.primaryAreaUnit, this.options.secondaryAreaUnit, this.options.decPoint, this.options.thousandsSep)
+    };
+
+    function buildDisplay (val, primaryUnit, secondaryUnit, decPoint, thousandsSep) {
+      // console.log('val', val);
+      // console.log('primaryUnit', primaryUnit);
+      // console.log('secondaryUnit', secondaryUnit);
+      // console.log('decPoint', decPoint);
+      // console.log('thousandsSep', thousandsSep);
+      var display;
+      if (primaryUnit && unitDefinitions[primaryUnit]) {
+        // console.log('choosing first path, unitDefinitions[primaryUnit]:', unitDefinitions[primaryUnit]);
+        display = formatMeasure(val, unitDefinitions[primaryUnit], decPoint, thousandsSep);
+        if (secondaryUnit && unitDefinitions[secondaryUnit]) {
+          // console.log('choosing second path');
+          display = display + ' (' +  formatMeasure(val, unitDefinitions[secondaryUnit], decPoint, thousandsSep) + ')';
+        }
+      } else {
+        // console.log('choosing third path');
+        display = formatMeasure(val, null, decPoint, thousandsSep);
+      }
+      return display;
+    }
+
+    function formatMeasure (val, unit, decPoint, thousandsSep) {
+      unit.decimals = 2;
+      unit.display = 'ft';
+      // console.log('unit', unit);
+      var finalAnswer;
+      finalAnswer = unit && unit.factor && unit.display ?
+        humanize.numberFormat(val * unit.factor, unit.decimals || 0, decPoint || i18n.__('decPoint'), thousandsSep || i18n.__('thousandsSep')) + ' ' + i18n.__([unit.display]) || unit.display :
+        humanize.numberFormat(val, 0, decPoint || i18n.__('decPoint'), thousandsSep || i18n.__('thousandsSep'));
+      return finalAnswer;
+    }
+  },
   // update results area of dom with calced measure from `this._latlngs`
   _updateResults: function () {
     var calced = calc.measure(this._latlngs);
@@ -7329,10 +7406,38 @@ L.Control.Measure = L.Control.extend({
     }
     this._measureDrag.bringToFront();
   },
+
   // handler for both double click and clicking finish button
   // do final calc and finish out current measure, clear dom and internal state, add permanent map features
   _handleMeasureDoubleClick: function () {
     var latlngs = this._latlngs, calced, resultFeature, popupContainer, popupContent, zoomLink, deleteLink;
+    var layerLengthsAndShapeGroup = L.layerGroup();
+    // this._measureLengths2.addTo(layerLengthsAndShapeGroup); //this._lengthsLayerGroup;
+    // console.log('lengthsLayerGroup', layerLengthsAndShapeGroup);
+    var measureLengths2 = this._measureLengths2;
+    console.log('measureLengths2', measureLengths2);
+    var measureLengths = this._measureLengths;
+    console.log('measureLengths', measureLengths);
+    // var measureLengths2 = this._measureLengths2;
+    // var layerLengthsAndShapeGroup = new L.layerGroup();//.addTo(this._layer);
+    // var center3;
+    // var calced3;
+    // for (var layer in measureLengths._layers) {
+    //   if (layer) {
+    //     center3 = measureLengths._layers[layer]._latlng;
+    //     calced3 = measureLengths._layers[layer].options.icon.options.html;//.replace(' ft', '');
+    //     // console.log('calced3', calced3);
+    //     // console.log('layer1:', measureLengths._layers[layer], 'layer._latlng1:', measureLengths._layers[layer]._latlng, 'layer._icon1._innerText:', measureLengths._layers[layer]._icon._innerText);
+    //     // console.log('layer:', layer, 'layer._latlng:', layer._latlng, 'layer._icon:', layer._icon);
+    //     this._addNewLengthNotation(center3, calced3).addTo(layerLengthsAndShapeGroup);
+    //   }
+    // }
+    // console.log('layerLengthsAndShapeGroup', layerLengthsAndShapeGroup);
+    // console.log('this._lengthsLayerGroup', this._lengthsLayerGroup);
+    // this._layer.remove(this._lengthsLayerGroup);
+    this._layer.remove(this._measureLengths);
+    this._measureLengths2.addTo(this._layer);
+    // layerLengthsAndShapeGroup.addTo(this._layer);
 
     this._finishMeasure();
 
@@ -7341,7 +7446,16 @@ L.Control.Measure = L.Control.extend({
     }
 
     if (latlngs.length > 2) {
-      latlngs.push(_.first(latlngs)); // close path to get full perimeter measurement for areas
+      latlngs.push(_.first(latlngs));
+      var count = latlngs.length;
+      var previousLatLng = latlngs[count-2];
+      var lastLatLng = latlngs[count-1];
+      console.log(previousLatLng, lastLatLng);
+      var bounds = L.latLngBounds(previousLatLng, lastLatLng);
+      var center = bounds.getCenter();
+      var pair = [previousLatLng, lastLatLng];
+      var calced2 = calc.measure(pair);
+      this._addNewLengthNotation(center, calced2).addTo(this._measureLengths2);
     }
 
     calced = calc.measure(latlngs);
@@ -7392,11 +7506,21 @@ L.Control.Measure = L.Control.extend({
       L.DomEvent.on(deleteLink, 'click', L.DomEvent.stop);
       L.DomEvent.on(deleteLink, 'click', function () {
         // TODO. maybe remove any event handlers on zoom and delete buttons?
-        this._layer.removeLayer(resultFeature);
+        // this._layer.removeLayer(resultFeature);
+        // this._measureLengths.clearLayers();
+        console.log('removing layerLengthsAndShapeGroup:', layerLengthsAndShapeGroup);
+        this._layer.remove(layerLengthsAndShapeGroup);
       }, this);
     }
 
-    resultFeature.addTo(this._layer);
+    console.log('measureLengths2', measureLengths2);
+    console.log('measureLengths', measureLengths);
+    // resultFeature.addTo(this._layer);
+    // resultFeature.addTo(this._lengthsLayerGroup);
+    // resultFeature.addTo(layerLengthsAndShapeGroup);
+    // console.log('layerLengthsAndShapeGroup', layerLengthsAndShapeGroup);
+    // layerLengthsAndShapeGroup.addTo(this._layer);
+    // console.log('layerLengthsAndShapeGroup', layerLengthsAndShapeGroup);
     resultFeature.bindPopup(popupContainer, this.options.popupOptions);
     if (resultFeature.getBounds) {
       resultFeature.openPopup(resultFeature.getBounds().getCenter());
@@ -7409,6 +7533,7 @@ L.Control.Measure = L.Control.extend({
   _handleMeasureClick: function (evt) {
     var latlng = this._map.mouseEventToLatLng(evt.originalEvent), // get actual latlng instead of the marker's latlng from originalEvent
       lastClick = _.last(this._latlngs),
+      firstClick = _.first(this._latlngs),
       vertexSymbol = this._symbols.getSymbol('measureVertex');
 
     if (!lastClick || !latlng.equals(lastClick)) { // skip if same point as last click, happens on `dblclick`
@@ -7426,15 +7551,43 @@ L.Control.Measure = L.Control.extend({
 
       this._addNewVertex(latlng);
 
-      if (this._measureBoundary) {
-        this._measureBoundary.bringToFront();
-      }
-      this._measureVertexes.bringToFront();
+      // if (this._measureBoundary) {
+      //   this._measureBoundary.bringToFront();
+      // }
+      // this._measureVertexes.bringToFront();
+    }
+
+    if (firstClick) {
+      var count = this._latlngs.length;
+      var previousLatLng = this._latlngs[count-2];
+      // console.log('previousLatLng:', previousLatLng);
+      var bounds = L.latLngBounds(previousLatLng, latlng);
+      var center = bounds.getCenter();
+      var pair = [previousLatLng, latlng];
+      var calced = calc.measure(pair);
+      this._addNewLengthNotation(center, calced).addTo(this._measureLengths);
+      this._addNewLengthNotation(center, calced).addTo(this._measureLengths2);
     }
 
     this._updateResults();
     this._updateMeasureStartedWithPoints();
   },
+
+  _addNewLengthNotation: function (latlng, calced) {
+    var answer = this._getShorterMeasurementDisplayStrings(calced);
+    // console.log('answer', answer);
+    var myIcon = L.divIcon({
+      className: 'my-div-icon',
+      // html: '<span>'+answer.lengthDisplay+'</span>'
+      html: answer.lengthDisplay
+    });
+    // you can set .my-div-icon styles in CSS
+    return L.marker(latlng, {
+      icon: myIcon
+    });//.addTo(this._measureLengths);
+    // }).addTo(this._map);
+  },
+
   // handle map mouse out during ongoing measure
   // remove floating cursor vertex from map
   _handleMapMouseOut: function () {
