@@ -14,10 +14,13 @@ module.exports = {
   'areaMeasurement': 'Area measurement',
   'linearMeasurement': 'Linear measurement',
   'pathDistance': 'Path distance',
+  'totalDistance': 'Total distance',
+  'lengths': 'Lengths',
   'centerOnArea': 'Center on this area',
   'centerOnLine': 'Center on this line',
   'centerOnLocation': 'Center on this location',
   'cancel': 'Cancel',
+  'undo': 'Undo',
   'delete': 'Delete',
   'acres': 'Acres',
   'feet': 'Feet',
@@ -29,5 +32,6 @@ module.exports = {
   'sqmeters': 'Sq Meters',
   'sqmiles': 'Sq Miles',
   'decPoint': '.',
-  'thousandsSep': ','
+  'thousandsSep': ',',
+  'coord': 'Coordinate'
 };

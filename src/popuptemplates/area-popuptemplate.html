@@ -1,6 +1,90 @@
 <h3><%= i18n.__('areaMeasurement') %></h3>
-<p><%= model.areaDisplay %></p>
-<p><%= model.lengthDisplay %> <%= i18n.__('perimeter') %></p>
+<!-- <p><%= model.areaDisplay %></p> -->
+<!-- <p><%= model.lengthDisplay %> <%= i18n.__('perimeter') %></p> -->
+<!-- <% if (model.pointCount > 1) { %>
+<div class="group">
+<p>
+  <span class="heading"><%= i18n.__('lengths') %></span><br>
+  <% for (i=0; i < model.lengths.length; i++) { %>
+    <div>
+      <%= model.lengths[i] %>
+    </div>
+  <% } %>
+</p>
+</div>
+<% } %> -->
+
+<!-- <% if (model.pointCount > 1) { %>
+<div class="group">
+<table>
+  <tr>
+    <th>Lat</th>
+    <th>Lng</th>
+    <th><span class="heading"><%= i18n.__('lengths') %>:</span></th>
+  <tr>
+  <% for (i=0; i < model.lengths.length; i++) { %>
+    <div>
+      <%= model.lengths[i] %>
+    </div>
+  <% } %>
+</table>
+</div>
+<% } %> -->
+
+<!-- <% if (model.pointCount > 1) { %>
+<div class="group">
+<p>
+  <span class="heading"><%= i18n.__('lengths') %>:</span><br>
+  <% for (i=0; i < model.lengths.length; i++) { %>
+    <div>
+      <%= model.lengths[i] %>
+    </div>
+  <% } %>
+</p>
+</div>
+<% } %> -->
+
+<% if (model.pointCount > 0) { %>
+  <div class="group">
+    <p>
+      <table>
+        <tr>
+          <th style="padding-left:5px; padding-right:5px; text-align:center"><span class="heading">Lat</span></th>
+          <th style="padding-left:5px; padding-right:5px; text-align:center"><span class="heading">Lon</span></th>
+          <th style="padding-left:5px; padding-right:5px; text-align:center"><span class="heading">Length (ft)</span></th>
+        <tr>
+
+          <% for (i=0; i < model.points.length; i++) { %>
+            <tr>
+              <td style="padding-left:5px; padding-right:5px">
+                <%= humanize.numberFormat(model.points[i].lat, 6) %>
+              </td>
+              <td style="padding-left:5px; padding-right:5px">
+                <%= humanize.numberFormat(model.points[i].lng, 6) %>
+              </td>
+              <td style="padding-left:5px; padding-right:5px">
+                  <%= model.lengths[i-1] %>
+              </td>
+            </tr>
+          <% } %>
+
+      </table>
+    </p>
+  </div>
+<% } %>
+
+<% if (model.pointCount > 1) { %>
+<div class="group">
+<p><span class="heading"><%= i18n.__('totalDistance') %>: </span> <%= model.lengthDisplay %></p>
+</div>
+<% } %>
+<% if (model.pointCount > 2) { %>
+<br>
+<div class="group">
+<p><span class="heading"><%= i18n.__('area') %>: </span> <%= model.areaDisplay %></p>
+</div>
+<% } %>
+
 <ul class="tasks">
   <li><a href="#" class="js-zoomto zoomto"><%= i18n.__('centerOnArea') %></a></li>
   <li><a href="#" class="js-deletemarkup deletemarkup"><%= i18n.__('delete') %></a></li>
