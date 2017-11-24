@@ -794,6 +794,8 @@ Converter.prototype.getValues = function(space) {
 
 module.exports = convert;
 },{"./conversions":2}],4:[function(require,module,exports){
+'use strict'
+
 module.exports = {
 	"aliceblue": [240, 248, 255],
 	"antiquewhite": [250, 235, 215],
@@ -944,6 +946,7 @@ module.exports = {
 	"yellow": [255, 255, 0],
 	"yellowgreen": [154, 205, 50]
 };
+
 },{}],5:[function(require,module,exports){
 /* MIT license */
 var colorNames = require('color-name');
@@ -4455,6 +4458,10 @@ process.off = noop;
 process.removeListener = noop;
 process.removeAllListeners = noop;
 process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
 
 process.binding = function (name) {
     throw new Error('process.binding is not supported');

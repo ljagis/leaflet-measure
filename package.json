@@ -2,7 +2,7 @@
   "name": "leaflet-measure",
   "version": "2.1.7",
   "description": "Coordinate, linear, and area measure tool for Leaflet maps",
-  "main": "src/leaflet-measure.js",
+  "main": "dist/leaflet-measure.min.js",
   "scripts": {
     "test": "grunt test",
     "build": "grunt build"
