@@ -59,7 +59,7 @@ module.exports = function (grunt) {
         options: {
           sourcemap: 'none',
           style: 'compressed',
-          compass: false
+          compass: true
         },
         files: {
           'dist/leaflet-measure.css': 'scss/leaflet-measure.scss'
@@ -69,7 +69,7 @@ module.exports = function (grunt) {
         options: {
           sourcemap: 'auto',
           style: 'expanded',
-          compass: false
+          compass: true
         },
         files: {
           'dist/leaflet-measure.css': 'scss/leaflet-measure.scss'
