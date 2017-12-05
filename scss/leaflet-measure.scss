@@ -140,6 +140,14 @@ $color-lightertext: #999;
       background-size: 12px 12px;
     }
   }
+  a.undo {
+    @include iconleading;
+    background-image: url(images/undo.png);
+    .leaflet-retina & {
+      background-image: url(images/undo_@2X.png);
+      background-size: 12px 12px;
+    }
+  }
   a.finish {
     @include iconleading;
     background-image: url(images/check.png);
@@ -167,4 +175,13 @@ $color-lightertext: #999;
       background-size: 11px 12px;
     }
   }
+}
+
+.my-div-icon {
+  /*background-color: white;*/
+  /*border: 1px solid #666;*/
+  width: 100px !important;
+  height: 16px !important;
+  font-weight: bold !important;
+  color: #ee5353 !important;
 }

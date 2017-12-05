@@ -38,6 +38,12 @@
       height: 500px;
       margin-top: 20px;
     }
+    /*.my-div-icon {
+      width: 100px !important;
+      height: 16px !important;
+      font-weight: bold !important;
+    }*/
+    
   </style>
 </head>
 <body>
@@ -45,18 +51,29 @@
   <p class="github"><a href="//github.com/ljagis/leaflet-measure">github.com/ljagis/leaflet-measure</a></p>
   <div id="map"></div>
   <script src="http://cdn.leafletjs.com/leaflet/v1.0.3/leaflet.js"></script>
+  <script src="//unpkg.com/esri-leaflet@2.0.7"></script>
   <script src="../dist/leaflet-measure.js"></script>
   <script>
   (function (L) {
     var map = L.map('map', {
       measureControl: true,
       layersControl: true
-    }).setView([29.7491289, -95.0807104], 16);
-    L.tileLayer('//server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      minZoom: 14,
-      maxZoom: 18,
-      attribution: '&copy; Esri &mdash; Sources: Esri, DigitalGlobe, Earthstar Geographics, CNES/Airbus DS, GeoEye, USDA FSA, USGS, Getmapping, Aerogrid, IGN, IGP, swisstopo, and the GIS User Community'
+    }).setView([39.953338, -75.163471], 16);
+    L.esri.tiledMapLayer({
+      url: '//tiles.arcgis.com/tiles/fLeGjb7u4uXqeF9q/arcgis/rest/services/CityBasemap/MapServer'
     }).addTo(map);
+    // L.tileLayer('//server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    //   minZoom: 14,
+    //   maxZoom: 18,
+    //   attribution: '&copy; Esri &mdash; Sources: Esri, DigitalGlobe, Earthstar Geographics, CNES/Airbus DS, GeoEye, USDA FSA, USGS, Getmapping, Aerogrid, IGN, IGP, swisstopo, and the GIS User Community'
+    // }).addTo(map);
+    // var myIcon = L.divIcon({
+    //   className: 'my-div-icon',
+    //   html: 'testing'
+    // });
+    // // you can set .my-div-icon styles in CSS
+    // L.marker([39.953338, -75.163471], {icon: myIcon}).addTo(map);
+
   })(window.L);
   </script>
 </body>

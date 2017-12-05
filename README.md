@@ -4,15 +4,15 @@ Coordinate, linear, and area measure control for [Leaflet](http://leafletjs.com)
 
 <hr>
 
-## [Demo](http://ljagis.github.io/leaflet-measure)
+## [Demo](http://ajrothwell.github.io/leaflet-measure)
 
-[![Demo](https://raw.githubusercontent.com/ljagis/leaflet-measure/master/example/leaflet-measure-demo.jpg)](http://ljagis.github.io/leaflet-measure)
+[![Demo](https://raw.githubusercontent.com/ajrothwell/leaflet-measure/master/example/leaflet-measure-demo.jpg)](http://ajrothwell.github.io/leaflet-measure)
 
 <hr>
 
 ## Install Options
 
-- Clone.. `git clone https://github.com/ljagis/leaflet-measure.git`
+- Clone.. `git clone https://github.com/ajrothwell/leaflet-measure.git`
 
 - Install with [Bower](http://bower.io/).. `bower install leaflet-measure`
 

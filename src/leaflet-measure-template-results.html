@@ -1,11 +1,33 @@
+<% if (model.pointCount > 0) { %>
+  <div class="group">
+    <table>
+      <tr>
+        <th style="padding-left:5px; padding-right:5px">Lat</th>
+        <th style="padding-left:5px; padding-right:5px">Lon</th>
+        <th style="padding-left:5px; padding-right:5px">Length (ft)</th>
+      <tr>
+
+        <% for (i=0; i < model.points.length; i++) { %>
+          <tr>
+            <td style="padding-left:5px; padding-right:5px">
+              <%= humanize.numberFormat(model.points[i].lat, 6) %>
+            </td>
+            <td style="padding-left:5px; padding-right:5px">
+              <%= humanize.numberFormat(model.points[i].lng, 6) %>
+            </td>
+            <td style="padding-left:5px; padding-right:5px">
+                <%= model.lengths[i-1] %>
+            </td>
+          </tr>
+        <% } %>
+
+    </table>
+  </div>
+<% } %>
+
+<% if (model.pointCount > 0) { %>
 <div class="group">
-<p class="lastpoint heading"><%= i18n.__('lastPoint') %></p>
-<p><%= model.lastCoord.dms.y %> <span class="coorddivider">/</span> <%= model.lastCoord.dms.x %></p>
-<p><%= humanize.numberFormat(model.lastCoord.dd.y, 6) %> <span class="coorddivider">/</span> <%= humanize.numberFormat(model.lastCoord.dd.x, 6) %></p>
-</div>
-<% if (model.pointCount > 1) { %>
-<div class="group">
-<p><span class="heading"><%= i18n.__('pathDistance') %></span> <%= model.lengthDisplay %></p>
+<p><span class="heading"><%= i18n.__('totalDistance') %></span> <%= model.lengthDisplay %></p>
 </div>
 <% } %>
 <% if (model.pointCount > 2) { %>
