@@ -39,7 +39,8 @@ var i18n = new (require('i18n-2'))({
     'pt_PT': require('./i18n/pt_PT'),
     'ru': require('./i18n/ru'),
     'sv': require('./i18n/sv'),
-    'tr': require('./i18n/tr')
+    'tr': require('./i18n/tr'),
+    'hu': require('./i18n/hu')
   }
 });
 
