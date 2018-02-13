@@ -2,7 +2,7 @@
 // Unit configurations
 // Factor is with respect to meters/sqmeters
 
-module.exports = {
+export default {
   acres: {
     factor: 0.00024711,
     display: 'acres',

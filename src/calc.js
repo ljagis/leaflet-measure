@@ -1,32 +1,35 @@
 // calc.js
 // measure calculations
 
-var _ = require('underscore');
-var geocrunch = require('geocrunch');
+import * as _ from 'lodash';
+import * as geocrunch from 'geocrunch';
 
-var pad = function (num) {
+function pad(num) {
   return num < 10 ? '0' + num.toString() : num.toString();
-};
+}
 
-var ddToDms = function (coordinate, posSymbol, negSymbol) {
-  var dd = Math.abs(coordinate),
-      d = Math.floor(dd),
-      m = Math.floor((dd - d) * 60),
-      s = Math.round((dd - d - (m/60)) * 3600 * 100)/100,
-      directionSymbol = dd === coordinate ? posSymbol : negSymbol;
-  return pad(d) + '&deg; ' + pad(m) + '\' ' + pad(s) + '" ' + directionSymbol;
-};
+function ddToDms(coordinate, posSymbol, negSymbol) {
+  const dd = Math.abs(coordinate),
+    d = Math.floor(dd),
+    m = Math.floor((dd - d) * 60),
+    s = Math.round((dd - d - m / 60) * 3600 * 100) / 100,
+    directionSymbol = dd === coordinate ? posSymbol : negSymbol;
+  return pad(d) + '&deg; ' + pad(m) + "' " + pad(s) + '" ' + directionSymbol;
+}
 
-var measure = function (latlngs) {
-  var last = _.last(latlngs);
-  var path = geocrunch.path(_.map(latlngs, function (latlng) {
-    return [latlng.lng, latlng.lat];
-  }));
+// `calc(latLngArray)` - returns object with calced measurements for passed points
+export default function calc(latlngs) {
+  const last = _.last(latlngs);
+  const path = geocrunch.path(
+    _.map(latlngs, function(latlng) {
+      return [latlng.lng, latlng.lat];
+    })
+  );
 
-  var meters = path.distance({
+  const meters = path.distance({
     units: 'meters'
   });
-  var sqMeters = path.area({
+  const sqMeters = path.area({
     units: 'sqmeters'
   });
 
@@ -44,8 +47,4 @@ var measure = function (latlngs) {
     length: meters,
     area: sqMeters
   };
-};
-
-module.exports = {
-  measure: measure // `measure(latLngArray)` - returns object with calced measurements for passed points
-};
+}

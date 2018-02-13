@@ -72,7 +72,7 @@ $color-lightertext: #999;
     height: 36px;
     background-position: 50% 50%;
     background-repeat: no-repeat;
-    background-image: url(images/rulers.png);
+    background-image: url(assets/rulers.png);
     border-radius: 5px;
 
     // Hide text
@@ -81,7 +81,7 @@ $color-lightertext: #999;
     overflow: hidden;
 
     .leaflet-retina & {
-      background-image: url(images/rulers_@2X.png);
+      background-image: url(assets/rulers_@2X.png);
       background-size: 16px 16px;
     }
 
@@ -126,25 +126,25 @@ $color-lightertext: #999;
 
   a.start {
     @include iconleading;
-    background-image: url(images/start.png);
+    background-image: url(assets/start.png);
     .leaflet-retina & {
-      background-image: url(images/start_@2X.png);
+      background-image: url(assets/start_@2X.png);
       background-size: 12px 12px;
     }
   }
   a.cancel {
     @include iconleading;
-    background-image: url(images/cancel.png);
+    background-image: url(assets/cancel.png);
     .leaflet-retina & {
-      background-image: url(images/cancel_@2X.png);
+      background-image: url(assets/cancel_@2X.png);
       background-size: 12px 12px;
     }
   }
   a.finish {
     @include iconleading;
-    background-image: url(images/check.png);
+    background-image: url(assets/check.png);
     .leaflet-retina & {
-      background-image: url(images/check_@2X.png);
+      background-image: url(assets/check_@2X.png);
       background-size: 12px 12px;
     }
   }
@@ -153,17 +153,17 @@ $color-lightertext: #999;
 .leaflet-measure-resultpopup {
   a.zoomto {
     @include iconleading;
-    background-image: url(images/focus.png);
+    background-image: url(assets/focus.png);
     .leaflet-retina & {
-      background-image: url(images/focus_@2X.png);
+      background-image: url(assets/focus_@2X.png);
       background-size: 12px 12px;
     }
   }
   a.deletemarkup {
     @include iconleading;
-    background-image: url(images/trash.png);
+    background-image: url(assets/trash.png);
     .leaflet-retina & {
-      background-image: url(images/trash_@2X.png);
+      background-image: url(assets/trash_@2X.png);
       background-size: 11px 12px;
     }
   }

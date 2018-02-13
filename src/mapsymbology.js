@@ -1,25 +1,22 @@
-// mapsymbology.js
+import * as _ from 'lodash';
+import * as color from 'color';
 
-var _ = require('underscore');
-
-var color = require('color');
-
-var Symbology = function (options) {
+const Symbology = function(options) {
   this.setOptions(options);
 };
 
 Symbology.DEFAULTS = {
-  activeColor: '#ABE67E',    // base color for map features while actively measuring
-  completedColor: '#C8F2BE'  // base color for permenant features generated from completed measure
+  activeColor: '#ABE67E', // base color for map features while actively measuring
+  completedColor: '#C8F2BE' // base color for permenant features generated from completed measure
 };
 
 _.extend(Symbology.prototype, {
-  setOptions: function (options) {
+  setOptions: function(options) {
     this._options = _.extend({}, Symbology.DEFAULTS, this._options, options);
     return this;
   },
-  getSymbol: function (name) {
-    var symbols = {
+  getSymbol: function(name) {
+    const symbols = {
       measureDrag: {
         clickable: false,
         radius: 4,
@@ -97,4 +94,4 @@ _.extend(Symbology.prototype, {
   }
 });
 
-module.exports = Symbology;
+export { Symbology };
