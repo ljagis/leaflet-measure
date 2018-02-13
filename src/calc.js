@@ -1,8 +1,8 @@
 // calc.js
 // measure calculations
 
-import * as _ from 'lodash';
-import * as geocrunch from 'geocrunch';
+import length from '@turf/length';
+import area from '@turf/area';
 
 function pad(num) {
   return num < 10 ? '0' + num.toString() : num.toString();
@@ -17,21 +17,14 @@ function ddToDms(coordinate, posSymbol, negSymbol) {
   return pad(d) + '&deg; ' + pad(m) + "' " + pad(s) + '" ' + directionSymbol;
 }
 
-// `calc(latLngArray)` - returns object with calced measurements for passed points
+/* calc measurements for an array of points */
 export default function calc(latlngs) {
-  const last = _.last(latlngs);
-  const path = geocrunch.path(
-    _.map(latlngs, function(latlng) {
-      return [latlng.lng, latlng.lat];
-    })
-  );
+  const last = latlngs[latlngs.length - 1];
+  const path = latlngs.map(latlng => [latlng.lat, latlng.lng]);
 
-  const meters = path.distance({
-    units: 'meters'
-  });
-  const sqMeters = path.area({
-    units: 'sqmeters'
-  });
+  const polyline = L.polyline(path), polygon = L.polygon(path);
+  const meters = length(polyline.toGeoJSON(), { units: 'kilometers' }) * 1000;
+  const sqMeters = area(polygon.toGeoJSON());
 
   return {
     lastCoord: {

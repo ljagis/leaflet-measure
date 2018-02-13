@@ -27,8 +27,9 @@
   "author": "LJA Engineering, Inc - GIS <gisdev@ljaengineering.com>",
   "license": "MIT",
   "dependencies": {
+    "@turf/area": "^5.1.5",
+    "@turf/length": "^5.1.5",
     "color": "^3.0.0",
-    "geocrunch": "^0.1.1",
     "humanize": "^0.0.9",
     "lodash": "^4.17.5"
   },
