@@ -65,7 +65,6 @@ L.Control.Measure = L.Control.extend({
   _initLayout: function() {
     const className = this._className,
       container = (this._container = L.DomUtil.create('div', className));
-    let $toggle, $start, $cancel, $finish;
 
     container.innerHTML = controlTemplateCompiled({
       model: {
@@ -78,11 +77,11 @@ L.Control.Measure = L.Control.extend({
     L.DomEvent.disableClickPropagation(container);
     L.DomEvent.disableScrollPropagation(container);
 
-    $toggle = this.$toggle = $('.js-toggle', container); // collapsed content
+    const $toggle = (this.$toggle = $('.js-toggle', container)); // collapsed content
     this.$interaction = $('.js-interaction', container); // expanded content
-    $start = $('.js-start', container); // start button
-    $cancel = $('.js-cancel', container); // cancel button
-    $finish = $('.js-finish', container); // finish button
+    const $start = $('.js-start', container); // start button
+    const $cancel = $('.js-cancel', container); // cancel button
+    const $finish = $('.js-finish', container); // finish button
     this.$startPrompt = $('.js-startprompt', container); // full area with button to start measurment
     this.$measuringPrompt = $('.js-measuringprompt', container); // full area with all stuff for active measurement
     this.$startHelp = $('.js-starthelp', container); // "Start creating a measurement by adding points"
@@ -321,7 +320,7 @@ L.Control.Measure = L.Control.extend({
   // do final calc and finish out current measure, clear dom and internal state, add permanent map features
   _handleMeasureDoubleClick: function() {
     const latlngs = this._latlngs;
-    let calced, resultFeature, popupContainer, popupContent, zoomLink, deleteLink;
+    let resultFeature, popupContent;
 
     this._finishMeasure();
 
@@ -333,7 +332,7 @@ L.Control.Measure = L.Control.extend({
       latlngs.push(latlngs[0]); // close path to get full perimeter measurement for areas
     }
 
-    calced = calc(latlngs);
+    const calced = calc(latlngs);
 
     if (latlngs.length === 1) {
       resultFeature = L.circleMarker(latlngs[0], this._symbols.getSymbol('resultPoint'));
@@ -352,10 +351,10 @@ L.Control.Measure = L.Control.extend({
       });
     }
 
-    popupContainer = L.DomUtil.create('div', '');
+    const popupContainer = L.DomUtil.create('div', '');
     popupContainer.innerHTML = popupContent;
 
-    zoomLink = $('.js-zoomto', popupContainer);
+    const zoomLink = $('.js-zoomto', popupContainer);
     if (zoomLink) {
       L.DomEvent.on(zoomLink, 'click', L.DomEvent.stop);
       L.DomEvent.on(
@@ -375,7 +374,7 @@ L.Control.Measure = L.Control.extend({
       );
     }
 
-    deleteLink = $('.js-deletemarkup', popupContainer);
+    const deleteLink = $('.js-deletemarkup', popupContainer);
     if (deleteLink) {
       L.DomEvent.on(deleteLink, 'click', L.DomEvent.stop);
       L.DomEvent.on(
