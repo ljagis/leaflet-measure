@@ -8,6 +8,7 @@ const I18nPlugin = require('i18n-webpack-plugin');
 const BUILD_DIR = resolve(__dirname, 'dist');
 
 const copyAssets = new CopyPlugin([{ from: './assets', to: 'assets', ignore: '*.svg' }]);
+const copySite = new CopyPlugin([{ from: './example', to: './' }]);
 
 const extractSass = new ExtractTextPlugin({ filename: 'leaflet-measure.css' });
 
@@ -57,6 +58,6 @@ module.exports = Object.keys(languages).map(language => {
     module: {
       rules: [jsLoader, htmlLoader, scssLoader]
     },
-    plugins: [copyAssets, extractSass, new I18nPlugin(languages[language])]
+    plugins: [copySite, copyAssets, extractSass, new I18nPlugin(languages[language])]
   };
 });
