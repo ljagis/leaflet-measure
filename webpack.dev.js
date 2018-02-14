@@ -8,9 +8,29 @@ const BUILD_DIR = resolve(__dirname, 'dist');
 
 const copyAssets = new CopyPlugin([{ from: './assets', to: 'assets', ignore: '*.svg' }]);
 
-const extractSass = new ExtractTextPlugin({
-  filename: 'leaflet-measure.css'
-});
+const extractSass = new ExtractTextPlugin({ filename: 'leaflet-measure.css' });
+
+const htmlLoader = {
+  test: /\.html$/,
+  use: { loader: 'html-loader?interpolate' }
+};
+
+const scssLoader = {
+  test: /\.scss$/,
+  use: extractSass.extract({
+    use: [
+      {
+        loader: 'css-loader',
+        options: { sourceMap: true, url: false }
+      },
+      {
+        loader: 'sass-loader',
+        options: { sourceMap: true }
+      }
+    ],
+    fallback: 'style-loader'
+  })
+};
 
 const devLanguage = require('./languages/en.json');
 
@@ -22,28 +42,7 @@ module.exports = {
     publicPath: '/dist/'
   },
   module: {
-    rules: [
-      {
-        test: /\.html$/,
-        use: { loader: 'html-loader?interpolate' }
-      },
-      {
-        test: /\.scss$/,
-        use: extractSass.extract({
-          use: [
-            {
-              loader: 'css-loader',
-              options: { sourceMap: true, url: false }
-            },
-            {
-              loader: 'sass-loader',
-              options: { sourceMap: true }
-            }
-          ],
-          fallback: 'style-loader'
-        })
-      }
-    ]
+    rules: [htmlLoader, scssLoader]
   },
   plugins: [copyAssets, extractSass, new I18nPlugin(devLanguage)],
   devtool: 'eval-source-map'
