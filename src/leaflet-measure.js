@@ -64,7 +64,7 @@ L.Control.Measure = L.Control.extend({
   },
   _initLayout: function() {
     const className = this._className,
-      container = (this._container = L.DomUtil.create('div', className));
+      container = (this._container = L.DomUtil.create('div', `${className} leaflet-bar`));
 
     container.innerHTML = controlTemplateCompiled({
       model: {

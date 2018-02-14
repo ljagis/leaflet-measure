@@ -21,9 +21,20 @@ $button-icon-spacing: 4px;
   }
 }
 
-@mixin iconleading ($icon) {
-  padding-left: 18px;
+@mixin button ($icon) {
+  display: inline;
+  width: auto;
+  height: auto;
+  padding-left: 20px;
   margin-right: $button-icon-spacing;
+  line-height: 1em;
+  border: 0;
+  text-align: left;
+  color: $color-button;
+  &,
+  &:hover {
+    background-color: transparent;
+  }
   background: {
     image: url('assets/#{ $icon }.png');
     repeat: no-repeat;
@@ -33,6 +44,8 @@ $button-icon-spacing: 4px;
   .leaflet-retina & {
     background-image: url('assets/#{ $icon }_@2X.png');
   }
+
+  @include hoverbutton;
 }
 
 .leaflet-control-measure,
@@ -40,9 +53,6 @@ $button-icon-spacing: 4px;
   h3 {
     margin: 0 0 $spacing-external 0;
     padding-bottom: $spacing-internal;
-    line-height: 1em;
-    font-weight: normal;
-    font-size: 1.1em;
     border-bottom: solid 1px $color-divider;
   }
   p {
@@ -51,9 +61,6 @@ $button-icon-spacing: 4px;
     &:first-child {
       margin-top: 0;
     }
-  }
-  a {
-    @include hoverbutton;
   }
   .tasks {
     margin: $spacing-external 0 0 0;
@@ -81,27 +88,18 @@ $button-icon-spacing: 4px;
 .leaflet-control-measure {
   max-width: $max-width;
   background: #fff;
-  border-radius: 4px;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
-
-  .leaflet-touch & {
-    border: 2px solid rgba(0, 0, 0, 0.2);
-    background-clip: padding-box;
-    box-shadow: none;
-  }
 
   .leaflet-control-measure-toggle,
   .leaflet-control-measure-toggle:hover {
-    display: block;
-    width: 26px;
-    height: 26px;
     background: {
       size: 14px 14px;
-      position: 50% 50%;
-      repeat: no-repeat;
       image: url(assets/rulers.png);
     }
-    border-radius: 2px;
+    border: 0;
+    border-radius: 4px;
+    .leaflet-touch & {
+      border-radius: 2px;
+    }
 
     // Hide text
     text-indent: 100%;
@@ -113,8 +111,6 @@ $button-icon-spacing: 4px;
     }
 
     .leaflet-touch & {
-      width: 30px;
-      height: 30px;
       background-size: 16px 16px;
     }
   }
@@ -154,21 +150,21 @@ $button-icon-spacing: 4px;
   }
 
   a.start {
-    @include iconleading(start);
+    @include button(start);
   }
   a.cancel {
-    @include iconleading(cancel);
+    @include button(cancel);
   }
   a.finish {
-    @include iconleading(check);
+    @include button(check);
   }
 }
 
 .leaflet-measure-resultpopup {
   a.zoomto {
-    @include iconleading(focus);
+    @include button(focus);
   }
   a.deletemarkup {
-    @include iconleading(trash);
+    @include button(trash);
   }
 }
