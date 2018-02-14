@@ -4,9 +4,9 @@
   "description": "Coordinate, linear, and area measure tool for Leaflet maps",
   "main": "src/leaflet-measure.js",
   "scripts": {
-    "test": "grunt test",
-    "build": "webpack",
-    "start:dev": "webpack-dev-server --open --config webpack.dev.js"
+    "build": "webpack --config webpack.prod.js -p",
+    "start:dev": "webpack-dev-server --open --config webpack.dev.js",
+    "prepublish": "yarn build"
   },
   "repository": {
     "type": "git",
@@ -29,14 +29,17 @@
   "dependencies": {
     "@turf/area": "^5.1.5",
     "@turf/length": "^5.1.5",
-    "color": "^3.0.0",
-    "humanize": "^0.0.9",
     "lodash": "^4.17.5"
   },
   "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.1",
+    "babel-runtime": "^6.26.0",
     "copy-webpack-plugin": "^4.4.1",
     "css-loader": "^0.28.9",
     "extract-text-webpack-plugin": "^3.0.2",
+    "glob": "^7.1.2",
     "html-loader": "^0.5.5",
     "i18n-webpack-plugin": "^1.0.0",
     "node-sass": "^4.7.2",

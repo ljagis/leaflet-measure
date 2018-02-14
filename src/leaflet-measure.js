@@ -1,16 +1,13 @@
 import '../scss/leaflet-measure.scss';
 
-import * as _ from 'lodash';
-_.templateSettings.interpolate = /{{([\s\S]+?)}}/g; // mustache
-
-import * as humanize from 'humanize';
+import template from 'lodash/template';
 
 import units from './units';
 import calc from './calc';
 import * as dom from './dom';
 import { selectOne as $ } from './dom';
-
-import { Symbology } from './mapsymbology';
+import Symbology from './symbology';
+import { numberFormat } from './utils';
 
 import {
   controlTemplate,
@@ -19,6 +16,16 @@ import {
   linePopupTemplate,
   areaPopupTemplate
 } from './templates';
+
+const templateSettings = {
+  imports: { numberFormat },
+  interpolate: /{{([\s\S]+?)}}/g // mustache
+};
+const controlTemplateCompiled = template(controlTemplate, templateSettings);
+const resultsTemplateCompiled = template(resultsTemplate, templateSettings);
+const pointPopupTemplateCompiled = template(pointPopupTemplate, templateSettings);
+const linePopupTemplateCompiled = template(linePopupTemplate, templateSettings);
+const areaPopupTemplateCompiled = template(areaPopupTemplate, templateSettings);
 
 L.Control.Measure = L.Control.extend({
   _className: 'leaflet-control-measure',
@@ -39,9 +46,9 @@ L.Control.Measure = L.Control.extend({
   },
   initialize: function(options) {
     L.setOptions(this, options);
+    const { activeColor, completedColor } = this.options;
+    this._symbols = new Symbology({ activeColor, completedColor });
     this.options.units = L.extend({}, units, this.options.units);
-    this._symbols = new Symbology(_.pick(this.options, 'activeColor', 'completedColor'));
-    // Globalize.locale(this.options.localization || 'en');
   },
   onAdd: function(map) {
     this._map = map;
@@ -60,7 +67,7 @@ L.Control.Measure = L.Control.extend({
       container = (this._container = L.DomUtil.create('div', className));
     let $toggle, $start, $cancel, $finish;
 
-    container.innerHTML = _.template(controlTemplate)({
+    container.innerHTML = controlTemplateCompiled({
       model: {
         className: className
       }
@@ -165,9 +172,7 @@ L.Control.Measure = L.Control.extend({
   },
   // return to state with no measure in progress, undo `this._startMeasure`
   _finishMeasure: function() {
-    const model = _.extend({}, this._resultsModel, {
-      points: this._latlngs
-    });
+    const model = L.extend({}, this._resultsModel, { points: this._latlngs });
 
     this._locked = false;
 
@@ -276,21 +281,21 @@ L.Control.Measure = L.Control.extend({
         sqmiles: __('sqmiles')
       };
 
-      const u = _.extend({ factor: 1, decimals: 0 }, unit);
-      const formattedNumber = humanize.numberFormat(
+      const u = L.extend({ factor: 1, decimals: 0 }, unit);
+      const formattedNumber = numberFormat(
         val * u.factor,
         u.decimals,
         decPoint || __('decPoint'),
         thousandsSep || __('thousandsSep')
       );
-      const label = _.get(unitDisplays, u.display, u.display);
+      const label = unitDisplays[u.display] || u.display;
       return [formattedNumber, label].join(' ');
     }
   },
   // update results area of dom with calced measure from `this._latlngs`
   _updateResults: function() {
     const calced = calc(this._latlngs);
-    const resultsModel = (this._resultsModel = L.extend(
+    const model = (this._resultsModel = L.extend(
       {},
       calced,
       this._getMeasurementDisplayStrings(calced),
@@ -298,10 +303,7 @@ L.Control.Measure = L.Control.extend({
         pointCount: this._latlngs.length
       }
     ));
-    this.$results.innerHTML = _.template(resultsTemplate)({
-      model: resultsModel,
-      humanize: humanize
-    });
+    this.$results.innerHTML = resultsTemplateCompiled({ model });
   },
   // mouse move handler while measure in progress
   // adds floating measure marker under cursor
@@ -328,28 +330,25 @@ L.Control.Measure = L.Control.extend({
     }
 
     if (latlngs.length > 2) {
-      latlngs.push(_.first(latlngs)); // close path to get full perimeter measurement for areas
+      latlngs.push(latlngs[0]); // close path to get full perimeter measurement for areas
     }
 
     calced = calc(latlngs);
 
     if (latlngs.length === 1) {
       resultFeature = L.circleMarker(latlngs[0], this._symbols.getSymbol('resultPoint'));
-      popupContent = _.template(pointPopupTemplate)({
-        model: calced,
-        humanize: humanize
+      popupContent = pointPopupTemplateCompiled({
+        model: calced
       });
     } else if (latlngs.length === 2) {
       resultFeature = L.polyline(latlngs, this._symbols.getSymbol('resultLine'));
-      popupContent = _.template(linePopupTemplate)({
-        model: _.extend({}, calced, this._getMeasurementDisplayStrings(calced)),
-        humanize: humanize
+      popupContent = linePopupTemplateCompiled({
+        model: L.extend({}, calced, this._getMeasurementDisplayStrings(calced))
       });
     } else {
       resultFeature = L.polygon(latlngs, this._symbols.getSymbol('resultArea'));
-      popupContent = _.template(areaPopupTemplate)({
-        model: _.extend({}, calced, this._getMeasurementDisplayStrings(calced)),
-        humanize: humanize
+      popupContent = areaPopupTemplateCompiled({
+        model: L.extend({}, calced, this._getMeasurementDisplayStrings(calced))
       });
     }
 
@@ -402,7 +401,7 @@ L.Control.Measure = L.Control.extend({
   // add new clicked point, update measure layers and results ui
   _handleMeasureClick: function(evt) {
     const latlng = this._map.mouseEventToLatLng(evt.originalEvent), // get actual latlng instead of the marker's latlng from originalEvent
-      lastClick = _.last(this._latlngs),
+      lastClick = this._latlngs[this._latlngs.length - 1],
       vertexSymbol = this._symbols.getSymbol('measureVertex');
 
     if (!lastClick || !latlng.equals(lastClick)) {

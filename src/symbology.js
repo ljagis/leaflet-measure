@@ -1,21 +1,14 @@
-import * as _ from 'lodash';
-import * as color from 'color';
-
-const Symbology = function(options) {
-  this.setOptions(options);
+const DEFAULT_OPTIONS = {
+  activeColor: '#ABE67E',
+  completedColor: '#C8F2BE'
 };
 
-Symbology.DEFAULTS = {
-  activeColor: '#ABE67E', // base color for map features while actively measuring
-  completedColor: '#C8F2BE' // base color for permenant features generated from completed measure
-};
+export default class Symbology {
+  constructor(options) {
+    this._options = L.extend({}, DEFAULT_OPTIONS, this._options, options);
+  }
 
-_.extend(Symbology.prototype, {
-  setOptions: function(options) {
-    this._options = _.extend({}, Symbology.DEFAULTS, this._options, options);
-    return this;
-  },
-  getSymbol: function(name) {
+  getSymbol(name) {
     const symbols = {
       measureDrag: {
         clickable: false,
@@ -58,8 +51,8 @@ _.extend(Symbology.prototype, {
         color: this._options.activeColor,
         weight: 2,
         opacity: 1,
-        fillColor: color(this._options.activeColor).darken(0.15),
-        fillOpacity: 0.7,
+        fillColor: this._options.activeColor,
+        fillOpacity: 1,
         className: 'layer-measurevertex active'
       },
       resultArea: {
@@ -92,6 +85,4 @@ _.extend(Symbology.prototype, {
     };
     return symbols[name];
   }
-});
-
-export { Symbology };
+}
