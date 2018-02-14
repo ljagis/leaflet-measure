@@ -26,11 +26,17 @@
     "build": "webpack --config webpack.prod.js -p",
     "start:dev": "webpack-dev-server --open --config webpack.dev.js",
     "precommit": "lint-staged",
-    "prepublish": "yarn build"
+    "prepublish": "yarn build",
+    "ghpages": "yarn build && gh-pages -d dist"
   },
   "lint-staged": {
-    "*.js": ["eslint"],
-    "*.{js,scss}": ["prettier --write", "git add"]
+    "*.js": [
+      "eslint"
+    ],
+    "*.{js,scss}": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "dependencies": {
     "@turf/area": "^5.1.5",
@@ -47,6 +53,7 @@
     "eslint": "^4.17.0",
     "eslint-plugin-import": "^2.8.0",
     "extract-text-webpack-plugin": "^3.0.2",
+    "gh-pages": "^1.1.0",
     "glob": "^7.1.2",
     "html-loader": "^0.5.5",
     "husky": "^0.14.3",
