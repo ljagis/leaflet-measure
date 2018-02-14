@@ -1,0 +1,18 @@
+<a class="{{ model.className }}-toggle js-toggle" href="#" title="${ __('measureDistancesAndAreas') }">${ __('measure') }</a>
+<div class="{{ model.className }}-interaction js-interaction">
+  <div class="js-startprompt startprompt">
+    <h3>${ __('measureDistancesAndAreas') }</h3>
+    <ul class="tasks">
+      <a href="#" class="js-start start">${ __('createNewMeasurement') }</a>
+    </ul>
+  </div>
+  <div class="js-measuringprompt">
+    <h3>${ __('measureDistancesAndAreas') }</h3>
+    <p class="js-starthelp">${ __('startCreating') }</p>
+    <div class="js-results results"></div>
+    <ul class="js-measuretasks tasks">
+      <li><a href="#" class="js-cancel cancel">${ __('cancel') }</a></li>
+      <li><a href="#" class="js-finish finish">${ __('finishMeasurement') }</a></li>
+    </ul>
+  </div>
+</div>

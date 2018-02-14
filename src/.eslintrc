@@ -1,0 +1,17 @@
+# .eslintrc
+extends: "../.eslintrc"
+parserOptions:
+  sourceType: module
+env:
+  browser: true
+globals:
+  L: true
+  __: true
+rules:
+  no-multiple-empty-lines:
+    - error
+    - max: 1
+  no-var:
+    - error
+  prefer-const:
+    - error
