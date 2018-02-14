@@ -4,52 +4,18 @@ Coordinate, linear, and area measure control for [Leaflet](http://leafletjs.com)
 
 <hr>
 
+
 ## [Demo](http://ljagis.github.io/leaflet-measure)
 
-[![Demo](https://raw.githubusercontent.com/ljagis/leaflet-measure/master/example/leaflet-measure-demo.jpg)](http://ljagis.github.io/leaflet-measure)
+TODO. Screenshot
 
 <hr>
 
-## Install Options
 
-- Clone.. `git clone https://github.com/ljagis/leaflet-measure.git`
+## Usage
 
-- Install with [Bower](http://bower.io/).. `bower install leaflet-measure`
+TODO. Add usage
 
-- Install with [npm](https://www.npmjs.com/).. `npm install leaflet-measure`
-
-## Use bundled `leaflet-measure.min.js` or `leaflet-measure.js`
-
-Include the [Leaflet Source](http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js), `leaflet-measure.min.js`, and associated CSS stylesheets in your HTML page
-
-```html
-<!doctype HTML>
-<html>
-<head>
-  <meta charset="utf-8">
-  <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css">
-  <link rel="stylesheet" href="leaflet-measure.css">
-</head>
-<body>
-  <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
-  <script src="leaflet-measure.min.js"></script>
-  <script>
-    // Start creating maps
-  </script>
-</body>
-</html>
-```
-
-## Use with [npm](https://www.npmjs.com/)
-
-```javascript
-var L = require('leaflet');
-require('leaflet-measure');
-
-// Start creating maps
-```
-
-<hr>
 
 ## Add control to a Leaflet map
 
@@ -77,6 +43,7 @@ var myMap = L.map('mapElementId', {
 ```
 
 <hr>
+
 
 ## Control options
 
@@ -147,14 +114,6 @@ Define units as
 
 Z-index of the marker used to capture measure clicks. Set this value higher than the z-index of all other map layers to disable click events on other layers while a measurement is active.
 
-### localization
-
-`{ localization: 'en' }`
-
-Locale to translate displayed text.
-
-Available locales include `en` (default), `ca`, `cn`, `da`, `de`, `de_CH`, `en_UK`, `es`, `fa`, `fil_PH`, `fr`, `it`, `nl`, `pl`, `pt_BR`, `pt_PT`, `ru`, `sv`, and `tr`.
-
 ### decPoint | thousandsSep
 
 `{ decPoint: '.', thousandsSep: ',' }`
@@ -162,6 +121,7 @@ Available locales include `en` (default), `ca`, `cn`, `da`, `de`, `de_CH`, `en_U
 Decimal point and thousands separator used when displaying measurements. If not specified, values are defined by the localization.
 
 <hr>
+
 
 ## Events
 
@@ -191,6 +151,7 @@ Fired when measurement finishes with results of the measurement. Results data in
 
 <hr>
 
+
 ## Customizing map feature styles
 
 Map features may be styled using CSS SVG style attributes. Features generated from `leaflet-measure` measurements are given the following class names:
@@ -208,3 +169,10 @@ Map features may be styled using CSS SVG style attributes. Features generated fr
 - **layer-measure-resultline**: Feature added to the map as a permanent layer resulting from a linear (2 point) measurement
 
 - **layer-measure-resultpoint**: Featured added to the map as a permanent layer resulting from a point (single click) measurement
+
+<hr>
+
+
+## Internationalization
+
+TODO. Internationalization
