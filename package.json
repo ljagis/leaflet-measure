@@ -26,7 +26,7 @@
     "build": "webpack --config webpack.prod.js -p",
     "start:dev": "webpack-dev-server --open --config webpack.dev.js",
     "precommit": "lint-staged",
-    "prepublish": "yarn build",
+    "prepare": "yarn build",
     "ghpages": "yarn build && gh-pages -d dist"
   },
   "lint-staged": {
