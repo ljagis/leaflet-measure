@@ -2,7 +2,7 @@
   "name": "leaflet-measure",
   "version": "3.0.1",
   "description": "Coordinate, linear, and area measure tool for Leaflet maps",
-  "main": "src/leaflet-measure.js",
+  "main": "dist/leaflet-measure.js",
   "repository": {
     "type": "git",
     "url": "git://github.com/ljagis/leaflet-measure.git"
@@ -26,7 +26,7 @@
     "build": "webpack --config webpack.prod.js -p",
     "start:dev": "webpack-dev-server --open --config webpack.dev.js",
     "precommit": "lint-staged",
-    "prepare": "yarn build",
+    "prepublishOnly": "yarn build",
     "ghpages": "yarn build && gh-pages -d dist"
   },
   "lint-staged": {
