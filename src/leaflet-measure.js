@@ -57,7 +57,8 @@ L.Control.Measure = L.Control.extend({
     popupOptions: {             // standard leaflet popup options http://leafletjs.com/reference.html#popup-options
       className: 'leaflet-measure-resultpopup',
       autoPanPadding: [10, 10]
-    }
+    },
+    distanceOnly: false
   },
   initialize: function (options) {
     L.setOptions(this, options);
@@ -85,7 +86,8 @@ L.Control.Measure = L.Control.extend({
       model: {
         className: className
       },
-      i18n: i18n
+      i18n: i18n,
+      distanceOnly: this.options.distanceOnly
     });
 
     // copied from leaflet
@@ -289,7 +291,8 @@ L.Control.Measure = L.Control.extend({
     this.$results.innerHTML = resultsTemplate({
       model: resultsModel,
       humanize: humanize,
-      i18n: i18n
+      i18n: i18n,
+      distanceOnly: this.options.distanceOnly
     });
   },
   // mouse move handler while measure in progress
@@ -313,7 +316,7 @@ L.Control.Measure = L.Control.extend({
       return;
     }
 
-    if (latlngs.length > 2) {
+    if (latlngs.length > 2 && !this.options.distanceOnly) {
       latlngs.push(_.first(latlngs)); // close path to get full perimeter measurement for areas
     }
 
@@ -326,7 +329,7 @@ L.Control.Measure = L.Control.extend({
         humanize: humanize,
         i18n: i18n
       });
-    } else if (latlngs.length === 2) {
+    } else if (latlngs.length === 2 || this.options.distanceOnly) {
       resultFeature = L.polyline(latlngs, this._symbols.getSymbol('resultLine'));
       popupContent = linePopupTemplate({
         model: _.extend({}, calced, this._getMeasurementDisplayStrings(calced)),
@@ -428,10 +431,12 @@ L.Control.Measure = L.Control.extend({
       }
       return;
     }
-    if (!this._measureArea) {
-      this._measureArea = L.polygon(latlngs, this._symbols.getSymbol('measureArea')).addTo(this._layer);
-    } else {
-      this._measureArea.setLatLngs(latlngs);
+    if (!this.options.distanceOnly) {
+      if (!this._measureArea) {
+        this._measureArea = L.polygon(latlngs, this._symbols.getSymbol('measureArea')).addTo(this._layer);
+      } else {
+        this._measureArea.setLatLngs(latlngs);
+      }
     }
   },
   _addMeasureBoundary: function (latlngs) {
