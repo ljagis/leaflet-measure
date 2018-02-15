@@ -26,7 +26,7 @@
     "build": "webpack --config webpack.prod.js -p",
     "start:dev": "webpack-dev-server --open --config webpack.dev.js",
     "precommit": "lint-staged",
-    "prepublish": "yarn build",
+    "prepare": "yarn build",
     "release": "npm-release",
     "release:patch": "npm-release patch",
     "release:minor": "npm-release minor",
