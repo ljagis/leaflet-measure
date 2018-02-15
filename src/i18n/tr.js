@@ -3,6 +3,7 @@
 
 module.exports = {
   'measure': 'Hesapla',
+  'measureDistances': 'Uzaklık hesapla',
   'measureDistancesAndAreas': 'Uzaklık ve alan hesapla',
   'createNewMeasurement': 'Yeni hesaplama',
   'startCreating': 'Yeni nokta ekleyerek hesaplamaya başla',

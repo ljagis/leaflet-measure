@@ -3,6 +3,7 @@
 
 module.exports = {
   'measure': 'Sukat',
+  'measureDistances': 'Kalkulahin ang tamang distansya',
   'measureDistancesAndAreas': 'Kalkulahin ang tamang distansya at sukat',
   'createNewMeasurement': 'Lumikha ng isang bagong pagsukat',
   'startCreating': 'Simulan ang paglikha ng isang pagsukat sa pamamagitan ng pagdaragdag ng mga puntos sa mapa',

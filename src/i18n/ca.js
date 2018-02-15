@@ -3,6 +3,7 @@
 
 module.exports = {
   'measure': 'Medir',
+  'measureDistances': 'Medeix distancies',
   'measureDistancesAndAreas': 'Medeix distancies i àreas',
   'createNewMeasurement': 'Crear nova medicio',
   'startCreating': 'Començi a crear la medicio afegint punts al mapa',

@@ -3,6 +3,7 @@
 
 module.exports = {
   'measure': 'Mäta',
+  'measureDistances': 'Mäta avstånd',
   'measureDistancesAndAreas': 'Mäta avstånd och yta',
   'createNewMeasurement': 'Skapa ny mätning',
   'startCreating': 'Börja mätning genom att lägga till punkter på kartan',

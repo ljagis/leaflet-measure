@@ -3,6 +3,7 @@
 
 module.exports = {
   'measure': 'Mesure',
+  'measureDistances': 'Mesurer les distances',
   'measureDistancesAndAreas': 'Mesurer les distances et superficies',
   'createNewMeasurement': 'Créer une nouvelle mesure',
   'startCreating': 'Débuter la création d\'une nouvelle mesure en ajoutant des points sur la carte',

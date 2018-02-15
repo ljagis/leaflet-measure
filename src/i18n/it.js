@@ -3,6 +3,7 @@
 
 module.exports = {
   'measure': 'Misura',
+  'measureDistances': 'Misura distanze',
   'measureDistancesAndAreas': 'Misura distanze e aree',
   'createNewMeasurement': 'Crea una nuova misurazione',
   'startCreating': 'Comincia a creare una misurazione aggiungendo punti alla mappa',

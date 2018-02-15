@@ -1,8 +1,9 @@
-// en.js
+// pt_PT.js
 // portuguese i18n translations
 
 module.exports = {
   'measure': 'Medições',
+  'measureDistances': 'Medir distâncias',
   'measureDistancesAndAreas': 'Medir distâncias e áreas',
   'createNewMeasurement': 'Criar uma nova medição',
   'startCreating': 'Adicione pontos no mapa, para criar uma nova medição',

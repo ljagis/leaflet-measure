@@ -3,6 +3,7 @@
 
 module.exports = {
   'measure': '测量',
+  'measureDistances': '测量距离',
   'measureDistancesAndAreas': '同时测量距离和面积',
   'createNewMeasurement': '开始一次新的测量',
   'startCreating': '点击地图加点以开始创建测量',

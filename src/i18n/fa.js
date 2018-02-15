@@ -3,6 +3,7 @@
 
 module.exports = {
   'measure': 'اندازه گیری',
+  'measureDistances': 'اندازه گیری فاصله',
   'measureDistancesAndAreas': 'اندازه گیری فاصله و مساحت',
   'createNewMeasurement': 'ثبت اندازه گیری جدید',
   'startCreating': 'برای ثبت اندازه گیری جدید نقاطی را به نقشه اضافه کنید.',

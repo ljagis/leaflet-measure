@@ -3,6 +3,7 @@
 
 module.exports = {
   'measure': 'Mål',
+  'measureDistances': 'Mål afstande',
   'measureDistancesAndAreas': 'Mål afstande og arealer',
   'createNewMeasurement': 'Lav en ny måling',
   'startCreating': 'Begynd målingen ved at tilføje punkter på kortet',
