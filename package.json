@@ -27,6 +27,10 @@
     "start:dev": "webpack-dev-server --open --config webpack.dev.js",
     "precommit": "lint-staged",
     "prepublish": "yarn build",
+    "release": "npm-release",
+    "release:patch": "npm-release patch",
+    "release:minor": "npm-release minor",
+    "release:major": "npm-release major",
     "ghpages": "yarn build && gh-pages -d dist"
   },
   "lint-staged": {
@@ -60,6 +64,7 @@
     "i18n-webpack-plugin": "^1.0.0",
     "lint-staged": "^6.1.0",
     "node-sass": "^4.7.2",
+    "npm-release": "^1.0.0",
     "prettier": "^1.10.2",
     "sass-loader": "^6.0.6",
     "style-loader": "^0.20.1",
