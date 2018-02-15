@@ -1,0 +1,94 @@
+<!doctype HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>leaflet-measure</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ==" crossorigin=""/>
+  <link rel="stylesheet" href="leaflet-measure.css">
+  <style>
+    body {
+      font-size: 14px;
+      font-family: Helvetica, sans-serif;
+      font-weight: 400;
+      line-height: 1;
+      color: #222;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+    body {
+      margin: 0 20px 20px;
+    }
+    h1, h2 {
+      margin: 20px 0 0;
+      font-size: 1.4em;
+      font-weight: normal;
+      line-height: 1;
+    }
+    h1 {
+      display: inline-block;
+      font-size: 1.4em;
+    }
+    h2 {
+      font-size: 1.1em;
+    }
+    pre {
+      line-height: 1.5em;
+    }
+    p.github {
+      display: inline-block;
+      margin: 20px 0 0 20px;
+      font-size: 1.2em;
+    }
+    a, a:visited, a:hover, a:active, a:focus {
+      text-decoration: none;
+    }
+    #map {
+      height: 500px;
+      margin: 20px 20px 0 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>leaflet-measure</h1>
+  <p class="github"><a href="//github.com/ljagis/leaflet-measure">github.com/ljagis/leaflet-measure</a></p>
+  <div id="map"></div>
+  <h2><code>measurefinish</code> event data:</h2>
+  <pre id="eventoutput">...</pre>
+  <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js" integrity="sha512-/Nsx9X4HebavoBvEBuyp3I7od5tA0UzAxs+j83KgC8PU0kgB4XiK4Lfe4y4cgBtaRJQEIFCW+oC506aPT2L1zw==" crossorigin=""></script>
+  <script src="leaflet-measure.js"></script>
+  <script>
+    (function(L, document) {
+      var map = L.map('map', {
+        center: [29.749817, -95.080757],
+        zoom: 16,
+        measureControl: true
+      });
+      L.tileLayer('//server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        minZoom: 14,
+        maxZoom: 18,
+        attribution: '&copy; Esri &mdash; Sources: Esri, DigitalGlobe, Earthstar Geographics, CNES/Airbus DS, GeoEye, USDA FSA, USGS, Getmapping, Aerogrid, IGN, IGP, swisstopo, and the GIS User Community'
+      }).addTo(map);
+
+      map.on('measurefinish', function(evt) {
+        writeResults(evt);
+      });
+
+      function writeResults(results) {
+        document.getElementById('eventoutput').innerHTML = JSON.stringify(
+          {
+            area: results.area,
+            areaDisplay: results.areaDisplay,
+            lastCoord: results.lastCoord,
+            length: results.length,
+            lengthDisplay: results.lengthDisplay,
+            pointCount: results.pointCount,
+            points: results.points
+          },
+          null,
+          2
+        );
+      }
+    })(window.L, window.document);
+  </script>
+</body>
+</html>
