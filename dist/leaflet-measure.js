@@ -794,6 +794,8 @@ Converter.prototype.getValues = function(space) {
 
 module.exports = convert;
 },{"./conversions":2}],4:[function(require,module,exports){
+'use strict'
+
 module.exports = {
 	"aliceblue": [240, 248, 255],
 	"antiquewhite": [250, 235, 215],
@@ -944,6 +946,7 @@ module.exports = {
 	"yellow": [255, 255, 0],
 	"yellowgreen": [154, 205, 50]
 };
+
 },{}],5:[function(require,module,exports){
 /* MIT license */
 var colorNames = require('color-name');
@@ -4455,6 +4458,10 @@ process.off = noop;
 process.removeListener = noop;
 process.removeAllListeners = noop;
 process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
 
 process.binding = function (name) {
     throw new Error('process.binding is not supported');
@@ -6363,6 +6370,7 @@ module.exports = {
 
 module.exports = {
   'measure': 'Medir',
+  'measureDistances': 'Medeix distancies',
   'measureDistancesAndAreas': 'Medeix distancies i àreas',
   'createNewMeasurement': 'Crear nova medicio',
   'startCreating': 'Començi a crear la medicio afegint punts al mapa',
@@ -6398,6 +6406,7 @@ module.exports = {
 
 module.exports = {
   'measure': '测量',
+  'measureDistances': '测量距离',
   'measureDistancesAndAreas': '同时测量距离和面积',
   'createNewMeasurement': '开始一次新的测量',
   'startCreating': '点击地图加点以开始创建测量',
@@ -6433,6 +6442,7 @@ module.exports = {
 
 module.exports = {
   'measure': 'Mål',
+  'measureDistances': 'Mål afstande',
   'measureDistancesAndAreas': 'Mål afstande og arealer',
   'createNewMeasurement': 'Lav en ny måling',
   'startCreating': 'Begynd målingen ved at tilføje punkter på kortet',
@@ -6468,6 +6478,7 @@ module.exports = {
 
 module.exports = {
   'measure': 'Messung',
+  'measureDistances': 'Messung von Abständen',
   'measureDistancesAndAreas': 'Messung von Abständen und Flächen',
   'createNewMeasurement': 'Eine neue Messung durchführen',
   'startCreating': 'Führen Sie die Messung durch, indem Sie der Karte Punkte hinzufügen.',
@@ -6503,6 +6514,7 @@ module.exports = {
 
 module.exports = {
   'measure': 'Messung',
+  'measureDistances': 'Abstände messen',
   'measureDistancesAndAreas': 'Abstände und Flächen messen',
   'createNewMeasurement': 'Eine neue Messung durchführen',
   'startCreating': 'Messen sie, indem Sie der Karte Punkte hinzufügen',
@@ -6538,6 +6550,7 @@ module.exports = {
 
 module.exports = {
   'measure': 'Measure',
+  'measureDistances': 'Measure distances',
   'measureDistancesAndAreas': 'Measure distances and areas',
   'createNewMeasurement': 'Create a new measurement',
   'startCreating': 'Start creating a measurement by adding points to the map',
@@ -6573,6 +6586,7 @@ module.exports = {
 
 module.exports = {
   'measure': 'Measure',
+  'measureDistances': 'Measure distances',
   'measureDistancesAndAreas': 'Measure distances and areas',
   'createNewMeasurement': 'Create a new measurement',
   'startCreating': 'Start creating a measurement by adding points to the map',
@@ -6608,6 +6622,7 @@ module.exports = {
 
 module.exports = {
   'measure': 'Medición',
+  'measureDistances': 'Mida distancias',
   'measureDistancesAndAreas': 'Mida distancias y áreas',
   'createNewMeasurement': 'Crear nueva medición',
   'startCreating': 'Empiece a crear la medición añadiendo puntos al mapa',
@@ -6643,6 +6658,7 @@ module.exports = {
 
 module.exports = {
   'measure': 'اندازه گیری',
+  'measureDistances': 'اندازه گیری فاصله',
   'measureDistancesAndAreas': 'اندازه گیری فاصله و مساحت',
   'createNewMeasurement': 'ثبت اندازه گیری جدید',
   'startCreating': 'برای ثبت اندازه گیری جدید نقاطی را به نقشه اضافه کنید.',
@@ -6678,6 +6694,7 @@ module.exports = {
 
 module.exports = {
   'measure': 'Sukat',
+  'measureDistances': 'Kalkulahin ang tamang distansya',
   'measureDistancesAndAreas': 'Kalkulahin ang tamang distansya at sukat',
   'createNewMeasurement': 'Lumikha ng isang bagong pagsukat',
   'startCreating': 'Simulan ang paglikha ng isang pagsukat sa pamamagitan ng pagdaragdag ng mga puntos sa mapa',
@@ -6713,6 +6730,7 @@ module.exports = {
 
 module.exports = {
   'measure': 'Mesure',
+  'measureDistances': 'Mesurer les distances',
   'measureDistancesAndAreas': 'Mesurer les distances et superficies',
   'createNewMeasurement': 'Créer une nouvelle mesure',
   'startCreating': 'Débuter la création d\'une nouvelle mesure en ajoutant des points sur la carte',
@@ -6748,6 +6766,7 @@ module.exports = {
 
 module.exports = {
   'measure': 'Misura',
+  'measureDistances': 'Misura distanze',
   'measureDistancesAndAreas': 'Misura distanze e aree',
   'createNewMeasurement': 'Crea una nuova misurazione',
   'startCreating': 'Comincia a creare una misurazione aggiungendo punti alla mappa',
@@ -6783,6 +6802,7 @@ module.exports = {
 
 module.exports = {
   'measure': 'Meet',
+  'measureDistances': 'Meet afstanden',
   'measureDistancesAndAreas': 'Meet afstanden en oppervlakten',
   'createNewMeasurement': 'Maak een nieuwe meting',
   'startCreating': 'Begin een meting door punten toe te voegen aan de kaart',
@@ -6818,6 +6838,7 @@ module.exports = {
 
 module.exports = {
   'measure': 'Pomiar',
+  'measureDistances': 'Pomiar odległości',
   'measureDistancesAndAreas': 'Pomiar odległości i powierzchni',
   'createNewMeasurement': 'Utwórz nowy pomiar',
   'startCreating': 'Rozpocznij tworzenie nowego pomiaru poprzez dodanie punktów na mapie',
@@ -6853,6 +6874,7 @@ module.exports = {
 
 module.exports = {
   'measure': 'Medidas',
+  'measureDistances': 'Mede distâncias',
   'measureDistancesAndAreas': 'Mede distâncias e áreas',
   'createNewMeasurement': 'Criar nova medida',
   'startCreating': 'Comece criando uma medida, adicionando pontos no mapa',
@@ -6883,11 +6905,12 @@ module.exports = {
 };
 
 },{}],40:[function(require,module,exports){
-// en.js
+// pt_PT.js
 // portuguese i18n translations
 
 module.exports = {
   'measure': 'Medições',
+  'measureDistances': 'Medir distâncias',
   'measureDistancesAndAreas': 'Medir distâncias e áreas',
   'createNewMeasurement': 'Criar uma nova medição',
   'startCreating': 'Adicione pontos no mapa, para criar uma nova medição',
@@ -6924,6 +6947,7 @@ module.exports = {
 
 module.exports = {
   'measure': 'Измерение',
+  'measureDistances': 'Измерение расстояний',
   'measureDistancesAndAreas': 'Измерение расстояний и площади',
   'createNewMeasurement': 'Создать новое измерение',
   'startCreating': 'Для начала измерения добавьте точку на карту',
@@ -6959,6 +6983,7 @@ module.exports = {
 
 module.exports = {
   'measure': 'Mäta',
+  'measureDistances': 'Mäta avstånd',
   'measureDistancesAndAreas': 'Mäta avstånd och yta',
   'createNewMeasurement': 'Skapa ny mätning',
   'startCreating': 'Börja mätning genom att lägga till punkter på kartan',
@@ -6994,6 +7019,7 @@ module.exports = {
 
 module.exports = {
   'measure': 'Hesapla',
+  'measureDistances': 'Uzaklık hesapla',
   'measureDistancesAndAreas': 'Uzaklık ve alan hesapla',
   'createNewMeasurement': 'Yeni hesaplama',
   'startCreating': 'Yeni nokta ekleyerek hesaplamaya başla',
@@ -7039,8 +7065,8 @@ var $ = dom.$;
 var Symbology = require('./mapsymbology');
 
 
-var controlTemplate = _.template("<a class=\"<%= model.className %>-toggle js-toggle\" href=\"#\" title=\"<%= i18n.__('measureDistancesAndAreas') %>\"><%= i18n.__('measure') %></a>\n<div class=\"<%= model.className %>-interaction js-interaction\">\n  <div class=\"js-startprompt startprompt\">\n    <h3><%= i18n.__('measureDistancesAndAreas') %></h3>\n    <ul class=\"tasks\">\n      <a href=\"#\" class=\"js-start start\"><%= i18n.__('createNewMeasurement') %></a>\n    </ul>\n  </div>\n  <div class=\"js-measuringprompt\">\n    <h3><%= i18n.__('measureDistancesAndAreas') %></h3>\n    <p class=\"js-starthelp\"><%= i18n.__('startCreating') %></p>\n    <div class=\"js-results results\"></div>\n    <ul class=\"js-measuretasks tasks\">\n      <li><a href=\"#\" class=\"js-cancel cancel\"><%= i18n.__('cancel') %></a></li>\n      <li><a href=\"#\" class=\"js-finish finish\"><%= i18n.__('finishMeasurement') %></a></li>\n    </ul>\n  </div>\n</div>");
-var resultsTemplate = _.template("<div class=\"group\">\n<p class=\"lastpoint heading\"><%= i18n.__('lastPoint') %></p>\n<p><%= model.lastCoord.dms.y %> <span class=\"coorddivider\">/</span> <%= model.lastCoord.dms.x %></p>\n<p><%= humanize.numberFormat(model.lastCoord.dd.y, 6) %> <span class=\"coorddivider\">/</span> <%= humanize.numberFormat(model.lastCoord.dd.x, 6) %></p>\n</div>\n<% if (model.pointCount > 1) { %>\n<div class=\"group\">\n<p><span class=\"heading\"><%= i18n.__('pathDistance') %></span> <%= model.lengthDisplay %></p>\n</div>\n<% } %>\n<% if (model.pointCount > 2) { %>\n<div class=\"group\">\n<p><span class=\"heading\"><%= i18n.__('area') %></span> <%= model.areaDisplay %></p>\n</div>\n<% } %>");
+var controlTemplate = _.template("<a class=\"<%= model.className %>-toggle js-toggle\" href=\"#\" title=\"<%= i18n.__('measureDistancesAndAreas') %>\"><%= i18n.__('measure') %></a>\n<div class=\"<%= model.className %>-interaction js-interaction\">\n  <div class=\"js-startprompt startprompt\">\n  <% if(distanceOnly) { %>\n    <h3><%= i18n.__('measureDistances') %></h3>\n  <% } else { %>\n    <h3><%= i18n.__('measureDistancesAndAreas') %></h3>\n  <% } %>\n    <ul class=\"tasks\">\n      <a href=\"#\" class=\"js-start start\"><%= i18n.__('createNewMeasurement') %></a>\n    </ul>\n  </div>\n  <div class=\"js-measuringprompt\">\n  <% if(distanceOnly) { %>\n    <h3><%= i18n.__('measureDistances') %></h3>\n  <% } else { %>\n    <h3><%= i18n.__('measureDistancesAndAreas') %></h3>\n  <% } %>\n    <p class=\"js-starthelp\"><%= i18n.__('startCreating') %></p>\n    <div class=\"js-results results\"></div>\n    <ul class=\"js-measuretasks tasks\">\n      <li><a href=\"#\" class=\"js-cancel cancel\"><%= i18n.__('cancel') %></a></li>\n      <li><a href=\"#\" class=\"js-finish finish\"><%= i18n.__('finishMeasurement') %></a></li>\n    </ul>\n  </div>\n</div>\n");
+var resultsTemplate = _.template("<div class=\"group\">\n<p class=\"lastpoint heading\"><%= i18n.__('lastPoint') %></p>\n<p><%= model.lastCoord.dms.y %> <span class=\"coorddivider\">/</span> <%= model.lastCoord.dms.x %></p>\n<p><%= humanize.numberFormat(model.lastCoord.dd.y, 6) %> <span class=\"coorddivider\">/</span> <%= humanize.numberFormat(model.lastCoord.dd.x, 6) %></p>\n</div>\n<% if (model.pointCount > 1) { %>\n<div class=\"group\">\n<p><span class=\"heading\"><%= i18n.__('pathDistance') %></span> <%= model.lengthDisplay %></p>\n</div>\n<% } %>\n<% if (model.pointCount > 2 && !distanceOnly) { %>\n<div class=\"group\">\n<p><span class=\"heading\"><%= i18n.__('area') %></span> <%= model.areaDisplay %></p>\n</div>\n<% } %>\n");
 var pointPopupTemplate = _.template("<h3><%= i18n.__('pointLocation') %></h3>\n<p><%= model.lastCoord.dms.y %> <span class=\"coorddivider\">/</span> <%= model.lastCoord.dms.x %></p>\n<p><%= humanize.numberFormat(model.lastCoord.dd.y, 6) %> <span class=\"coorddivider\">/</span> <%= humanize.numberFormat(model.lastCoord.dd.x, 6) %></p>\n<ul class=\"tasks\">\n  <li><a href=\"#\" class=\"js-zoomto zoomto\"><%= i18n.__('centerOnLocation') %></a></li>\n  <li><a href=\"#\" class=\"js-deletemarkup deletemarkup\"><%= i18n.__('delete') %></a></li>\n</ul>");
 var linePopupTemplate = _.template("<h3><%= i18n.__('linearMeasurement') %></h3>\n<p><%= model.lengthDisplay %></p>\n<ul class=\"tasks\">\n  <li><a href=\"#\" class=\"js-zoomto zoomto\"><%= i18n.__('centerOnLine') %></a></li>\n  <li><a href=\"#\" class=\"js-deletemarkup deletemarkup\"><%= i18n.__('delete') %></a></li>\n</ul>");
 var areaPopupTemplate = _.template("<h3><%= i18n.__('areaMeasurement') %></h3>\n<p><%= model.areaDisplay %></p>\n<p><%= model.lengthDisplay %> <%= i18n.__('perimeter') %></p>\n<ul class=\"tasks\">\n  <li><a href=\"#\" class=\"js-zoomto zoomto\"><%= i18n.__('centerOnArea') %></a></li>\n  <li><a href=\"#\" class=\"js-deletemarkup deletemarkup\"><%= i18n.__('delete') %></a></li>\n</ul>");
@@ -7084,7 +7110,8 @@ L.Control.Measure = L.Control.extend({
     popupOptions: {             // standard leaflet popup options http://leafletjs.com/reference.html#popup-options
       className: 'leaflet-measure-resultpopup',
       autoPanPadding: [10, 10]
-    }
+    },
+    distanceOnly: false
   },
   initialize: function (options) {
     L.setOptions(this, options);
@@ -7112,7 +7139,8 @@ L.Control.Measure = L.Control.extend({
       model: {
         className: className
       },
-      i18n: i18n
+      i18n: i18n,
+      distanceOnly: this.options.distanceOnly
     });
 
     // copied from leaflet
@@ -7316,7 +7344,8 @@ L.Control.Measure = L.Control.extend({
     this.$results.innerHTML = resultsTemplate({
       model: resultsModel,
       humanize: humanize,
-      i18n: i18n
+      i18n: i18n,
+      distanceOnly: this.options.distanceOnly
     });
   },
   // mouse move handler while measure in progress
@@ -7340,7 +7369,7 @@ L.Control.Measure = L.Control.extend({
       return;
     }
 
-    if (latlngs.length > 2) {
+    if (latlngs.length > 2 && !this.options.distanceOnly) {
       latlngs.push(_.first(latlngs)); // close path to get full perimeter measurement for areas
     }
 
@@ -7353,7 +7382,7 @@ L.Control.Measure = L.Control.extend({
         humanize: humanize,
         i18n: i18n
       });
-    } else if (latlngs.length === 2) {
+    } else if (latlngs.length === 2 || this.options.distanceOnly) {
       resultFeature = L.polyline(latlngs, this._symbols.getSymbol('resultLine'));
       popupContent = linePopupTemplate({
         model: _.extend({}, calced, this._getMeasurementDisplayStrings(calced)),
@@ -7455,10 +7484,12 @@ L.Control.Measure = L.Control.extend({
       }
       return;
     }
-    if (!this._measureArea) {
-      this._measureArea = L.polygon(latlngs, this._symbols.getSymbol('measureArea')).addTo(this._layer);
-    } else {
-      this._measureArea.setLatLngs(latlngs);
+    if (!this.options.distanceOnly) {
+      if (!this._measureArea) {
+        this._measureArea = L.polygon(latlngs, this._symbols.getSymbol('measureArea')).addTo(this._layer);
+      } else {
+        this._measureArea.setLatLngs(latlngs);
+      }
     }
   },
   _addMeasureBoundary: function (latlngs) {
