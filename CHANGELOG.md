@@ -1,6 +1,10 @@
 leaflet-measure Changelog
 =========================
 
+## 3.0.3 (2018-02-19)
+
+* fixes error caused by canvas renderer:w
+
 ## 3.0.0 (2018-02-14)
 
 * Updated build from Grunt/Browserify to [Webpack](https://webpack.js.org/)
