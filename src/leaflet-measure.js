@@ -368,23 +368,27 @@ L.Control.Measure = L.Control.extend({
     }
 
     const calced = calc(latlngs);
+    const model =
+      latlngs.length === 1
+        ? calced
+        : L.extend({}, calced, this._getMeasurementDisplayStrings(calced));
 
     if (latlngs.length === 1) {
       resultFeature = L.circleMarker(latlngs[0], this._symbols.getSymbol('resultPoint'));
       popupContent = pointPopupTemplateCompiled({
-        model: calced,
+        model,
         labels: this.options.labels
       });
     } else if (latlngs.length === 2) {
       resultFeature = L.polyline(latlngs, this._symbols.getSymbol('resultLine'));
       popupContent = linePopupTemplateCompiled({
-        model: L.extend({}, calced, this._getMeasurementDisplayStrings(calced)),
+        model,
         labels: this.options.labels
       });
     } else {
       resultFeature = L.polygon(latlngs, this._symbols.getSymbol('resultArea'));
       popupContent = areaPopupTemplateCompiled({
-        model: L.extend({}, calced, this._getMeasurementDisplayStrings(calced)),
+        model,
         labels: this.options.labels
       });
     }
@@ -433,6 +437,16 @@ L.Control.Measure = L.Control.extend({
     } else if (resultFeature.getLatLng) {
       resultFeature.openPopup(resultFeature.getLatLng());
     }
+
+    this._map.fire(
+      'measurepopupshown',
+      {
+        popupContainer,
+        model,
+        resultFeature
+      },
+      false
+    );
   },
   // handle map click during ongoing measurement
   // add new clicked point, update measure layers and results ui
