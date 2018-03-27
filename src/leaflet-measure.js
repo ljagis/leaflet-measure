@@ -27,10 +27,43 @@ const pointPopupTemplateCompiled = template(pointPopupTemplate, templateSettings
 const linePopupTemplateCompiled = template(linePopupTemplate, templateSettings);
 const areaPopupTemplateCompiled = template(areaPopupTemplate, templateSettings);
 
+// From en.json
+const defaultLabels = {
+  measure: __('measure'),
+  measureDistancesAndAreas: __('measureDistancesAndAreas'),
+  createNewMeasurement: __('createNewMeasurement'),
+  startCreating: __('startCreating'),
+  finishMeasurement: __('finishMeasurement'),
+  lastPoint: __('lastPoint'),
+  area: __('area'),
+  perimeter: __('perimeter'),
+  pointLocation: __('pointLocation'),
+  areaMeasurement: __('areaMeasurement'),
+  linearMeasurement: __('linearMeasurement'),
+  pathDistance: __('pathDistance'),
+  centerOnArea: __('centerOnArea'),
+  centerOnLine: __('centerOnLine'),
+  centerOnLocation: __('centerOnLocation'),
+  cancel: __('cancel'),
+  delete: __('delete'),
+  acres: __('acres'),
+  feet: __('feet'),
+  kilometers: __('kilometers'),
+  hectares: __('hectares'),
+  meters: __('meters'),
+  miles: __('miles'),
+  sqfeet: __('sqfeet'),
+  sqmeters: __('sqmeters'),
+  sqmiles: __('sqmiles'),
+  decPoint: __('decPoint'),
+  thousandsSep: __('thousandsSep')
+};
+
 L.Control.Measure = L.Control.extend({
   _className: 'leaflet-control-measure',
   options: {
     units: {},
+    labels: {},
     position: 'topright',
     primaryLengthUnit: 'feet',
     secondaryLengthUnit: 'miles',
@@ -46,6 +79,7 @@ L.Control.Measure = L.Control.extend({
   },
   initialize: function(options) {
     L.setOptions(this, options);
+    this.options.labels = Object.assign(Object.assign({}, defaultLabels), this.options.labels);
     const { activeColor, completedColor } = this.options;
     this._symbols = new Symbology({ activeColor, completedColor });
     this.options.units = L.extend({}, units, this.options.units);
@@ -69,7 +103,8 @@ L.Control.Measure = L.Control.extend({
     container.innerHTML = controlTemplateCompiled({
       model: {
         className: className
-      }
+      },
+      labels: this.options.labels
     });
 
     // makes this work on IE touch devices by stopping it from firing a mouseout event when the touch is released
@@ -302,7 +337,7 @@ L.Control.Measure = L.Control.extend({
         pointCount: this._latlngs.length
       }
     ));
-    this.$results.innerHTML = resultsTemplateCompiled({ model });
+    this.$results.innerHTML = resultsTemplateCompiled({ model, labels: this.options.labels });
   },
   // mouse move handler while measure in progress
   // adds floating measure marker under cursor
@@ -337,17 +372,20 @@ L.Control.Measure = L.Control.extend({
     if (latlngs.length === 1) {
       resultFeature = L.circleMarker(latlngs[0], this._symbols.getSymbol('resultPoint'));
       popupContent = pointPopupTemplateCompiled({
-        model: calced
+        model: calced,
+        labels: this.options.labels
       });
     } else if (latlngs.length === 2) {
       resultFeature = L.polyline(latlngs, this._symbols.getSymbol('resultLine'));
       popupContent = linePopupTemplateCompiled({
-        model: L.extend({}, calced, this._getMeasurementDisplayStrings(calced))
+        model: L.extend({}, calced, this._getMeasurementDisplayStrings(calced)),
+        labels: this.options.labels
       });
     } else {
       resultFeature = L.polygon(latlngs, this._symbols.getSymbol('resultArea'));
       popupContent = areaPopupTemplateCompiled({
-        model: L.extend({}, calced, this._getMeasurementDisplayStrings(calced))
+        model: L.extend({}, calced, this._getMeasurementDisplayStrings(calced)),
+        labels: this.options.labels
       });
     }
 
