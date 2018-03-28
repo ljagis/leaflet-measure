@@ -24,7 +24,7 @@
     'miles': 'Mérföld',
     'sqfeet': 'Négyzetláb Feet',
     'sqmeters': 'Négyzetméter',
-    'sqmiles': 'Fedvények',
+    'sqmiles': 'Négyzetmérföld',
     'decPoint': ',',
     'thousandsSep': ' '
 };
