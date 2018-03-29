@@ -65,9 +65,8 @@
       });
       L.control.measure({
         labels: {
-          measureDistancesAndAreas: 'Hello World!'
-        },
-        areaPopupContentTemplate: "test!"
+          measureDistancesAndAreas: 'Measure Title',
+        }
       }).addTo(map);
 
       L.tileLayer('//server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -76,9 +75,12 @@
         attribution: '&copy; Esri &mdash; Sources: Esri, DigitalGlobe, Earthstar Geographics, CNES/Airbus DS, GeoEye, USDA FSA, USGS, Getmapping, Aerogrid, IGN, IGP, swisstopo, and the GIS User Community'
       }).addTo(map);
 
+      map.on('measurefinish', function(evt, a, b) {
+        writeResults(evt);
+      });
+
       map.on('measurepopupshown', function(evt, a, b) {
         console.log(evt, a, b);
-        writeResults(evt, a, b);
       });
 
       function writeResults(results) {
