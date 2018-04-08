@@ -1,6 +1,10 @@
 leaflet-measure Changelog
 =========================
 
+## 3.1.0 (2018-04-08)
+
+* adds new languages cz, hu, ro, sk, and sl
+
 ## 3.0.3 (2018-02-19)
 
 * fixes error caused by canvas renderer:w
