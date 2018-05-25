@@ -7428,7 +7428,14 @@ L.Control.Measure = L.Control.extend({
     resultFeature.addTo(this._layer);
     resultFeature.bindPopup(popupContainer, this.options.popupOptions);
     if (resultFeature.getBounds) {
-      resultFeature.openPopup(resultFeature.getBounds().getCenter());
+      if (this.options.distanceOnly && resultFeature.closestLayerPoint) {
+        resultFeature.openPopup(resultFeature.closestLayerPoint(resultFeature.getBounds().getCenter()));
+      } else if (this.options.distanceOnly && resultFeature.getLatLngs) {
+        var latLngs = resultFeature.getLatLngs();
+        resultFeature.openPopup(latLngs[latLngs.length -1]);
+      } else {
+        resultFeature.openPopup(resultFeature.getBounds().getCenter());
+      }
     } else if (resultFeature.getLatLng) {
       resultFeature.openPopup(resultFeature.getLatLng());
     }
