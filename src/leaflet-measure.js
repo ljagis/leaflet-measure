@@ -46,7 +46,8 @@ L.Control.Measure = L.Control.extend({
   },
   initialize: function(options) {
     L.setOptions(this, options);
-    const { activeColor, completedColor } = this.options;
+    const { activeColor, completedColor, disabledClassName } = this.options;
+    this.disabledClassName = disabledClassName;
     this._symbols = new Symbology({ activeColor, completedColor });
     this.options.units = L.extend({}, units, this.options.units);
   },
@@ -61,6 +62,23 @@ L.Control.Measure = L.Control.extend({
   onRemove: function(map) {
     map.off('click', this._collapse, this);
     map.removeLayer(this._layer);
+  },
+  disable: function() {
+    this._disabled = true;
+    this._updateDisabled();
+    return this;
+  },
+  enable: function() {
+    this._disabled = false;
+    this._updateDisabled();
+    return this;
+  },
+  _updateDisabled: function() {
+    const className = this.disabledClassName || 'leaflet-disabled';
+    L.DomUtil.removeClass(this._container, className);
+    if (this._disabled) {
+      L.DomUtil.addClass(this._container, className);
+    }
   },
   _initLayout: function() {
     const className = this._className,
@@ -109,8 +127,10 @@ L.Control.Measure = L.Control.extend({
     L.DomEvent.on($finish, 'click', this._handleMeasureDoubleClick, this);
   },
   _expand: function() {
-    dom.hide(this.$toggle);
-    dom.show(this.$interaction);
+    if (!this._disabled) {
+      dom.hide(this.$toggle);
+      dom.show(this.$interaction);
+    }
   },
   _collapse: function() {
     if (!this._locked) {
