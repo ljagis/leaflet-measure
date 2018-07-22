@@ -75,9 +75,7 @@ L.Control.Measure = L.Control.extend({
   },
   _updateDisabled: function() {
     const className = this.disabledClassName || 'leaflet-disabled';
-
     L.DomUtil.removeClass(this._container, className);
-
     if (this._disabled) {
       L.DomUtil.addClass(this._container, className);
     }
