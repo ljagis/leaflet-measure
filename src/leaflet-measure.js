@@ -30,6 +30,7 @@ const areaPopupTemplateCompiled = template(areaPopupTemplate, templateSettings);
 L.Control.Measure = L.Control.extend({
   _className: 'leaflet-control-measure',
   options: {
+    data: [],
     units: {},
     position: 'topright',
     primaryLengthUnit: 'feet',
@@ -49,13 +50,18 @@ L.Control.Measure = L.Control.extend({
     const { activeColor, completedColor } = this.options;
     this._symbols = new Symbology({ activeColor, completedColor });
     this.options.units = L.extend({}, units, this.options.units);
+    this._import_data = options.data;
   },
   onAdd: function(map) {
     this._map = map;
-    this._latlngs = [];
     this._initLayout();
     map.on('click', this._collapse, this);
     this._layer = L.layerGroup().addTo(map);
+    for (let i = 0; i < this._import_data.length; i++) {
+      this._resultsModel = this._import_data[i].lastCoord;
+      this._latlngs = this._import_data[i].points;
+      this._handleMeasureDoubleClick();
+    }
     return this._container;
   },
   onRemove: function(map) {
@@ -202,7 +208,9 @@ L.Control.Measure = L.Control.extend({
   _clearMeasure: function() {
     this._latlngs = [];
     this._resultsModel = null;
-    this._measureVertexes.clearLayers();
+    if (this._measureVertexes) {
+      this._measureVertexes.clearLayers();
+    }
     if (this._measureDrag) {
       this._layer.removeLayer(this._measureDrag);
     }
@@ -322,7 +330,11 @@ L.Control.Measure = L.Control.extend({
     const latlngs = this._latlngs;
     let resultFeature, popupContent;
 
-    this._finishMeasure();
+    if (this._measureVertexes) {
+      this._finishMeasure();
+    } else {
+      this._clearMeasure();
+    }
 
     if (!latlngs.length) {
       return;
