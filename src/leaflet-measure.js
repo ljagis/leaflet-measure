@@ -50,17 +50,26 @@ L.Control.Measure = L.Control.extend({
     const { activeColor, completedColor } = this.options;
     this._symbols = new Symbology({ activeColor, completedColor });
     this.options.units = L.extend({}, units, this.options.units);
-    this._import_data = options.data;
+    if (options.data) {
+      this._import_data = options.data;
+    } else {
+      this._import_data = this.options.data;
+    }
   },
   onAdd: function(map) {
     this._map = map;
     this._initLayout();
     map.on('click', this._collapse, this);
     this._layer = L.layerGroup().addTo(map);
-    for (let i = 0; i < this._import_data.length; i++) {
-      this._resultsModel = this._import_data[i].lastCoord;
-      this._latlngs = this._import_data[i].points;
-      this._handleMeasureDoubleClick();
+    if (this._import_data.length > 0) {
+      for (let i = 0; i < this._import_data.length; i++) {
+        this._resultsModel = this._import_data[i].lastCoord;
+        this._latlngs = this._import_data[i].points;
+        this._handleMeasureDoubleClick();
+      }
+    } else {
+      this._latlngs = [];
+      this._resultsModel = null;
     }
     return this._container;
   },
