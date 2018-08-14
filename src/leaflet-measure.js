@@ -110,7 +110,7 @@ L.Control.Measure = L.Control.extend({
     L.DomEvent.on($start, 'click', L.DomEvent.stop);
     L.DomEvent.on($start, 'click', this._startMeasure, this);
     L.DomEvent.on($cancel, 'click', L.DomEvent.stop);
-    L.DomEvent.on($cancel, 'click', this._finishMeasure, this);
+    L.DomEvent.on($cancel, 'click', this._clearMeasure, this);
     L.DomEvent.on($finish, 'click', L.DomEvent.stop);
     L.DomEvent.on($finish, 'click', this._handleMeasureDoubleClick, this);
   },
@@ -178,34 +178,15 @@ L.Control.Measure = L.Control.extend({
   // return to state with no measure in progress, undo `this._startMeasure`
   _finishMeasure: function() {
     const model = L.extend({}, this._resultsModel, { points: this._latlngs });
-
-    this._locked = false;
-
-    L.DomEvent.off(this._container, 'mouseover', this._handleMapMouseOut, this);
-
     this._clearMeasure();
-
-    this._captureMarker
-      .off('mouseout', this._handleMapMouseOut, this)
-      .off('dblclick', this._handleMeasureDoubleClick, this)
-      .off('click', this._handleMeasureClick, this);
-
-    this._map
-      .off('mousemove', this._handleMeasureMove, this)
-      .off('mouseout', this._handleMapMouseOut, this)
-      .off('move', this._centerCaptureMarker, this)
-      .off('resize', this._setCaptureMarkerIcon, this);
-
-    this._layer.removeLayer(this._measureVertexes).removeLayer(this._captureMarker);
-    this._measureVertexes = null;
-
-    this._updateMeasureNotStarted();
-    this._collapse();
 
     this._map.fire('measurefinish', model, false);
   },
   // clear all running measure data
   _clearMeasure: function() {
+    this._locked = false;
+
+    L.DomEvent.off(this._container, 'mouseover', this._handleMapMouseOut, this);
     this._latlngs = [];
     this._resultsModel = null;
     if (this._measureVertexes) {
@@ -223,6 +204,23 @@ L.Control.Measure = L.Control.extend({
     this._measureDrag = null;
     this._measureArea = null;
     this._measureBoundary = null;
+
+    this._captureMarker
+      .off('mouseout', this._handleMapMouseOut, this)
+      .off('dblclick', this._handleMeasureDoubleClick, this)
+      .off('click', this._handleMeasureClick, this);
+
+    this._map
+      .off('mousemove', this._handleMeasureMove, this)
+      .off('mouseout', this._handleMapMouseOut, this)
+      .off('move', this._centerCaptureMarker, this)
+      .off('resize', this._setCaptureMarkerIcon, this);
+
+    this._layer.removeLayer(this._measureVertexes).removeLayer(this._captureMarker);
+    this._measureVertexes = null;
+
+    this._updateMeasureNotStarted();
+    this._collapse();
   },
   // centers the event capture marker
   _centerCaptureMarker: function() {
