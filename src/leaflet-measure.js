@@ -67,6 +67,7 @@ L.Control.Measure = L.Control.extend({
         this._latlngs = this._import_data[i].points;
         this._handleMeasureDoubleClick();
       }
+      map.closePopup();
     } else {
       this._latlngs = [];
       this._resultsModel = null;
@@ -97,7 +98,7 @@ L.Control.Measure = L.Control.extend({
     const $start = $('.js-start', container); // start button
     const $cancel = $('.js-cancel', container); // cancel button
     const $finish = $('.js-finish', container); // finish button
-    this.$startPrompt = $('.js-startprompt', container); // full area with button to start measurment
+    this.$startPrompt = $('.js-startprompt', container); // full area with button to start measurement
     this.$measuringPrompt = $('.js-measuringprompt', container); // full area with all stuff for active measurement
     this.$startHelp = $('.js-starthelp', container); // "Start creating a measurement by adding points"
     this.$results = $('.js-results', container); // div with coordinate, linear, area results
@@ -200,6 +201,7 @@ L.Control.Measure = L.Control.extend({
     this._resultsModel = null;
     if (this._measureVertexes) {
       this._measureVertexes.clearLayers();
+      this._layer.removeLayer(this._measureVertexes);
     }
     if (this._measureDrag) {
       this._layer.removeLayer(this._measureDrag);
@@ -214,10 +216,13 @@ L.Control.Measure = L.Control.extend({
     this._measureArea = null;
     this._measureBoundary = null;
 
-    this._captureMarker
-      .off('mouseout', this._handleMapMouseOut, this)
-      .off('dblclick', this._handleMeasureDoubleClick, this)
-      .off('click', this._handleMeasureClick, this);
+    if (this._captureMarker) {
+      this._captureMarker
+        .off('mouseout', this._handleMapMouseOut, this)
+        .off('dblclick', this._handleMeasureDoubleClick, this)
+        .off('click', this._handleMeasureClick, this);
+      this._layer.removeLayer(this._captureMarker);
+    }
 
     this._map
       .off('mousemove', this._handleMeasureMove, this)
@@ -225,7 +230,6 @@ L.Control.Measure = L.Control.extend({
       .off('move', this._centerCaptureMarker, this)
       .off('resize', this._setCaptureMarkerIcon, this);
 
-    this._layer.removeLayer(this._measureVertexes).removeLayer(this._captureMarker);
     this._measureVertexes = null;
 
     this._updateMeasureNotStarted();
@@ -337,11 +341,7 @@ L.Control.Measure = L.Control.extend({
     const latlngs = this._latlngs;
     let resultFeature, popupContent;
 
-    if (this._measureVertexes) {
-      this._finishMeasure();
-    } else {
-      this._clearMeasure();
-    }
+    this._finishMeasure();
 
     if (!latlngs.length) {
       return;
