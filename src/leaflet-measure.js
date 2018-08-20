@@ -341,7 +341,11 @@ L.Control.Measure = L.Control.extend({
     const latlngs = this._latlngs;
     let resultFeature, popupContent;
 
-    this._finishMeasure();
+    if (this._measureVertexes) {
+      this._finishMeasure();
+    } else {
+      this._clearMeasure();
+    }
 
     if (!latlngs.length) {
       return;
