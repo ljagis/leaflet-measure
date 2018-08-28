@@ -30,6 +30,7 @@ const areaPopupTemplateCompiled = template(areaPopupTemplate, templateSettings);
 L.Control.Measure = L.Control.extend({
   _className: 'leaflet-control-measure',
   options: {
+    data: [],
     units: {},
     position: 'topright',
     primaryLengthUnit: 'feet',
@@ -49,13 +50,28 @@ L.Control.Measure = L.Control.extend({
     const { activeColor, completedColor } = this.options;
     this._symbols = new Symbology({ activeColor, completedColor });
     this.options.units = L.extend({}, units, this.options.units);
+    if (options.data) {
+      this._import_data = options.data;
+    } else {
+      this._import_data = this.options.data;
+    }
   },
   onAdd: function(map) {
     this._map = map;
-    this._latlngs = [];
     this._initLayout();
     map.on('click', this._collapse, this);
     this._layer = L.layerGroup().addTo(map);
+    if (this._import_data.length > 0) {
+      this._resultsModel = null;
+      for (let i = 0; i < this._import_data.length; i++) {
+        this._latlngs = this._import_data[i].points;
+        this._handleMeasureDoubleClick();
+      }
+      map.closePopup();
+    } else {
+      this._latlngs = [];
+      this._resultsModel = null;
+    }
     return this._container;
   },
   onRemove: function(map) {
@@ -82,7 +98,7 @@ L.Control.Measure = L.Control.extend({
     const $start = $('.js-start', container); // start button
     const $cancel = $('.js-cancel', container); // cancel button
     const $finish = $('.js-finish', container); // finish button
-    this.$startPrompt = $('.js-startprompt', container); // full area with button to start measurment
+    this.$startPrompt = $('.js-startprompt', container); // full area with button to start measurement
     this.$measuringPrompt = $('.js-measuringprompt', container); // full area with all stuff for active measurement
     this.$startHelp = $('.js-starthelp', container); // "Start creating a measurement by adding points"
     this.$results = $('.js-results', container); // div with coordinate, linear, area results
@@ -104,7 +120,7 @@ L.Control.Measure = L.Control.extend({
     L.DomEvent.on($start, 'click', L.DomEvent.stop);
     L.DomEvent.on($start, 'click', this._startMeasure, this);
     L.DomEvent.on($cancel, 'click', L.DomEvent.stop);
-    L.DomEvent.on($cancel, 'click', this._finishMeasure, this);
+    L.DomEvent.on($cancel, 'click', this._clearMeasure, this);
     L.DomEvent.on($finish, 'click', L.DomEvent.stop);
     L.DomEvent.on($finish, 'click', this._handleMeasureDoubleClick, this);
   },
@@ -172,37 +188,21 @@ L.Control.Measure = L.Control.extend({
   // return to state with no measure in progress, undo `this._startMeasure`
   _finishMeasure: function() {
     const model = L.extend({}, this._resultsModel, { points: this._latlngs });
-
-    this._locked = false;
-
-    L.DomEvent.off(this._container, 'mouseover', this._handleMapMouseOut, this);
-
     this._clearMeasure();
-
-    this._captureMarker
-      .off('mouseout', this._handleMapMouseOut, this)
-      .off('dblclick', this._handleMeasureDoubleClick, this)
-      .off('click', this._handleMeasureClick, this);
-
-    this._map
-      .off('mousemove', this._handleMeasureMove, this)
-      .off('mouseout', this._handleMapMouseOut, this)
-      .off('move', this._centerCaptureMarker, this)
-      .off('resize', this._setCaptureMarkerIcon, this);
-
-    this._layer.removeLayer(this._measureVertexes).removeLayer(this._captureMarker);
-    this._measureVertexes = null;
-
-    this._updateMeasureNotStarted();
-    this._collapse();
 
     this._map.fire('measurefinish', model, false);
   },
   // clear all running measure data
   _clearMeasure: function() {
+    this._locked = false;
+
+    L.DomEvent.off(this._container, 'mouseover', this._handleMapMouseOut, this);
     this._latlngs = [];
     this._resultsModel = null;
-    this._measureVertexes.clearLayers();
+    if (this._measureVertexes) {
+      this._measureVertexes.clearLayers();
+      this._layer.removeLayer(this._measureVertexes);
+    }
     if (this._measureDrag) {
       this._layer.removeLayer(this._measureDrag);
     }
@@ -215,6 +215,25 @@ L.Control.Measure = L.Control.extend({
     this._measureDrag = null;
     this._measureArea = null;
     this._measureBoundary = null;
+
+    if (this._captureMarker) {
+      this._captureMarker
+        .off('mouseout', this._handleMapMouseOut, this)
+        .off('dblclick', this._handleMeasureDoubleClick, this)
+        .off('click', this._handleMeasureClick, this);
+      this._layer.removeLayer(this._captureMarker);
+    }
+
+    this._map
+      .off('mousemove', this._handleMeasureMove, this)
+      .off('mouseout', this._handleMapMouseOut, this)
+      .off('move', this._centerCaptureMarker, this)
+      .off('resize', this._setCaptureMarkerIcon, this);
+
+    this._measureVertexes = null;
+
+    this._updateMeasureNotStarted();
+    this._collapse();
   },
   // centers the event capture marker
   _centerCaptureMarker: function() {
@@ -322,7 +341,11 @@ L.Control.Measure = L.Control.extend({
     const latlngs = this._latlngs;
     let resultFeature, popupContent;
 
-    this._finishMeasure();
+    if (this._measureVertexes) {
+      this._finishMeasure();
+    } else {
+      this._clearMeasure();
+    }
 
     if (!latlngs.length) {
       return;

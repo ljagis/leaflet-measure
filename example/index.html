@@ -59,15 +59,65 @@
   <script>
     (function(L, document) {
       var map = L.map('map', {
-        center: [29.749817, -95.080757],
-        zoom: 16,
-        measureControl: true
+          center: [29.749817, -95.080757],
+          zoom: 16
       });
       L.tileLayer('//server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         minZoom: 14,
         maxZoom: 18,
         attribution: '&copy; Esri &mdash; Sources: Esri, DigitalGlobe, Earthstar Geographics, CNES/Airbus DS, GeoEye, USDA FSA, USGS, Getmapping, Aerogrid, IGN, IGP, swisstopo, and the GIS User Community'
       }).addTo(map);
+
+      let data = [
+        {
+          "points": [
+            {
+              "lat": 29.752939834649325,
+              "lng": -95.08750677108766
+            },
+            {
+              "lat": 29.752380963717055,
+              "lng": -95.08779108524323
+            },
+            {
+              "lat": 29.75033640100577,
+              "lng": -95.08273243904114
+            },
+            {
+              "lat": 29.750885968657236,
+              "lng": -95.08243203163147
+            }
+          ]
+        },{
+          "points": [
+            {
+              "lat": 29.750883858299918,
+              "lng": -95.08118857629599
+            },
+            {
+              "lat": 29.749505276088975,
+              "lng": -95.08191813714804
+            }
+          ]
+        },{
+          "points": [
+            {
+              "lat": 29.749847376409754,
+              "lng": -95.08072614669801
+            }
+          ]
+        }
+      ];
+      
+      let options = {
+        postion: "topright",
+        primaryLengthUnit: "feet",
+        primaryAreaUnit: "sqfeet",
+        completedColor: "#ff0000",
+        data: data
+      };
+      let measureControl = L.control.measure(options);
+      measureControl.addTo(map);
 
       map.on('measurefinish', function(evt) {
         writeResults(evt);
