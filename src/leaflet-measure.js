@@ -484,7 +484,7 @@ L.Map.mergeOptions({
 
 L.Map.addInitHook(function() {
   if (this.options.measureControl) {
-    this.measureControl = new L.Control.Measure().addTo(this);
+    this.measureControl = new L.Control.Measure(this.options.measureOptions).addTo(this);
   }
 });
 
