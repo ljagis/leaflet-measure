@@ -11,6 +11,10 @@ Coordinate, linear, and area measure control for [Leaflet](http://leafletjs.com)
 
 <hr>
 
+## Installation
+Install with NPM:
+
+`npm install leaflet-measure` or `npm install leaflet-measure --save`
 
 ## Usage
 
