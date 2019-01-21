@@ -11,6 +11,12 @@ Coordinate, linear, and area measure control for [Leaflet](http://leafletjs.com)
 
 <hr>
 
+## Installation
+Install with NPM:
+
+`npm install leaflet-measure` or `npm install leaflet-measure --save`
+
+Angular users add `"node_modules/leaflet-measure/dist/leaflet-measure.css"` in the `angular.json` and import it in your component `import 'leaflet-measure';`
 
 ## Usage
 
