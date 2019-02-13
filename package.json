@@ -41,7 +41,7 @@
   "dependencies": {
     "@turf/area": "^5.1.5",
     "@turf/length": "^5.1.5",
-    "lodash": "^4.17.5"
+    "lodash.template": "^4.4.0"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
