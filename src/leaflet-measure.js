@@ -122,14 +122,27 @@ L.Control.Measure = L.Control.extend({
     this.$startHelp = $('.js-starthelp', container); // "Start creating a measurement by adding points"
     this.$results = $('.js-results', container); // div with coordinate, linear, area results
     this.$measureTasks = $('.js-measuretasks', container); // active measure buttons container
+    const $closeButton = $('.close-button', container);
+    const $closeButtonMeasure = $('.close-button-measure', container);
 
     this._collapse();
     this._updateMeasureNotStarted();
 
     if (!L.Browser.android) {
-      L.DomEvent.on(container, 'mouseenter', this._expand, this);
-      L.DomEvent.on(container, 'mouseleave', this._collapse, this);
+      L.DomEvent.on(container, 'click', this._expand, this);
+      // L.DomEvent.on(container, 'mouseleave', this._collapse, this);
     }
+    const self = this;
+    L.DomEvent.on($closeButton, 'click', function(e) {
+      e.stopPropagation();
+      self._collapse();
+    });
+    L.DomEvent.on($closeButtonMeasure, 'click', function(e) {
+      e.stopPropagation();
+      self._finishMeasure();
+      self._collapse();
+    });
+
     L.DomEvent.on($toggle, 'click', L.DomEvent.stop);
     if (L.Browser.touch) {
       L.DomEvent.on($toggle, 'click', this._expand, this);
@@ -211,7 +224,6 @@ L.Control.Measure = L.Control.extend({
     this._locked = false;
 
     L.DomEvent.off(this._container, 'mouseover', this._handleMapMouseOut, this);
-
     this._clearMeasure();
 
     this._captureMarker

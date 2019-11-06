@@ -1,13 +1,13 @@
 <a class="{{ model.className }}-toggle js-toggle" href="#" title="{{ labels.measureDistancesAndAreas }}">{{ labels.measure }}</a>
 <div class="{{ model.className }}-interaction js-interaction">
   <div class="js-startprompt startprompt">
-    <h3>{{ labels.measureDistancesAndAreas }}</h3>
+    <h3><span class="{{ model.className }}-close-button close-button"></span> {{ labels.measureDistancesAndAreas }}</h3>
     <ul class="tasks">
       <a href="#" class="js-start start">{{ labels.createNewMeasurement }}</a>
     </ul>
   </div>
   <div class="js-measuringprompt">
-    <h3>{{ labels.measureDistancesAndAreas }}</h3>
+    <h3><span class="{{ model.className }}-close-button close-button-measure"></span> {{ labels.measureDistancesAndAreas }}</h3>
     <p class="js-starthelp">{{ labels.startCreating }}</p>
     <div class="js-results results"></div>
     <ul class="js-measuretasks tasks">
