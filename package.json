@@ -1,11 +1,11 @@
 {
-  "name": "leaflet-measure",
+  "name": "leaflet-measure-ex",
   "version": "3.0.5",
   "description": "Coordinate, linear, and area measure tool for Leaflet maps",
   "main": "dist/leaflet-measure.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/ljagis/leaflet-measure.git"
+    "url": "git://github.com/pierotofy/leaflet-measure-ex.git"
   },
   "keywords": [
     "leaflet",
