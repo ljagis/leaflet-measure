@@ -61,16 +61,26 @@
       var map = L.map('map', {
         center: [29.749817, -95.080757],
         zoom: 16,
-        measureControl: true
+        // measureControl: true
       });
+      L.control.measure({
+        labels: {
+          measureDistancesAndAreas: 'Measure Title',
+        }
+      }).addTo(map);
+
       L.tileLayer('//server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         minZoom: 14,
         maxZoom: 18,
         attribution: '&copy; Esri &mdash; Sources: Esri, DigitalGlobe, Earthstar Geographics, CNES/Airbus DS, GeoEye, USDA FSA, USGS, Getmapping, Aerogrid, IGN, IGP, swisstopo, and the GIS User Community'
       }).addTo(map);
 
-      map.on('measurefinish', function(evt) {
+      map.on('measurefinish', function(evt, a, b) {
         writeResults(evt);
+      });
+
+      map.on('measurepopupshown', function(evt, a, b) {
+        console.log(evt, a, b);
       });
 
       function writeResults(results) {

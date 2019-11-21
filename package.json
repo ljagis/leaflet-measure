@@ -1,6 +1,6 @@
 {
   "name": "leaflet-measure-ex",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "description": "Coordinate, linear, and area measure tool for Leaflet maps",
   "main": "dist/leaflet-measure.js",
   "repository": {
@@ -17,9 +17,10 @@
     "length",
     "area",
     "polygon",
-    "path"
+    "path",
+    "ex"
   ],
-  "author": "LJA Engineering, Inc - GIS <gisdev@ljaengineering.com>",
+  "author": "LJA Engineering, Inc - GIS <gisdev@ljaengineering.com>, Piero Toffanin <pt@masseranolabs.com>",
   "license": "MIT",
   "scripts": {
     "lint": "eslint --ext js src/",
