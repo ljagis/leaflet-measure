@@ -11,7 +11,7 @@ export default {
   feet: {
     factor: 3.2808,
     display: 'feet',
-    decimals: 0
+    decimals: 2
   },
   kilometers: {
     factor: 0.001,
@@ -26,7 +26,7 @@ export default {
   meters: {
     factor: 1,
     display: 'meters',
-    decimals: 0
+    decimals: 2
   },
   miles: {
     factor: 3.2808 / 5280,
@@ -36,12 +36,12 @@ export default {
   sqfeet: {
     factor: 10.7639,
     display: 'sqfeet',
-    decimals: 0
+    decimals: 2
   },
   sqmeters: {
     factor: 1,
     display: 'sqmeters',
-    decimals: 0
+    decimals: 2
   },
   sqmiles: {
     factor: 0.000000386102,
