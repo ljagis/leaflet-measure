@@ -148,7 +148,8 @@ L.Control.Measure = L.Control.extend({
     this._captureMarker = L.marker(this._map.getCenter(), {
       clickable: true,
       zIndexOffset: this.options.captureZIndex,
-      opacity: 0
+      opacity: 0,
+      autoPanOnFocus: false
     }).addTo(this._layer);
     this._setCaptureMarkerIcon();
 
