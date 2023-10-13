@@ -43,6 +43,11 @@ export default {
     display: 'sqmeters',
     decimals: 0
   },
+  sqkilometers: {
+    factor: 0.000001,
+    display: 'sqkilometers',
+    decimals: 2
+  },
   sqmiles: {
     factor: 0.000000386102,
     display: 'sqmiles',
